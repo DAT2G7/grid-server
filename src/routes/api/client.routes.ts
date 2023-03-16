@@ -1,43 +1,38 @@
-import express from 'express';
-import { handleInvalid } from '../../middleware/validators/invalid';
-import { validateUUIDs } from '../../middleware/validators/uuid';
+import {
+    getCore,
+    getSetup,
+    getTask,
+    postResult
+} from "../../controllers/api/client.controller";
+
+import express from "express";
+import { handleInvalid } from "../../middleware/validators/invalid";
+import { validateUUIDs } from "../../middleware/validators/uuid";
 
 const router = express.Router();
 
-// Serve core-, job- and task-id
-router.get('/setup', (_req, res) => {
-    res.sendStatus(200);
-});
+router.get("/setup", getSetup);
 
-// Serve core
 router.get(
-    '/core/:coreid',
-    ...validateUUIDs('coreid'),
+    "/core/:coreid",
+    ...validateUUIDs("coreid"),
     handleInvalid,
-    (req, res) => {
-        console.log('coreid:', req.params.coreid);
-        res.sendStatus(200);
-    }
+    getCore as any
+);
+router.get;
+
+router.get(
+    "/core/:coreid/job/:jobid/task/:taskid",
+    ...validateUUIDs("coreid", "jobid", "taskid"),
+    handleInvalid,
+    getTask as any
 );
 
-// Retrieve and serve task data
-router.get(
-    '/core/:coreid/job/:jobid/task/:taskid',
-    ...validateUUIDs('coreid', 'jobid', 'taskid'),
-    handleInvalid,
-    (_req, res) => {
-        res.sendStatus(200);
-    }
-);
-
-// Post result to project owner
 router.post(
-    '/core/:coreid/job/:jobid/task/:taskid',
-    ...validateUUIDs('coreid', 'jobid', 'taskid'),
+    "/core/:coreid/job/:jobid/task/:taskid",
+    ...validateUUIDs("coreid", "jobid", "taskid"),
     handleInvalid,
-    (_req, res) => {
-        res.sendStatus(200);
-    }
+    postResult as any
 );
 
 export { router as apiClientRouter };

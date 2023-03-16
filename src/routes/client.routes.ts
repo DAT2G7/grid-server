@@ -1,10 +1,8 @@
-import express from 'express';
+import express from "express";
+import { renderIndex } from "../controllers/client.controller";
 
 const router = express.Router();
 
-// Serve the client index page
-router.get('/', (_req, res) => {
-    res.render('client/index');
-});
+router.get("/", renderIndex);
 
 export { router as clientRouter };

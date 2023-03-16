@@ -1,10 +1,8 @@
-import express from 'express';
+import express from "express";
+import { renderIndex } from "../controllers/project.controller";
 
 const router = express.Router();
 
-// Serve the project owner index page
-router.get('/', (_req, res) => {
-    res.render('project/index');
-});
+router.get("/", renderIndex);
 
 export { router as projectRouter };
