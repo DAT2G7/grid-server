@@ -1,7 +1,10 @@
 import express from 'express';
 
-export const clientRouter = express.Router();
+const router = express.Router();
 
-clientRouter.get('/', (_req, res) => {
-    res.send('Hello Client!');
+// Serve the client index page
+router.get('/', (_req, res) => {
+    res.render('client/index');
 });
+
+export { router as clientRouter };

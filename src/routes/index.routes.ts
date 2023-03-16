@@ -1,8 +1,10 @@
-import express from 'express';
+import express from "express";
 
-export const indexRouter = express.Router();
+const router = express.Router();
 
-indexRouter.get('/', (_req, res) => {
-    // res.send('Hello Index!');
-    res.render('index');
+// Redirect to the client index page
+router.get("/", (_req, res) => {
+    res.redirect("/client");
 });
+
+export { router as indexRouter };
