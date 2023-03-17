@@ -61,12 +61,12 @@ describe("Client Controller (full test)", () => {
 describe("Client index view", () => {
     let html: string;
     it("should render view", () => {
+        // TODO: Find alternative to absolute path
         html = pug.renderFile("src/public/views/client/index.pug");
         expect(html).toBeTruthy();
     });
 
     it("should contain h1 with text 'Grid Server'", async () => {
-        // TODO: Find alternative to absolute path
         expect(html).toContain("<h1>Grid Server</h1>");
     });
 });
