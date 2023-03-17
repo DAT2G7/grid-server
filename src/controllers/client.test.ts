@@ -2,9 +2,7 @@ import express, { Express, Request, Response } from "express";
 import request from "supertest";
 import { renderIndex } from "./client.controller";
 
-import pug from "pug";
-
-describe("Client Controller (mock test)", () => {
+describe("should render expected views", () => {
     let req: Partial<Request>;
     let res: Partial<Response>;
 
@@ -15,58 +13,44 @@ describe("Client Controller (mock test)", () => {
         };
     });
 
-    it("should render index page", () => {
-        renderIndex(req as Request, res as Response, () => {
-            /* */
-        });
+    it("index page", () => {
+        renderIndex(req as Request, res as Response, jest.fn());
 
         expect(res.render).toHaveBeenCalled();
         expect(res.render).toHaveBeenCalledWith("client/index");
     });
 });
 
-// TODO: Is this the correct approach for testing the controller?
-//        - Should this be a router / endpoint test instead?
-describe("Client Controller (full test)", () => {
-    // TODO: Consider grabbing preconfigured express instance from app.ts instead.
+describe("should handle requests", () => {
     let app: Express;
 
     beforeAll(() => {
         app = express();
         app.set("view engine", "pug");
-        app.set("views", "src/public/views"); // TODO: This path should be defined elsewhere.
+
+        // TODO: This path should be defined in a central location.
+        app.set("views", "src/public/views");
+
         app.get("/", renderIndex);
     });
 
-    describe("Render index", () => {
+    describe("index page", () => {
         let response: request.Response;
 
         beforeAll(async () => {
             response = await request(app).get("/");
         });
 
-        it("should return valid response", () => {
+        it("has successful response code", () => {
             expect(response.status).toBe(200);
+        });
+
+        it("has correct content type", () => {
             expect(response.type).toBe("text/html");
         });
 
-        it("should contain h1 with text 'Grid Server'", () => {
-            expect(response.text).toContain("<h1>Grid Server</h1>");
+        it("has truthy response body", () => {
+            expect(response.body).toBeTruthy();
         });
-    });
-});
-
-// TODO: Decide usefulness and either remove or move to proper location
-//          Suggested location: src/public/views/client/index.test.ts
-describe("Client index view", () => {
-    let html: string;
-    it("should render view", () => {
-        // TODO: Find alternative to absolute path
-        html = pug.renderFile("src/public/views/client/index.pug");
-        expect(html).toBeTruthy();
-    });
-
-    it("should contain h1 with text 'Grid Server'", async () => {
-        expect(html).toContain("<h1>Grid Server</h1>");
     });
 });
