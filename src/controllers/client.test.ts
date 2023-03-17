@@ -1,13 +1,33 @@
-import express, { Express } from "express";
+import express, { Express, Request, Response } from "express";
 import request from "supertest";
 import { renderIndex } from "./client.controller";
 
 import pug from "pug";
 
-// TODO: Potential for duplicate tests.
-//        - Should we test the controllers or just the routes?
-//        - Is this the correct approach for testing the controller?
-describe("Client Controller", () => {
+describe("Client Controller (mock test)", () => {
+    let req: Partial<Request>;
+    let res: Partial<Response>;
+
+    beforeEach(() => {
+        req = {};
+        res = {
+            render: jest.fn()
+        };
+    });
+
+    it("should render index page", () => {
+        renderIndex(req as Request, res as Response, () => {
+            /* */
+        });
+
+        expect(res.render).toHaveBeenCalled();
+        expect(res.render).toHaveBeenCalledWith("client/index");
+    });
+});
+
+// TODO: Is this the correct approach for testing the controller?
+//        - Should this be a router / endpoint test instead?
+describe("Client Controller (full test)", () => {
     // TODO: Consider grabbing preconfigured express instance from app.ts instead.
     let app: Express;
 
@@ -50,19 +70,3 @@ describe("Client index view", () => {
         expect(html).toContain("<h1>Grid Server</h1>");
     });
 });
-
-/* Failed mock approach - saved "temporarily" for reference in later attempts (Expires: Fri, 24-03-2022 00:00:00 GMT)
-
-    const mockRequest = {
-        body: {}
-    } as unknown as Request;
-
-    const res = {
-        render: pug.render
-    };
-
-    it("should render page", async () => {
-        renderIndex(mockRequest, res);
-        // ...
-    });
-*/
