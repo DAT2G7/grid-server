@@ -1,3 +1,4 @@
+import express, { RequestHandler } from "express";
 import {
     getCore,
     getSetup,
@@ -5,7 +6,6 @@ import {
     postResult
 } from "../../controllers/api/client.controller";
 
-import express from "express";
 import { handleInvalid } from "../../middleware/validators/invalid";
 import { validateUUIDs } from "../../middleware/validators/uuid";
 
@@ -15,24 +15,24 @@ router.get("/setup", getSetup);
 
 router.get(
     "/core/:coreid",
-    ...validateUUIDs("coreid"),
+    validateUUIDs("coreid"),
     handleInvalid,
-    getCore as any
+    getCore as unknown as RequestHandler
 );
 router.get;
 
 router.get(
     "/core/:coreid/job/:jobid/task/:taskid",
-    ...validateUUIDs("coreid", "jobid", "taskid"),
+    validateUUIDs("coreid", "jobid", "taskid"),
     handleInvalid,
-    getTask as any
+    getTask as unknown as RequestHandler
 );
 
 router.post(
     "/core/:coreid/job/:jobid/task/:taskid",
-    ...validateUUIDs("coreid", "jobid", "taskid"),
+    validateUUIDs("coreid", "jobid", "taskid"),
     handleInvalid,
-    postResult as any
+    postResult as unknown as RequestHandler
 );
 
 export { router as apiClientRouter };
