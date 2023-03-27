@@ -2,8 +2,6 @@ import { ParamTypes } from "../../types";
 import { RequestHandler } from "express";
 import fs from "fs";
 import { getRandomInt } from "../../utils/random";
-import { UUID } from "../../types/brand.types";
-import { WORKING_DIR } from "../../app";
 import { Project } from "../../types/global.types";
 
 /**
@@ -12,17 +10,16 @@ import { Project } from "../../types/global.types";
 export const getSetup: RequestHandler = (_req, res) => {
     if (!process.env.PROJECT_DB_PATH) {
         //Throw an error
-        res.sendStatus(500);
+        res.status(500).send();
         return;
     }
 
     //Find random project
     const projects: Project[] = JSON.parse(
         fs
-            .readFileSync(WORKING_DIR + process.env.PROJECT_DB_PATH) //process.env.PROJECT_ROOT!)
+            .readFileSync(process.cwd() + process.env.PROJECT_DB_PATH) //process.env.PROJECT_ROOT!)
             .toString()
     );
-
     const project = projects[getRandomInt(0, projects.length)];
 
     //Find random job
@@ -35,7 +32,6 @@ export const getSetup: RequestHandler = (_req, res) => {
             jobId: job.jobId
         })
     );
-    // res.sendStatus(200);
 };
 
 /**
