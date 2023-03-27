@@ -1,0 +1,40 @@
+[
+    {
+        "projectId": 123,
+        "jobs": [
+            {
+                "jobId": "5eb9971f-e713-45b9-8584-8e2bc72a386b",
+                "coreId": "c945fe39-e77e-4b51-a7f4-229bba2ae648",
+                "taskAmount": 200,
+                "taskRequstEndpoint": "http://url/to/project/owner/taskRequstEndpoint",
+                "taskResultEndpoint": "http://url/to/project/owner/taskResultEndpoint"
+            },
+            {
+                "jobId": "495886eb-f6ee-4a65-bf0d-4f6f3aa2c599",
+                "coreId": "d7e36d1e-5f87-4b03-89ac-cb5767f4c61b",
+                "taskAmount": 100,
+                "taskRequstEndpoint": "http://url/to/project/owner/taskRequstEndpoint",
+                "taskResultEndpoint": "http://url/to/project/owner/taskResultEndpoint"
+            }
+        ]
+    },
+    {
+        "projectId": 123,
+        "jobs": [
+            {
+                "jobId": "5eb9971f-e713-45b9-8584-8e2bc72a386b",
+                "coreId": "c945fe39-e77e-4b51-a7f4-229bba2ae648",
+                "taskAmount": 200,
+                "taskRequstEndpoint": "http://url/to/project/owner/taskRequstEndpoint",
+                "taskResultEndpoint": "http://url/to/project/owner/taskResultEndpoint"
+            },
+            {
+                "jobId": "495886eb-f6ee-4a65-bf0d-4f6f3aa2c599",
+                "coreId": "d7e36d1e-5f87-4b03-89ac-cb5767f4c61b",
+                "taskAmount": 100,
+                "taskRequstEndpoint": "http://url/to/project/owner/taskRequstEndpoint",
+                "taskResultEndpoint": "http://url/to/project/owner/taskResultEndpoint"
+            }
+        ]
+    }
+]
