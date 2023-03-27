@@ -4,26 +4,29 @@ import { Request, Response } from "express";
 
 describe("test endpoint /api/client/getSetup", () => {
     test("has expected response", () => {
-        process.env.PROJECT_DB_PATH = "test";
+        /* Prepare test environment */
+        const req: Partial<Request> = {};
+        const res: Partial<Response> = {
+            status: jest.fn(() => res as Response),
+            send: jest.fn(() => res as Response)
+        };
 
         jest.spyOn(fs, "readFileSync").mockImplementation(() =>
             JSON.stringify(setupMockData)
         );
 
-        let req: Partial<Request> = {};
-        let res: Partial<Response> = {
-            status: jest.fn(() => res as Response),
-            send: jest.fn(() => res as Response)
-        };
+        // The contents of PROJECT_DB_PATH do no matter, as our mock implementation is used instead when requesting the JSON file.
+        process.env.PROJECT_DB_PATH = "test";
 
+        /* Perform the request */
         getSetup(req as Request, res as Response, jest.fn());
 
+        /* Verify the response */
         expect(res.status).toHaveBeenCalledWith(200);
-
         expect(res.send).toHaveBeenCalledWith(
             JSON.stringify({
-                projectId: "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e",
-                jobId: "5eb9971f-e713-45b9-8584-8e2bc72a386b"
+                projectId: setupMockData[0].projectId,
+                jobId: setupMockData[0].jobs[0].jobId
             })
         );
     });

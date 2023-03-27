@@ -16,16 +16,14 @@ export const getSetup: RequestHandler = (_req, res) => {
 
     //Find random project
     const projects: Project[] = JSON.parse(
-        fs
-            .readFileSync(process.cwd() + process.env.PROJECT_DB_PATH) //process.env.PROJECT_ROOT!)
-            .toString()
+        fs.readFileSync(process.cwd() + process.env.PROJECT_DB_PATH).toString()
     );
     const project = projects[getRandomInt(0, projects.length)];
 
     //Find random job
     const job = project.jobs[getRandomInt(0, project.jobs.length)];
 
-    //Retrun projectId & jobId
+    //Return projectId & jobId
     res.status(200).send(
         JSON.stringify({
             projectId: project.projectId,
