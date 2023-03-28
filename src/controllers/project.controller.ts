@@ -2,8 +2,8 @@ import { RequestHandler } from "express";
 import { v4 } from "uuid";
 import { CoreUUID } from "../types/brand.types";
 import { writeFileSync } from "fs";
-import { homedir } from "os";
 import { checkCore } from "./api/project.model";
+import { CORE_ROOT } from "../config";
 
 /**
  * Serve the project owner index page
@@ -31,8 +31,7 @@ export const createCore: RequestHandler = (_req, res) => {
 export function saveCore(fileBuffer: Buffer): CoreUUID {
     const newUUID: string = v4();
 
-    const corePath: string = homedir() + "/cores/" + newUUID + ".js";
-
+    const corePath: string = CORE_ROOT + "/" + newUUID + ".js";
     try {
         writeFileSync(corePath, fileBuffer);
     } catch {
