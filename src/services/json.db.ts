@@ -7,8 +7,8 @@ export default class JsonDB<T> {
     readonly path: string;
     data: T;
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    constructor(_path: string) {
+    constructor(path: string) {
+        path;
         throw new NotImplementedError();
     }
 

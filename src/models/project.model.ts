@@ -15,8 +15,8 @@ export default class ProjectModel implements Project {
         throw new NotImplementedError();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    static randomProject(_projects: JsonDatabase<Project[]>): ProjectModel {
+    static randomProject(projects: JsonDatabase<Project[]>): ProjectModel {
+        projects;
         throw new NotImplementedError();
     }
 }
