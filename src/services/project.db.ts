@@ -4,7 +4,7 @@ import { NotImplementedError } from "../utils/errors";
 import { ProjectUUID } from "../types/brand.types";
 import ProjectModel from "../models/project.model";
 
-export default class ProjectDB extends JsonDB<ProjectModel[]> {
+export class ProjectDB extends JsonDB<ProjectModel[]> {
     constructor(path: string) {
         super(path, []);
         throw new NotImplementedError();
@@ -42,9 +42,5 @@ export default class ProjectDB extends JsonDB<ProjectModel[]> {
     }
 }
 
-// const db = new ProjectDB("projects.json");
-
-// if (db.isEmpty()) throw new Error("We have no projects!");
-
-// const job = db.randomProject().randomJob();
-// job.taskAmount--;
+const projectDB = new ProjectDB("qwdw.json");
+export default projectDB;

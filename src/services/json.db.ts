@@ -1,4 +1,3 @@
-import ProjectModel from "../models/project.model";
 import { NotImplementedError } from "../utils/errors";
 
 export default class JsonDB<T> {
