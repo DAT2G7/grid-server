@@ -2,6 +2,7 @@ import { BrandTypes } from ".";
 
 export interface Core {
     coreid: BrandTypes.CoreUUID;
+    contents: Buffer;
 }
 
 export interface Job extends Core {

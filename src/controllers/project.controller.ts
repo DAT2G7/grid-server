@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { v4 } from "uuid";
 import { CoreUUID } from "../types/brand.types";
+import { Core } from "../types/param.types";
 import { writeFileSync } from "fs";
 import { checkCore } from "./api/project.model";
 import { CORE_ROOT } from "../config";
@@ -16,27 +17,31 @@ export const renderIndex: RequestHandler = (_req, res) => {
  * Receive project core
  */
 export const createCore: RequestHandler = (_req, res) => {
-    if (_req.file === undefined || !checkCore(_req.file.buffer)) {
+    if (
+        _req.file === undefined ||
+        !checkCore({ coreid: v4() as CoreUUID, contents: _req.file.buffer })
+    ) {
         res.status(418); // I'm a teapot
-        res.send("Error: Core authentication failed.");
+        res.send("Error: Core contents not found failed.");
+        // TODO: Return status code that repressents actual error.
     } else {
-        const coreID: CoreUUID = saveCore(_req.file.buffer);
+        const core: Core = {
+            coreid: v4() as CoreUUID,
+            contents: _req.file.buffer
+        };
+        saveCore(core);
 
         res.status(200);
         res.contentType("application/json");
-        res.json({ coreID: coreID });
+        res.json({ coreID: core.coreid });
     }
 };
 
-export function saveCore(fileBuffer: Buffer): CoreUUID {
-    const newUUID: string = v4();
-
-    const corePath: string = CORE_ROOT + "/" + newUUID + ".js";
+export function saveCore(core: Core) {
+    const corePath: string = CORE_ROOT + "/" + core.coreid + ".js";
     try {
-        writeFileSync(corePath, fileBuffer);
+        writeFileSync(corePath, core.contents);
     } catch {
         // TODO: Handle file write error.
     }
-
-    return newUUID as CoreUUID;
 }

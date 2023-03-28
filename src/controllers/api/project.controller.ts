@@ -3,17 +3,24 @@ import { RequestHandler } from "express";
 import { CoreUUID } from "../../types/brand.types";
 import { saveCore } from "../project.controller";
 import { checkCore } from "./project.model";
+import { Core } from "../../types/param.types";
+import { v4 } from "uuid";
 
 /**
  * Receive project core
  */
 export const createCoreAPI: RequestHandler = (_req, res) => {
-    if (checkCore(_req.body)) {
-        const coreID: CoreUUID = saveCore(_req.body);
+    const core: Core = {
+        coreid: v4() as CoreUUID,
+        contents: Buffer.from(_req.body)
+    };
+
+    if (checkCore(core)) {
+        saveCore(core);
 
         res.status(200);
         res.contentType("application/json");
-        res.json({ coreID: coreID });
+        res.json({ coreID: core.coreid });
     } else {
         res.status(418); // I'm a teapot
         // TODO: Return status code that repressents actual error.
