@@ -4,4 +4,10 @@ block content
     <main id="top">
         <h1>Project owner</h1>
         <p>This is the project owner module of the grid server.</p>
+        <p>Please upload your file using the button below</p>
+        <form action="/project/core" method="post" enctype="multipart/form-data">
+            <input type="file" name="core" id="file">
+            <input type="submit" value="Upload">
+        </form>
+        - 
     </main>

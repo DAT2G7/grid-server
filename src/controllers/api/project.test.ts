@@ -2,7 +2,7 @@ import crypto from "crypto";
 import fs from "fs";
 import { homedir } from "os";
 import { UUID } from "../../types/brand.types";
-import { saveCore } from "./project.model";
+import { saveCore } from "../project.controller";
 import { checkCore } from "./project.model";
 
 test("saveCore", () => {
@@ -11,7 +11,7 @@ test("saveCore", () => {
     const hashSum = crypto.createHash("md5");
     hashSum.update(mockCoreJS[0]);
 
-    const coreID: UUID = saveCore(mockCoreJS);
+    const coreID: UUID = saveCore(Buffer.from(mockCoreJS));
 
     const corePath: string = homedir() + "/cores/" + coreID + ".js";
 
@@ -28,7 +28,7 @@ test("checkCore", () => {
         "function mockCore(x) { return (x + 1); } \n mockCore(1);";
 
     const expectedResult = true;
-    const actualResult = checkCore(mockCoreJS);
+    const actualResult = checkCore(Buffer.from(mockCoreJS));
 
     expect(actualResult).toBe(expectedResult);
 });

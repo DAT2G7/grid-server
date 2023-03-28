@@ -1,5 +1,5 @@
 import {
-    createCore,
+    createCoreAPI,
     createJob,
     deleteCore,
     deleteJob,
@@ -10,10 +10,11 @@ import express, { RequestHandler } from "express";
 
 import { handleInvalid } from "../../middleware/validators/invalid";
 import { validateUUIDs } from "../../middleware/validators/uuid";
+import bodyParser from "body-parser";
 
 const router = express.Router();
 
-router.post("/core", createCore);
+router.post("/core", bodyParser.text(), createCoreAPI);
 
 router.delete(
     "/core/:coreid",

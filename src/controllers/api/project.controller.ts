@@ -1,20 +1,23 @@
 import { ParamTypes } from "../../types";
 import { RequestHandler } from "express";
-import { UUID } from "../../types/brand.types";
-import { saveCore } from "./project.model";
+import { CoreUUID } from "../../types/brand.types";
+import { saveCore } from "../project.controller";
 import { checkCore } from "./project.model";
 
 /**
  * Receive project core
  */
-export const createCore: RequestHandler = (_req, res) => {
-    const requestBody = _req.body; // Is the body just the raw js?
+export const createCoreAPI: RequestHandler = (_req, res) => {
+    if (checkCore(_req.body)) {
+        const coreID: CoreUUID = saveCore(_req.body);
 
-    if (checkCore(requestBody)) {
-        const coreID: UUID = saveCore(requestBody);
-        // TODO: Add core id to response body and return success response.
+        res.status(200);
+        res.contentType("application/json");
+        res.json({ coreID: coreID });
     } else {
-        // TODO: Handle rejected core, and return failed response.
+        res.status(418); // I'm a teapot
+        // TODO: Return status code that repressents actual error.
+        res.send("Error: Core authentication failed.");
     }
 };
 
