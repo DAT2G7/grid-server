@@ -15,8 +15,8 @@ export default class ProjectModel implements Project {
         throw new NotImplementedError();
     }
 
-    static randomProject(projects: JsonDatabase<Project[]>): ProjectModel {
-        projects;
+    static randomProject(db: JsonDatabase<Project[]>): ProjectModel {
+        db;
         throw new NotImplementedError();
     }
 }
