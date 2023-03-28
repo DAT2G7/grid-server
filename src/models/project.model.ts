@@ -11,10 +11,6 @@ export default class ProjectModel implements Project {
         throw new NotImplementedError();
     }
 
-    getProject(): Project {
-        throw new NotImplementedError();
-    }
-
     randomJob(): Job {
         throw new NotImplementedError();
     }
