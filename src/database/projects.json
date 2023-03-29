@@ -5,7 +5,7 @@
             {
                 "jobId": "5eb9971f-e713-45b9-8584-8e2bc72a386b",
                 "coreId": "c945fe39-e77e-4b51-a7f4-229bba2ae648",
-                "taskAmount": 200,
+                "taskAmount": 192,
                 "taskRequstEndpoint": "http://url/to/project/owner/taskRequstEndpoint",
                 "taskResultEndpoint": "http://url/to/project/owner/taskResultEndpoint"
             },

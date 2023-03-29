@@ -3,21 +3,18 @@ import { RequestHandler } from "express";
 import fs from "fs";
 import { getRandomInt } from "../../utils/random";
 import { Project } from "../../types/global.types";
+import { ProjectDB } from "../../models/database.model";
+import { JobUUID } from "../../types/brand.types";
 
 /**
  * Serve core-, job- and task-id
  */
 export const getSetup: RequestHandler = (_req, res) => {
-    if (!process.env.PROJECT_DB_PATH) {
-        //Throw an error
-        res.status(500).send();
-        return;
-    }
-
     //Find random project
     const projects: Project[] = JSON.parse(
         fs.readFileSync(process.cwd() + process.env.PROJECT_DB_PATH).toString()
     );
+
     const project = projects[getRandomInt(0, projects.length)];
 
     //Find random job
