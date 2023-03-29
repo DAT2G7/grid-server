@@ -3,8 +3,8 @@ import { RequestHandler } from "express";
 import fs from "fs";
 import { getRandomInt } from "../../utils/random";
 import { Project } from "../../types/global.types";
-import { ProjectDB } from "../../models/database.model";
-import { JobUUID } from "../../types/brand.types";
+// import { ProjectDB } from "../../models/database.model";
+// import { JobUUID } from "../../types/brand.types";
 
 /**
  * Serve core-, job- and task-id
