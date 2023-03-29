@@ -1,18 +1,12 @@
 import { apiClientRouter, apiProjectRouter } from "./routes/api";
 import { clientRouter, indexRouter, projectRouter } from "./routes";
 
-import { config as dotenvConfig } from "dotenv";
 import express from "express";
-import { ProjectDB } from "./models/database.model";
-
-dotenvConfig();
+import config from "./config";
 
 // init app
 const app = express();
-const port = process.env.PORT || 3000;
-
-const path = process.cwd() + process.env.PROJECT_DB_PATH;
-ProjectDB.setPath(path).loadData();
+const port = config.PORT;
 
 // Use pug for views
 app.set("view engine", "pug");

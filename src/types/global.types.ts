@@ -1,14 +1,14 @@
-import { UUID } from "./brand.types";
+import { JobUUID, CoreUUID, ProjectUUID } from "./brand.types";
 
 export interface Job {
-    jobId: UUID;
-    coreId: UUID;
+    jobId: JobUUID;
+    coreId: CoreUUID;
     taskAmount: number;
     taskRequestEndpoint: string; //url
     taskResultEndpoint: string; //url
 }
 
 export interface Project {
-    projectId: UUID;
+    projectId: ProjectUUID;
     jobs: Job[];
 }
