@@ -2,12 +2,14 @@ import JsonDB from "./json.db";
 import fs from "fs";
 
 describe("JsonDB", () => {
+    let testDB: JsonDB<JsonTestModel>;
+
     test("loads data as provided type", () => {
         jest.spyOn(fs, "readFileSync").mockImplementation(
             () => jsonTestStringData
         );
 
-        const testDB = new JsonDB<JsonTestModel>(
+        testDB = new JsonDB<JsonTestModel>(
             "test.json",
             {} as JsonTestModel,
             JsonTestModel.fromJson
@@ -17,6 +19,17 @@ describe("JsonDB", () => {
         expect(testDB.data.firstChild().reverseMessage()).toBe(
             jsonTestData.children[0].message.split("").reverse().join("")
         );
+    });
+
+    test("saves data in proper format", () => {
+        jest.spyOn(fs, "writeFileSync").mockImplementation((_path, data) => {
+            // Parse and stringify again to ensure whitespace settings do not modify the result
+            const restringified = JSON.stringify(JSON.parse(data as string));
+
+            expect(restringified).toEqual(jsonTestStringData);
+        });
+
+        testDB.save();
     });
 });
 

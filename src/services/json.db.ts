@@ -1,9 +1,8 @@
-import { NotImplementedError } from "../utils/errors";
 import fs from "fs";
 
 export default class JsonDB<T> {
     readonly path: string;
-    readonly fromJSON?: (data: any) => T;
+    readonly fromJSON?: (data: any) => T; // TODO: Find an alternate solution to avoid use of the `any` type.
     data: T;
 
     constructor(path: string, defaultData: T, fromJSON?: (data: any) => T) {
@@ -25,6 +24,7 @@ export default class JsonDB<T> {
     }
 
     save(): JsonDB<T> {
-        throw new NotImplementedError();
+        fs.writeFileSync(this.path, JSON.stringify(this.data));
+        return this;
     }
 }
