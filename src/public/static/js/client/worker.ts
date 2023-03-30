@@ -4,11 +4,11 @@ import { UUID } from "../../../../types/brand.types";
 // this isn't techinally 100% correct, since the type of `self` in a webworker is `DedicatedWorkerGlobalScope`,
 // but it works fine, so it will have to do
 declare global {
-  interface Window {
-    getData: () => Promise<unknown | never>;
-    sendResult: (data: unknown) => Promise<void | never>;
-    onDone: () => void;
-  }
+    interface Window {
+        getData: () => Promise<unknown | never>;
+        sendResult: (data: unknown) => Promise<void | never>;
+        onDone: () => void;
+    }
 }
 
 const run = async () => {
@@ -73,8 +73,8 @@ const run = async () => {
     };
 
     const onDone: () => void = () => {
-      postMessage({ type: "workDone" });
-      close();
+        postMessage({ type: "workDone" });
+        close();
     };
 
     // inject our helper functions on the `self` object
