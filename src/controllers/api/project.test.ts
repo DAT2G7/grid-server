@@ -1,11 +1,11 @@
 import crypto from "crypto";
 import fs from "fs";
-import { homedir } from "os";
 import { v4 } from "uuid";
 import { CoreUUID, JobUUID } from "../../types/brand.types";
 import { Core, Job } from "../../types/param.types";
 import { saveCore } from "../project.controller";
 import { checkCore, checkJob, saveJob, readJob } from "./project.model";
+import { CORE_ROOT } from "../../config";
 
 test("saveCore", () => {
     const mockCore: Core = createMockCore();
@@ -15,14 +15,14 @@ test("saveCore", () => {
 
     saveCore(mockCore);
 
-    const corePath: string = homedir() + "/cores/" + mockCore.coreid + ".js";
+    const corePath: string = CORE_ROOT + "/" + mockCore.coreid + ".js";
 
     const savedFileContent = fs.readFileSync(corePath);
 
     const newHashSum = crypto.createHash("md5");
     newHashSum.update(savedFileContent);
 
-    expect(hashSum).toBe(newHashSum);
+    expect(hashSum.digest("hex")).toBe(newHashSum.digest("hex"));
 });
 
 test("checkCore", () => {
