@@ -73,6 +73,7 @@ run().then(() => {
     postMessage({ type: "done" });
 });
 
-//async function getData() : Promise<unknown> {
-//  return fetch("/
-//}
+// this is insanely stupid, but is forces the typescript compiler to treat this as a CommonJS module,
+// which means that it won't generate code that it expects to run in node that crashes when run in the browser
+// note that this still causes an error, but since it's at the end of the file, all our work will have started by then so we don't really care
+export = {};
