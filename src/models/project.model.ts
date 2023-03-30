@@ -104,10 +104,7 @@ export class ProjectModel extends JsonDB<Project[]> {
         const project = this.getProject(projectId);
         if (!project) return;
 
-        const job = project.jobs.find((job: Job) => job.jobId === jobId);
-        if (!job) return;
-
-        const jobIndex = project.jobs.indexOf(job);
+        const jobIndex = project.jobs.findIndex((job) => job.jobId === jobId);
         if (jobIndex === -1) return;
 
         project.jobs.splice(jobIndex, 1);
