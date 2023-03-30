@@ -126,14 +126,14 @@ export class ProjectModel extends JsonDB<Project[]> {
             : this.projects;
 
         const eligibleProjects = projects.filter(
-            (project) => project !== null && project.jobs.length > 0
+            (project): project is Project =>
+                project !== null && project.jobs.length > 0
         );
 
         if (eligibleProjects.length === 0) return null;
 
-        const jobs = eligibleProjects.flatMap((project) => project!.jobs);
-
-        return getRandomElement<Job>(jobs);
+        const jobs = eligibleProjects.flatMap((project) => project.jobs);
+        return getRandomElement(jobs);
     }
 
     /**
