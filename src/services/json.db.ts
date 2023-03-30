@@ -2,13 +2,11 @@ import fs from "fs";
 
 export default class JsonDB<T> {
     readonly path: string;
-    readonly fromJSON?: (data: any) => T; // TODO: Find an alternate solution to avoid use of the `any` type.
     data: T;
 
-    constructor(path: string, defaultData: T, fromJSON?: (data: any) => T) {
+    constructor(path: string, defaultData: T) {
         this.path = path;
         this.data = defaultData;
-        this.fromJSON = fromJSON;
 
         this.refresh();
     }
@@ -18,13 +16,12 @@ export default class JsonDB<T> {
      * @returns Itself
      */
     refresh(): JsonDB<T> {
-        const jsonData = JSON.parse(fs.readFileSync(this.path).toString());
-        this.data = this.fromJSON ? this.fromJSON(jsonData) : jsonData;
+        this.data = JSON.parse(fs.readFileSync(this.path).toString());
         return this;
     }
 
     save(): JsonDB<T> {
-        fs.writeFileSync(this.path, JSON.stringify(this.data));
+        fs.writeFileSync(this.path, JSON.stringify(this.data, undefined, 4));
         return this;
     }
 }

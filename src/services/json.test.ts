@@ -2,23 +2,16 @@ import JsonDB from "./json.db";
 import fs from "fs";
 
 describe("JsonDB", () => {
-    let testDB: JsonDB<JsonTestModel>;
+    let testDB: JsonDB<JsonTest>;
 
     test("loads data as provided type", () => {
         jest.spyOn(fs, "readFileSync").mockImplementation(
             () => jsonTestStringData
         );
 
-        testDB = new JsonDB<JsonTestModel>(
-            "test.json",
-            {} as JsonTestModel,
-            JsonTestModel.fromJson
-        );
+        testDB = new JsonDB<JsonTest>("test.json", {} as JsonTest);
 
         expect(testDB.data).toBeTruthy();
-        expect(testDB.data.firstChild().reverseMessage()).toBe(
-            jsonTestData.children[0].message.split("").reverse().join("")
-        );
     });
 
     test("saves data in proper format", () => {
@@ -42,51 +35,6 @@ interface JsonTest {
 
 interface JsonTestChild {
     message: string;
-}
-
-class JsonTestModel implements JsonTest {
-    int: number;
-    float: number;
-    date: Date;
-    children: JsonTestChildModel[];
-
-    constructor(data: JsonTest) {
-        this.int = data.int;
-        this.float = data.float;
-        this.date = data.date;
-        this.children = data.children as JsonTestChildModel[];
-    }
-
-    getDate(): Date {
-        return new Date(this.date);
-    }
-
-    firstChild(): JsonTestChildModel {
-        return this.children[0];
-    }
-
-    static fromJson(data: JsonTest): JsonTestModel {
-        const children = data.children.map((child) =>
-            JsonTestChildModel.fromJSON(child)
-        );
-        return new JsonTestModel({ ...data, children });
-    }
-}
-
-class JsonTestChildModel implements JsonTestChild {
-    message: string;
-
-    constructor(data: JsonTestChild) {
-        this.message = data.message;
-    }
-
-    reverseMessage() {
-        return this.message.split("").reverse().join("");
-    }
-
-    static fromJSON(data: JsonTestChild): JsonTestChildModel {
-        return new JsonTestChildModel(data);
-    }
 }
 
 const jsonTestData: JsonTest = {
