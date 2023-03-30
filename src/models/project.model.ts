@@ -2,6 +2,7 @@ import JsonDB from "../services/json.db";
 import { Project } from "../types/global.types";
 import { NotImplementedError } from "../utils/errors";
 import { ProjectUUID } from "../types/brand.types";
+import { PROJECT_DB_PATH } from "../config";
 
 export class ProjectModel extends JsonDB<Project[]> {
     constructor(path: string) {
@@ -41,5 +42,5 @@ export class ProjectModel extends JsonDB<Project[]> {
     }
 }
 
-const projectModel = new ProjectModel("qwdw.json");
+const projectModel = new ProjectModel(PROJECT_DB_PATH);
 export default projectModel;
