@@ -1,17 +1,45 @@
-import { ProjectUUID } from "../types/brand.types";
-import { Project, Core } from "../types/global.types";
+import JsonDB from "../services/json.db";
+import { Project } from "../types/global.types";
 import { NotImplementedError } from "../utils/errors";
-import CoreModel from "./core.model";
+import { ProjectUUID } from "../types/brand.types";
 
-export default class ProjectModel implements Project {
-    projectId: ProjectUUID;
-    cores: Core[];
-
-    constructor() {
+export class ProjectModel extends JsonDB<Project[]> {
+    constructor(path: string) {
+        super(path, []);
         throw new NotImplementedError();
     }
 
-    randomCore(): CoreModel {
+    removeProjectById(id: ProjectUUID) {
+        id;
         throw new NotImplementedError();
+    }
+
+    removeProject(project: Project) {
+        project;
+        throw new NotImplementedError();
+    }
+
+    addProject(project: Project) {
+        project;
+        throw new NotImplementedError();
+    }
+
+    randomProject(): Project {
+        throw new NotImplementedError();
+    }
+
+    projectCount(): number {
+        throw new NotImplementedError();
+    }
+
+    isEmpty(): boolean {
+        throw new NotImplementedError();
+    }
+
+    get projects(): Project[] {
+        return this.data;
     }
 }
+
+const projectModel = new ProjectModel("qwdw.json");
+export default projectModel;
