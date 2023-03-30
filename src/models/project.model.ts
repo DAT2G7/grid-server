@@ -1,7 +1,8 @@
 import JsonDB from "../services/json.db";
 import { Project, Job } from "../types/global.types";
-import { NotImplementedError } from "../utils/errors";
 import { ProjectUUID, JobUUID } from "../types/brand.types";
+import { getRandomInt, getRandomElement } from "../utils/random";
+import { v4 } from "uuid";
 import { PROJECT_DB_PATH } from "../config";
 
 export class ProjectModel extends JsonDB<Project[]> {
@@ -9,11 +10,26 @@ export class ProjectModel extends JsonDB<Project[]> {
         super(path, []);
     }
 
-    addProject(project: Project) {
-        project;
-        throw new NotImplementedError();
+    /**
+     * Adds a project to the project model and saves database.
+     * @param {Project} project - The project to be added.
+     * @returns The ID of the added project.
+     */
+    addProject(project: Partial<Project>): ProjectUUID {
+        project.projectId ||= v4() as ProjectUUID;
+        project.jobs ||= [];
+
+        this.data.push(project as Project);
+        this.save();
+
+        return project.projectId;
     }
 
+    /**
+     * Retrieves a project by its ID.
+     * @param {ProjectUUID} projectId - The project ID.
+     * @returns {Project | null} The project if found, or null if not found.
+     */
     getProject(projectId: ProjectUUID): Project | null {
         return (
             this.data.find(
@@ -22,39 +38,68 @@ export class ProjectModel extends JsonDB<Project[]> {
         );
     }
 
+    /**
+     * Removes a project by its ID and saves database.
+     * @param {ProjectUUID} projectId - The project ID.
+     */
     removeProject(projectId: ProjectUUID): void {
-        projectId;
-        throw new NotImplementedError();
-    }
-
-    getRandomProject(): Project {
-        throw new NotImplementedError();
-    }
-
-    addJob(projectId: ProjectUUID, job: Partial<Job>) {
-        projectId;
-        job;
-        // job.jobId ||= v4();
-        throw new NotImplementedError();
-    }
-
-    getJob(projectId: ProjectUUID, jobId: JobUUID): Job | null {
         const project = this.data.find(
-            (project: Project) => project.projectId === projectId
+            (project) => project.projectId === projectId
         );
 
-        if (!project) {
-            console.error(
-                `Attempt to access non-existing project (project id ${projectId})`
-            );
-            return null;
-        }
+        if (!project) return;
+
+        this.data.splice(this.data.indexOf(project), 1);
+        this.save();
+    }
+
+    /**
+     * Returns a random project.
+     * @returns {Project} The random project.
+     */
+    getRandomProject(): Project {
+        return this.data[getRandomInt(0, this.data.length)];
+    }
+
+    /**
+     * Adds a job to the specified project and saves the database.
+     * @param {ProjectUUID} projectId - The ID of the project.
+     * @param {AddJobPayload} job - The job payload with optional jobId and projectId.
+     * @returns {JobUUID | null} The ID of the added job or null if the project is not found.
+     */
+    addJob(projectId: ProjectUUID, job: AddJobPayload): JobUUID | null {
+        job.jobId ||= v4() as JobUUID;
+        job.projectId ||= projectId;
+
+        const project = this.getProject(projectId);
+        if (!project) return null;
+
+        project.jobs.push(job as Job);
+        this.save();
+
+        return job.jobId;
+    }
+
+    /**
+     * Retrieves a job by its ID from the specified project.
+     * @param {ProjectUUID} projectId - The ID of the project.
+     * @param {JobUUID} jobId - The ID of the job.
+     * @returns {Job | null} The job if found, or null if not found.
+     */
+    getJob(projectId: ProjectUUID, jobId: JobUUID): Job | null {
+        const project = this.getProject(projectId);
+        if (!project) return null;
 
         const job = project.jobs.find((job: Job) => job.jobId === jobId);
 
         return job || null;
     }
 
+    /**
+     * Removes a job to from the specified project and saves database.
+     * @param {ProjectUUID} projectId - The ID of the project.
+     * @param {JobUUID} jobId - The ID of the job.
+     */
     removeJob(projectId: ProjectUUID, jobId: JobUUID) {
         const project = this.getProject(projectId);
         if (!project) return;
@@ -66,12 +111,37 @@ export class ProjectModel extends JsonDB<Project[]> {
         if (jobIndex === -1) return;
 
         project.jobs.splice(jobIndex, 1);
+
+        this.save();
     }
 
-    getRandomJob() {
-        throw new NotImplementedError();
+    /**
+     * Retrieves a random job from the specified project or from all projects if no projectId is provided.
+     * @param {ProjectUUID} [projectId] - Optional ID of the project to fetch the job from.
+     * @returns {Job | null} The random job if found, or null if not found.
+     */
+    getRandomJob(projectId?: ProjectUUID): Job | null {
+        const projects = projectId
+            ? [this.getProject(projectId)]
+            : this.projects;
+
+        const eligibleProjects = projects.filter(
+            (project) => project !== null && project.jobs.length > 0
+        );
+
+        if (eligibleProjects.length === 0) return null;
+
+        const jobs = eligibleProjects.flatMap((project) => project!.jobs);
+
+        return getRandomElement<Job>(jobs);
     }
 
+    /**
+     * Increments the task amount of a job by a specified value and saves the database.
+     * @param {ProjectUUID} projectId - The ID of the project.
+     * @param {JobUUID} jobId - The ID of the job.
+     * @param {number} increment - The increment value.
+     */
     incrementTaskAmount(
         projectId: ProjectUUID,
         jobId: JobUUID,
@@ -92,6 +162,11 @@ export class ProjectModel extends JsonDB<Project[]> {
     get projects(): Project[] {
         return this.data;
     }
+}
+
+export interface AddJobPayload extends Omit<Job, "jobId" | "projectId"> {
+    jobId?: JobUUID;
+    projectId?: ProjectUUID;
 }
 
 const projectModel = new ProjectModel(PROJECT_DB_PATH);
