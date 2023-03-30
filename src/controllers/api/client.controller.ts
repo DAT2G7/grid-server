@@ -31,6 +31,7 @@ export const getSetup: RequestHandler = (_req, res) => {
     // respond with jobId
     res.status(200).send(JSON.stringify(responseData));
 
+    //Decrement task amount
     const { projectId, jobId } = responseData;
     db.incrementTaskAmount(projectId, jobId, -1);
 };
