@@ -17,11 +17,9 @@ export default class JsonDB<T> {
      * @returns Itself
      */
     refresh(): JsonDB<T> {
-        try {
-            this.data = JSON.parse(fs.readFileSync(this.path).toString());
-        } catch (error) {
-            this.save();
-        }
+        if (!fs.existsSync(this.path)) return this.save();
+
+        this.data = JSON.parse(fs.readFileSync(this.path).toString());
         return this;
     }
 
