@@ -1,10 +1,10 @@
 import { JobUUID } from "../../types/brand.types";
 import { Job, Core } from "../../types/param.types";
 
-export function checkCore(core: Core): boolean {
+export function checkCore(core: Core): number {
     core;
     // Function for furure testing of contents, before acceptance of core.
-    return true;
+    return 200;
 }
 
 export function checkJob(job: Job) {

@@ -28,7 +28,7 @@ test("saveCore", () => {
 test("checkCore", () => {
     const mockCore: Core = createMockCore();
 
-    const expectedResult = true;
+    const expectedResult = 200;
     const actualResult = checkCore(mockCore);
 
     expect(actualResult).toBe(expectedResult);

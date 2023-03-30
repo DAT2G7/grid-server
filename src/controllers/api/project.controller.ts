@@ -15,16 +15,17 @@ export const createCoreAPI: RequestHandler = (_req, res) => {
         contents: Buffer.from(_req.body)
     };
 
-    if (checkCore(core)) {
+    const checkResult = checkCore(core);
+
+    if (checkResult === 200) {
         saveCore(core);
 
-        res.status(200);
+        res.status(checkResult);
         res.contentType("application/json");
         res.json({ coreID: core.coreid });
     } else {
-        res.status(418); // I'm a teapot
-        // TODO: Return status code that repressents actual error.
-        res.send("Error: Core authentication failed.");
+        res.status(checkResult);
+        res.send("Error: Core validation failed. Core not saved.");
     }
 };
 

@@ -17,23 +17,31 @@ export const renderIndex: RequestHandler = (_req, res) => {
  * Receive project core
  */
 export const createCore: RequestHandler = (_req, res) => {
-    if (
-        _req.file === undefined ||
-        !checkCore({ coreid: v4() as CoreUUID, contents: _req.file.buffer })
-    ) {
-        res.status(418); // I'm a teapot
-        res.send("Error: Core contents not found failed.");
-        // TODO: Return status code that repressents actual error.
-    } else {
-        const core: Core = {
-            coreid: v4() as CoreUUID,
-            contents: _req.file.buffer
-        };
-        saveCore(core);
+    let recievedCore: Express.Multer.File;
 
-        res.status(200);
+    if (!isDefined(_req.file)) {
+        res.status(400);
+        res.send("Error: Core file not received.");
+        return;
+    } else {
+        recievedCore = _req.file;
+    }
+
+    const core: Core = {
+        coreid: v4() as CoreUUID,
+        contents: recievedCore.buffer
+    };
+
+    const checkResult = checkCore(core);
+
+    if (checkResult === 200) {
+        saveCore(core);
         res.contentType("application/json");
         res.json({ coreID: core.coreid });
+    } else {
+        res.status(checkResult);
+        res.send("Error: Core validation failed. Core not saved.");
+        return;
     }
 };
 
@@ -42,6 +50,10 @@ export function saveCore(core: Core) {
     try {
         writeFileSync(corePath, core.contents);
     } catch {
-        // TODO: Handle file write error.
+        throw new Error("Error: Core file not saved.");
     }
+}
+
+function isDefined<T>(value: T | undefined): value is T {
+    return value !== undefined && value !== null;
 }
