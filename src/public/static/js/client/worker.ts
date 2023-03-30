@@ -1,5 +1,16 @@
 import { UUID } from "../../../../types/brand.types";
 
+// extend the window object so that we can put our own methods on `self`
+// this isn't techinally 100% correct, since the type of `self` in a webworker is `DedicatedWorkerGlobalScope`,
+// but it works fine, so it will have to do
+declare global {
+  interface Window {
+    getData: () => Promise<unknown | never>;
+    sendResult: (data: unknown) => Promise<void | never>;
+    onDone: () => void;
+  }
+}
+
 const run = async () => {
     const response = await fetch("/api/client/setup");
     if (!response.ok) {
@@ -61,16 +72,22 @@ const run = async () => {
         }
     };
 
-    // supressses the unused variable warnings, since the functions are meant to be used by the core code :3
-    getData;
-    sendResult;
+    const onDone: () => void = () => {
+      postMessage({ type: "workDone" });
+      close();
+    };
+
+    // inject our helper functions on the `self` object
+    self.getData = getData;
+    self.sendResult = sendResult;
+    self.onDone = onDone;
 
     // run the webworker code
-    importScripts(`/core/${setupData.coreId}`);
+    importScripts(`/api/client/core/${setupData.coreId}`);
 };
 
 run().then(() => {
-    postMessage({ type: "done" });
+    postMessage({ type: "setupDone" });
 });
 
 // this is insanely stupid, but is forces the typescript compiler to treat this as a CommonJS module,
