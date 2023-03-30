@@ -9,5 +9,37 @@ block content
             <input type="file" name="core" id="file">
             <input type="submit" value="Upload">
         </form>
-        - 
+        <div>
+            <div>
+            <p>Input coreID to delete core:</p>
+            </div>
+                <div>
+                    <form action="api/project/core" method="delete">
+                        <label for="coreID">CoreID:</label>
+                        <input type="text" name="coreID" id="coreID" label="CoreID"> 
+                        button(type="button" onclick='deleteCore()') Delete core
+                    </form>
+                </div>
+            <div id="deletionResult"></div>
+        </div>
+        script.
+            function deleteCore() {
+                if (document.getElementById("coreID").value === "") {
+                    document.getElementById("deletionResult").innerHTML = "<p>Please input core id.</p>"
+                    return
+                }
+
+                fetch("/api/project/core/" + coreID.value, {
+                    method: "DELETE",
+                }).then((res) => {
+                    if (res.status === 200) {
+                        document.getElementById("deletionResult").innerHTML = "<p>Core " + coreID.value + " deleted</p>"
+                    } else if (res.status === 404) {
+                        document.getElementById("deletionResult").innerHTML = "<p>Core " + coreID.value + " not found</p>"
+                    } else {
+                        document.getElementById("deletionResult").innerHTML = "<p>Invalid input, please input a UUID. Input was: " + coreID.value +"</p>"
+                    }
+                })
+            }
     </main>
+

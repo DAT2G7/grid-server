@@ -4,8 +4,14 @@ import { v4 } from "uuid";
 import { CoreUUID, JobUUID } from "../../types/brand.types";
 import { Core, Job } from "../../types/param.types";
 import { saveCore } from "../project.controller";
-import { checkCore, checkJob, saveJob, readJob } from "./project.model";
 import { CORE_ROOT } from "../../config";
+import {
+    checkCore,
+    checkJob,
+    saveJob,
+    readJob,
+    deleteCoreFile
+} from "./project.model";
 
 test("saveCore", () => {
     const mockCore: Core = createMockCore();
@@ -23,6 +29,7 @@ test("saveCore", () => {
     newHashSum.update(savedFileContent);
 
     expect(hashSum.digest("hex")).toBe(newHashSum.digest("hex"));
+    fs.rmSync(corePath);
 });
 
 test("checkCore", () => {
@@ -51,6 +58,16 @@ test("checkJob", () => {
     const actualResult = checkJob(mockJob);
 
     expect(actualResult).toBe(expectedResult);
+});
+
+test("deleteCore", () => {
+    const mockCore: Core = createMockCore();
+    saveCore(mockCore);
+
+    deleteCoreFile(mockCore.coreid);
+    expect(fs.existsSync(CORE_ROOT + "/" + mockCore.coreid + ".js")).toBe(
+        false
+    );
 });
 
 function createMockCore(): Core {

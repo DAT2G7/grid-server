@@ -4,16 +4,21 @@ import { CoreUUID } from "../../types/brand.types";
 import { saveCore } from "../project.controller";
 import { checkCore } from "./project.model";
 import { Core } from "../../types/param.types";
-import { v4 } from "uuid";
+import { isDefined } from "../../utils/helpers";
+import { deleteCoreFile } from "./project.model";
+import { createCoreObject } from "../api/project.model";
 
 /**
  * Receive project core
  */
 export const createCoreAPI: RequestHandler = (_req, res) => {
-    const core: Core = {
-        coreid: v4() as CoreUUID,
-        contents: Buffer.from(_req.body)
-    };
+    if (!isDefined(_req.body)) {
+        res.status(400);
+        res.send("Error: Core file not received.");
+        return;
+    }
+
+    const core: Core = createCoreObject(_req.body);
 
     const checkResult = checkCore(core);
 
@@ -31,7 +36,18 @@ export const createCoreAPI: RequestHandler = (_req, res) => {
 
 /** @ignore */
 export const deleteCore: RequestHandler<ParamTypes.Core> = (_req, res) => {
-    res.sendStatus(404);
+    console.log(_req.params);
+    if (!isDefined(_req.params.coreid)) {
+        res.sendStatus(400);
+        return;
+    }
+
+    if (!deleteCoreFile(_req.params.coreid as CoreUUID)) {
+        res.sendStatus(404);
+    }
+
+    res.status(200);
+    res.send("Core deleted.");
 };
 
 /**

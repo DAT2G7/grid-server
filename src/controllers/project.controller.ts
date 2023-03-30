@@ -1,10 +1,10 @@
 import { RequestHandler } from "express";
-import { v4 } from "uuid";
-import { CoreUUID } from "../types/brand.types";
 import { Core } from "../types/param.types";
 import { writeFileSync } from "fs";
 import { checkCore } from "./api/project.model";
 import { CORE_ROOT } from "../config";
+import { isDefined } from "../utils/helpers";
+import { createCoreObject } from "./api/project.model";
 
 /**
  * Serve the project owner index page
@@ -27,10 +27,7 @@ export const createCore: RequestHandler = (_req, res) => {
         recievedCore = _req.file;
     }
 
-    const core: Core = {
-        coreid: v4() as CoreUUID,
-        contents: recievedCore.buffer
-    };
+    const core: Core = createCoreObject(recievedCore);
 
     const checkResult = checkCore(core);
 
@@ -52,8 +49,4 @@ export function saveCore(core: Core) {
     } catch {
         throw new Error("Error: Core file not saved.");
     }
-}
-
-function isDefined<T>(value: T | undefined): value is T {
-    return value !== undefined && value !== null;
 }
