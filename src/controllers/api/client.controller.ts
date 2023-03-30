@@ -1,32 +1,38 @@
 import { ParamTypes } from "../../types";
 import { RequestHandler } from "express";
-import fs from "fs";
-import { getRandomInt } from "../../utils/random";
-import { Project } from "../../types/global.types";
-// import { ProjectDB } from "../../models/database.model";
-// import { JobUUID } from "../../types/brand.types";
+import db from "../../services/project.db";
+import { getRandomElement } from "../../utils/random";
+import { Job, Project } from "../../types/global.types";
+import { v4 } from "uuid";
 
 /**
  * Serve core-, job- and task-id
  */
 export const getSetup: RequestHandler = (_req, res) => {
-    //Find random project
-    const projects: Project[] = JSON.parse(
-        fs.readFileSync(process.cwd() + process.env.PROJECT_DB_PATH).toString()
-    );
+    //Get random project and random job from within that project
+    const project = getRandomElement<Project>(db.data); //db.randomProject();
 
-    const project = projects[getRandomInt(0, projects.length)];
+    const job = getRandomElement<Job>(project.jobs);
 
-    //Find random job
-    const job = project.jobs[getRandomInt(0, project.jobs.length)];
+    if (!job) {
+        throw new Error(`project ${project.projectId} does not have any jobs`);
+        res.status(500);
+    }
 
-    //Return projectId & jobId
-    res.status(200).send(
-        JSON.stringify({
-            projectId: project.projectId,
-            jobId: job.jobId
-        })
-    );
+    const taskId = v4();
+
+    const responseData = {
+        projectId: project.projectId,
+        jobId: job.jobId,
+        coreId: job.coreId,
+        taskId: taskId
+    };
+
+    // respond with jobId
+    res.status(200).send(JSON.stringify(responseData));
+
+    const { projectId, jobId } = responseData;
+    db.incrementTaskAmount(projectId, jobId, -1);
 };
 
 /**

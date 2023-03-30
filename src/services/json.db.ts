@@ -1,24 +1,29 @@
-import { NotImplementedError } from "../utils/errors";
-
+// import { NotImplementedError } from "../utils/errors";
+import fs from "fs";
 export default class JsonDB<T> {
     readonly path: string;
     data: T;
 
     constructor(path: string, defaultData: T) {
-        path;
+        this.path = path;
         defaultData;
-        throw new NotImplementedError();
+        this.data = JSON.parse(fs.readFileSync(path).toString());
+        //throw new NotImplementedError();
     }
 
     /**
-     * Refresh data from JSON file.
+     * Refresh data in class by loading from JSON file.
      * @returns Itself
      */
     refresh(): JsonDB<T> {
-        throw new NotImplementedError();
+        this.data = JSON.parse(fs.readFileSync(this.path).toString());
+        return this;
+        // throw new NotImplementedError();
     }
 
     save(): JsonDB<T> {
-        throw new NotImplementedError();
+        fs.writeFileSync(this.path, JSON.stringify(this.data, undefined, 4));
+        return this;
+        // throw new NotImplementedError();
     }
 }
