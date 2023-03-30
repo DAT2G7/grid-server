@@ -1,8 +1,10 @@
 import fs from "fs";
 import { JobUUID, CoreUUID } from "../../types/brand.types";
-import { Job, Core } from "../../types/param.types";
+import { Job, Core } from "../../types/global.types";
 import { CORE_ROOT } from "../../config";
 import { v4 } from "uuid";
+import { ProjectModel } from "../../models/project.model";
+import { PROJECT_DB_PATH } from "../../config";
 
 export function checkCore(core: Core): number {
     core;
@@ -16,9 +18,10 @@ export function checkJob(job: Job) {
     return true;
 }
 
-export function saveJob(job: Job) {
-    job;
-    // TODO: Implement job saving.
+export function saveJob(job: Job): JobUUID {
+    const dbModel = new ProjectModel(PROJECT_DB_PATH);
+    dbModel.addJob(job.projectId, job);
+    return job.jobId;
 }
 
 export function readJob(jobID: JobUUID) {
@@ -49,4 +52,19 @@ export function createCoreObject(file: Express.Multer.File | string): Core {
             contents: Buffer.from(file.buffer)
         };
     }
+}
+
+export function createJobObject(json: string) {
+    const incomingJob = JSON.parse(json);
+
+    const job = {
+        jobId: v4() as JobUUID,
+        coreId: incomingJob.coreId,
+        projectId: incomingJob.projectId,
+        taskAmount: incomingJob.taskAmount,
+        taskRequestEndpoint: incomingJob.taskRequestEndpoint,
+        taskResultEndpoint: incomingJob.taskResultEndpoint
+    };
+
+    return job;
 }

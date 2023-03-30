@@ -34,6 +34,7 @@ export class ProjectModel extends JsonDB<Project[]> {
     addJob(projectId: ProjectUUID, job: Partial<Job>) {
         projectId;
         job;
+        console.log(job);
         // job.jobId ||= v4();
         throw new NotImplementedError();
     }

@@ -1,9 +1,8 @@
-import { ParamTypes } from "../../types";
+import { Job, Core } from "../../types/global.types";
 import { RequestHandler } from "express";
 import { CoreUUID } from "../../types/brand.types";
 import { saveCore } from "../project.controller";
-import { checkCore } from "./project.model";
-import { Core } from "../../types/param.types";
+import { checkCore, createJobObject, checkJob, saveJob } from "./project.model";
 import { isDefined } from "../../utils/helpers";
 import { deleteCoreFile } from "./project.model";
 import { createCoreObject } from "../api/project.model";
@@ -35,8 +34,7 @@ export const createCoreAPI: RequestHandler = (_req, res) => {
 };
 
 /** @ignore */
-export const deleteCore: RequestHandler<ParamTypes.Core> = (_req, res) => {
-    console.log(_req.params);
+export const deleteCore: RequestHandler<Core> = (_req, res) => {
     if (!isDefined(_req.params.coreid)) {
         res.sendStatus(400);
         return;
@@ -53,21 +51,29 @@ export const deleteCore: RequestHandler<ParamTypes.Core> = (_req, res) => {
 /**
  * Receive job for core
  */
-export const createJob: RequestHandler<ParamTypes.Core> = (_req, res) => {
+export const createJob: RequestHandler<Core> = (_req, res) => {
+    const job = createJobObject(_req.body);
+    if (!checkJob(job)) {
+        res.sendStatus(400);
+        return;
+    }
+
+    res.contentType("application/json");
+    res.json({ jobID: saveJob(job) });
     res.sendStatus(200);
 };
 
 /** @ignore */
-export const readJob: RequestHandler<ParamTypes.Job> = (_req, res) => {
+export const readJob: RequestHandler<Job> = (_req, res) => {
     res.sendStatus(404);
 };
 
 /** @ignore */
-export const updateJob: RequestHandler<ParamTypes.Job> = (_req, res) => {
+export const updateJob: RequestHandler<Job> = (_req, res) => {
     res.sendStatus(404);
 };
 
 /** @ignore */
-export const deleteJob: RequestHandler<ParamTypes.Job> = (_req, res) => {
+export const deleteJob: RequestHandler<Job> = (_req, res) => {
     res.sendStatus(404);
 };

@@ -1,4 +1,4 @@
-import { ParamTypes } from "../../types";
+import { Task, Core } from "../../types/global.types";
 import { RequestHandler } from "express";
 
 /**
@@ -11,14 +11,14 @@ export const getSetup: RequestHandler = (_req, res) => {
 /**
  * Serve core
  */
-export const getCore: RequestHandler<ParamTypes.Core> = (_req, res) => {
+export const getCore: RequestHandler<Core> = (_req, res) => {
     res.sendStatus(200);
 };
 
 /**
  * Retrieve and serve task data
  */
-export const getTask: RequestHandler<ParamTypes.Task> = (req, res) => {
+export const getTask: RequestHandler<Task> = (req, res) => {
     const { coreid, jobid, taskid } = req.params;
     console.log("ids:", coreid, jobid, taskid);
     res.sendStatus(200);
@@ -27,6 +27,6 @@ export const getTask: RequestHandler<ParamTypes.Task> = (req, res) => {
 /**
  * Post result to project owner
  */
-export const postResult: RequestHandler<ParamTypes.Task> = (_req, res) => {
+export const postResult: RequestHandler<Task> = (_req, res) => {
     res.sendStatus(200);
 };

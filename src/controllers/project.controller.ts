@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { Core } from "../types/param.types";
+import { Core } from "../types/global.types";
 import { writeFileSync } from "fs";
 import { checkCore } from "./api/project.model";
 import { CORE_ROOT } from "../config";
