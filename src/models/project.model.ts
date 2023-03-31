@@ -104,10 +104,7 @@ export class ProjectModel extends JsonDB<Project[]> {
         const project = this.getProject(projectId);
         if (!project) return;
 
-        const job = project.jobs.find((job: Job) => job.jobId === jobId);
-        if (!job) return;
-
-        const jobIndex = project.jobs.indexOf(job);
+        const jobIndex = project.jobs.findIndex((job) => job.jobId === jobId);
         if (jobIndex === -1) return;
 
         project.jobs.splice(jobIndex, 1);
@@ -126,14 +123,14 @@ export class ProjectModel extends JsonDB<Project[]> {
             : this.projects;
 
         const eligibleProjects = projects.filter(
-            (project) => project !== null && project.jobs.length > 0
+            (project): project is Project =>
+                project !== null && project.jobs.length > 0
         );
 
         if (eligibleProjects.length === 0) return null;
 
-        const jobs = eligibleProjects.flatMap((project) => project!.jobs);
-
-        return getRandomElement<Job>(jobs);
+        const jobs = eligibleProjects.flatMap((project) => project.jobs);
+        return getRandomElement(jobs);
     }
 
     /**
