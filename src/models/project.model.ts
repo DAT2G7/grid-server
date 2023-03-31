@@ -135,9 +135,10 @@ export class ProjectModel extends JsonDB<Project[]> {
 
     /**
      * Sets the task amount of a job to a specified value and saves the database.
+     * If there are no tasks left, the job is removed.
      * @param {ProjectUUID} projectId - The ID of the project.
      * @param {JobUUID} jobId - The ID of the job.
-     * @param {number} increment - The new job amount value.
+     * @param {number} amount - The new job amount value.
      */
     setTaskAmount(
         projectId: ProjectUUID,
@@ -154,6 +155,12 @@ export class ProjectModel extends JsonDB<Project[]> {
         this.save();
     }
 
+    /**
+     * Decrements the task amount of a job by 1 and saves the database.
+     * If there are no tasks left, the job is removed.
+     * @param {ProjectUUID} projectId - The ID of the project.
+     * @param {JobUUID} jobId - The ID of the job.
+     */
     decrementTaskAmount(projectId: ProjectUUID, jobId: JobUUID): void {
         const job = this.getJob(projectId, jobId);
         if (!job) return;
