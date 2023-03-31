@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 
 export default class JsonDB<T> {
     readonly path: string;
@@ -16,11 +17,19 @@ export default class JsonDB<T> {
      * @returns Itself
      */
     refresh(): JsonDB<T> {
+        if (!fs.existsSync(this.path)) return this.save();
+
         this.data = JSON.parse(fs.readFileSync(this.path).toString());
         return this;
     }
 
     save(): JsonDB<T> {
+        //ensureDirectoryExistence(this.path);
+        const dirname = path.dirname(this.path);
+        if (!fs.existsSync(dirname)) {
+            fs.mkdirSync(dirname, { recursive: true });
+        }
+
         fs.writeFileSync(this.path, JSON.stringify(this.data, undefined, 4));
         return this;
     }

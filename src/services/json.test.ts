@@ -1,26 +1,33 @@
 import JsonDB from "./json.db";
 import fs from "fs";
 
+jest.mock("fs");
+const mockedFs = jest.mocked(fs);
+
 describe("JsonDB", () => {
     let testDB: JsonDB<JsonTest>;
 
     test("loads data as provided type", () => {
-        jest.spyOn(fs, "readFileSync").mockImplementation(
-            () => jsonTestStringData
-        );
+        mockedFs.existsSync.mockImplementation(() => true);
+        mockedFs.readFileSync.mockImplementation(() => jsonTestStringData);
+
+        expect(jest.isMockFunction(mockedFs.existsSync)).toBeTruthy();
+        expect(jest.isMockFunction(mockedFs.readFileSync)).toBeTruthy();
 
         testDB = new JsonDB<JsonTest>("test.json", {} as JsonTest);
 
         expect(testDB.data).toBeTruthy();
+        expect(testDB.data).toEqual(JSON.parse(jsonTestStringData));
     });
 
     test("saves data in proper format", () => {
-        jest.spyOn(fs, "writeFileSync").mockImplementation((_path, data) => {
+        mockedFs.writeFileSync.mockImplementation((_path, data) => {
             // Parse and stringify again to ensure whitespace settings do not modify the result
             const restringified = JSON.stringify(JSON.parse(data as string));
 
             expect(restringified).toEqual(jsonTestStringData);
         });
+        expect(jest.isMockFunction(mockedFs.writeFileSync)).toBeTruthy();
 
         testDB.save();
     });
