@@ -55,10 +55,10 @@ describe("ProjectModel", () => {
             expect(project?.jobs).toContainEqual(job);
 
             //for all projects
-            job = testDB.getRandomJob();
+            job = testDB.getRandomJob() as Job;
             expect(job).toBeTruthy();
 
-            project = testDB.getProject(job!.projectId);
+            project = testDB.getProject(job.projectId);
             expect(project?.jobs).toContainEqual(job);
         });
     });
@@ -83,25 +83,51 @@ describe("ProjectModel", () => {
         });
     });
 
-    describe("incrementTaskAmount", () => {
-        it("can increment task amount", () => {
+    describe("decrementTaskAmount", () => {
+        it("can decrement task amount", () => {
             const projectId = testData[0].projectId;
             const jobId = testData[0].jobs[1].jobId;
-            const job = testDB.getJob(projectId, jobId);
-            //Test for correct increment
-            const currentTaskAmount = testDB.data[0].jobs[1].taskAmount;
-            testDB.incrementTaskAmount(projectId, jobId, -1);
-            expect(testDB.data[0].jobs[1].taskAmount).toEqual(
-                currentTaskAmount - 1
-            );
 
-            //test for correct deletion
-            const jobAmount = testDB.data[0].jobs.length;
-            testDB.incrementTaskAmount(projectId, jobId, -1);
-            expect(testDB.data[0].jobs).not.toContainEqual(job);
-            expect(testDB.data[0].jobs.length).toEqual(jobAmount - 1);
+            const job = testDB.getJob(projectId, jobId) as Job;
+            expect(job).toBeTruthy();
+
+            const prevTaskAmount = job.taskAmount;
+
+            testDB.decrementTaskAmount(projectId, jobId);
+            expect(job.taskAmount).toEqual(prevTaskAmount - 1);
         });
     });
+
+    describe("setTaskAmount", () => {
+        let job: Job, project: Project;
+
+        beforeAll(() => {
+            project = testData[0];
+            const jobId = project.jobs[1].jobId;
+
+            job = testDB.getJob(project.projectId, jobId) as Job;
+        });
+
+        it("can set task amount", () => {
+            expect(job).toBeTruthy();
+
+            const newTaskAmount = 500;
+
+            testDB.setTaskAmount(job.projectId, job.jobId, newTaskAmount);
+            expect(job.taskAmount).toEqual(newTaskAmount);
+        });
+
+        it("can remove empty jobs", () => {
+            expect(job).toBeTruthy();
+
+            const jobCount = project.jobs.length;
+
+            testDB.setTaskAmount(job.projectId, job.jobId, 0);
+            expect(project.jobs).not.toContainEqual(job);
+            expect(project.jobs.length).toEqual(jobCount - 1);
+        });
+    });
+
     describe("removeJob", () => {
         it("can remove jobs (removeJob)", () => {
             const projectId = testData[0].projectId;
