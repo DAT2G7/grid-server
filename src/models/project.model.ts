@@ -2,7 +2,7 @@ import JsonDB from "../services/json.db";
 import { Project, Job } from "../types/global.types";
 import { ProjectUUID, JobUUID } from "../types/brand.types";
 import { getRandomInt, getRandomElement } from "../utils/random";
-import { v4 } from "uuid";
+import { v4 as uuid } from "uuid";
 import { PROJECT_DB_PATH } from "../config";
 
 export class ProjectModel extends JsonDB<Project[]> {
@@ -16,7 +16,7 @@ export class ProjectModel extends JsonDB<Project[]> {
      * @returns The ID of the added project.
      */
     addProject(project: Partial<Project>): ProjectUUID {
-        project.projectId ||= v4() as ProjectUUID;
+        project.projectId ||= uuid() as ProjectUUID;
         project.jobs ||= [];
 
         this.data.push(project as Project);
@@ -55,7 +55,7 @@ export class ProjectModel extends JsonDB<Project[]> {
 
     /**
      * Returns a random project.
-     * @returns {Project} The random project.
+     * @returns {Project} The random< project.
      */
     getRandomProject(): Project {
         return this.data[getRandomInt(0, this.data.length)];
@@ -68,7 +68,7 @@ export class ProjectModel extends JsonDB<Project[]> {
      * @returns {JobUUID | null} The ID of the added job or null if the project is not found.
      */
     addJob(projectId: ProjectUUID, job: AddJobPayload): JobUUID | null {
-        job.jobId ||= v4() as JobUUID;
+        job.jobId ||= uuid() as JobUUID;
         job.projectId ||= projectId;
 
         const project = this.getProject(projectId);
