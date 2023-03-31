@@ -1,20 +1,33 @@
-console.log('Client running');
+const MAX_TRY_COUNT = 5;
+
+let worker: Worker | null = null;
+let tryCount = 0;
 
 if (window.Worker) {
-    console.log('Web worker supported');
-
     // Create web worker. This way is not ideal, but allows for a simpler build process.
-    const worker = new Worker('/static/js/client/worker.js');
-
-    // The ideal would be to use this, but it requires a more complex build process.
-    // const worker = new Worker(new URL("./worker.ts", import.meta.url));
+    worker = new Worker('/static/js/client/worker.js');
 
     // Listen for messages from worker
     worker.addEventListener('message', (event) => {
-        console.log('Message from worker:\n', event);
-
-        // Send message to worker
-        worker.postMessage({ type: 'message', data: 'Hello worker!' });
+        switch (event.data.type) {
+            case "error":
+                // TODO: better error handling
+                console.error("Something went wrong while running the web worker:", event.data.message);
+                tryCount++;
+                worker?.terminate();
+                if (tryCount < MAX_TRY_COUNT) {
+                    worker = new Worker('/static/js/client/worker.js');
+                } else {
+                    console.error(`Could not finish work after ${MAX_TRY_COUNT} attempts. No more workers will be created until the site is refreshed`);
+                }
+                break;
+            case "workDone":
+                console.log("Web worker is done running! Starting a new one.");
+                tryCount = 0;
+                worker?.terminate();
+                worker = new Worker('/static/js/client/worker.js');
+                break;
+        }
     });
 } else {
     console.log('Web worker not supported');
