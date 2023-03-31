@@ -129,7 +129,7 @@ describe("ProjectModel", () => {
     });
 
     describe("removeJob", () => {
-        it("can remove jobs (removeJob)", () => {
+        it("can remove jobs", () => {
             const projectId = testData[0].projectId;
             const jobId = testData[0].jobs[0].jobId;
             const job = testDB.getJob(projectId, jobId);

@@ -55,7 +55,7 @@ export class ProjectModel extends JsonDB<Project[]> {
 
     /**
      * Returns a random project.
-     * @returns {Project} The random< project.
+     * @returns {Project} The random project.
      */
     getRandomProject(): Project {
         return this.data[getRandomInt(0, this.data.length)];
