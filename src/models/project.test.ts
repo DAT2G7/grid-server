@@ -2,22 +2,33 @@ import { UUID } from "../types/brand.types";
 import { Job, Project } from "../types/global.types";
 import { ProjectModel } from "./project.model";
 import JsonDB from "../services/json.db";
+import "jest-extended";
 
 describe("ProjectModel", () => {
     let testDB: ProjectModelMock;
 
     test("can initialize the test model", () => {
         testDB = new ProjectModelMock("test.json");
-        testDB.save = jest.fn();
+        testDB.save = jest.fn().mockImplementation(() => {});
         testDB.refresh();
 
         expect(testDB.data).toEqual(testData);
     });
+
+    //If this fuckes up getProject and romeveProject will also fail due to bad implementation
     describe("addProject", () => {
         it("can add projects", () => {
+            const dataChange = jest
+                .spyOn(testDB.data, "push")
+                .mockImplementation((...newdata: Project[]) => {
+                    testDB.data = [...testDB.data, ...newdata];
+                    return 0;
+                }) as jest.MockInstance<unknown, unknown[], any>;
+
             const projectCount = testDB.projects.length;
             testDB.addProject(testProject);
-            expect(testDB.save).toHaveBeenCalled();
+            expect(dataChange).toHaveBeenCalled();
+            expect(testDB.save).toHaveBeenCalledAfter(dataChange);
             expect(testDB.projects).toContainEqual(testProject);
             expect(testDB.projects.length).toEqual(projectCount + 1);
         });
@@ -114,6 +125,7 @@ describe("ProjectModel", () => {
             expect(testDB.data[0].jobs.length).toEqual(jobAmount - 1);
         });
     });
+    describe("removeProject", () => {});
 });
 
 class ProjectModelMock extends ProjectModel {
