@@ -1,37 +1,31 @@
 import { getSetup } from "./client.controller";
-import { Request, Response } from "express";
-import projectModel from "../../models/project.model";
+import { setupMockData } from "./client.test.data";
+import { Request } from "express";
+import { getMockReq, getMockRes } from "@jest-mock/express";
 import { ClientTask } from "../../types/body.types";
 import * as uuidService from "../../services/uuid";
-import { Job, Project } from "../../types/global.types";
-import { UUID } from "../../types/brand.types";
+import projectModel from "../../models/project.model";
 
-describe("test endpoint /api/client/getSetup", () => {
-    test("has expected response", () => {
-        /* Prepare test environment */
-        const req: Partial<Request> = {};
-        const res: Partial<Response> = {
-            status: jest.fn(() => res as Response),
-            send: jest.fn(() => res as Response)
-        };
+describe("getSetup", () => {
+    let getIdSpy: jest.SpyInstance;
+    let getRandomJobSpy: jest.SpyInstance;
 
-        jest.spyOn(uuidService, "getId").mockImplementation(() => taskId);
+    beforeEach(() => {
+        getIdSpy = jest.spyOn(uuidService, "getId");
+        getRandomJobSpy = jest.spyOn(projectModel, "getRandomJob");
+    });
 
-        jest.spyOn(projectModel, "getRandomJob").mockImplementation(
-            () => setupMockData[0].jobs[0] as Job
-        );
+    it("will respond with setup data", () => {
+        const req = getMockReq<Request<Record<string, never>, ClientTask>>();
+        const { res, next } = getMockRes();
 
-        // The contents of PROJECT_DB_PATH do no matter, as our mock implementation is used instead when requesting the JSON file.
-        process.env.PROJECT_DB_PATH = "test";
+        const taskId = uuidService.getId();
 
-        /* Perform the request */
-        getSetup(
-            req as Request<Record<string, never>, ClientTask>,
-            res as Response,
-            jest.fn()
-        );
+        getIdSpy.mockReturnValue(taskId);
+        getRandomJobSpy.mockReturnValue(setupMockData[0].jobs[0]);
 
-        /* Verify the response */
+        getSetup(req, res, next);
+
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.send).toHaveBeenCalledWith({
             projectId: setupMockData[0].projectId,
@@ -40,24 +34,22 @@ describe("test endpoint /api/client/getSetup", () => {
             taskId: taskId
         });
     });
+
+    it("can handle lack of jobs", () => {
+        const req = getMockReq<Request<Record<string, never>, ClientTask>>();
+        const { res, next } = getMockRes();
+
+        getRandomJobSpy.mockImplementation(() => null);
+
+        expect(() => {
+            getSetup(req, res, next);
+        }).toThrowError();
+
+        expect(res.status).toHaveBeenCalledWith(500);
+    });
+
+    afterEach(() => {
+        getIdSpy.mockRestore();
+        getRandomJobSpy.mockRestore();
+    });
 });
-
-const taskId = "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e";
-
-const setupMockData: Project[] = [
-    {
-        projectId: "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e" as UUID,
-        jobs: [
-            {
-                projectId: "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e" as UUID,
-                jobId: "1eb9971f-e713-45b9-8584-8e2bc72a386b" as UUID,
-                coreId: "c945fe39-e77e-4b51-a7f4-229bba2ae648" as UUID,
-                taskAmount: 200,
-                taskRequestEndpoint:
-                    "http://url/to/project/owner/taskRequstEndpoint",
-                taskResultEndpoint:
-                    "http://url/to/project/owner/taskResultEndpoint"
-            }
-        ]
-    }
-];
