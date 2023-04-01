@@ -1,31 +1,25 @@
 import { ParamTypes } from "../../types";
 import { RequestHandler } from "express";
-import db from "../../services/project.db";
-import { getRandomElement } from "../../utils/random";
-import { Job, Project } from "../../types/global.types";
-import { v4 } from "uuid";
+import db from "../../models/project.model";
+import { getId } from "../../services/uuid";
 
 /**
  * Serve core-, job- and task-id
  */
 export const getSetup: RequestHandler = (_req, res) => {
     //Get random project and random job from within that project
-    const project = getRandomElement<Project>(db.data); //db.randomProject();
-
-    const job = getRandomElement<Job>(project.jobs);
+    const job = db.getRandomJob();
 
     if (!job) {
-        throw new Error(`project ${project.projectId} does not have any jobs`);
         res.status(500);
+        throw new Error(`no projects has jobs`);
     }
 
-    const taskId = v4();
-
     const responseData = {
-        projectId: project.projectId,
+        projectId: job.projectId,
         jobId: job.jobId,
         coreId: job.coreId,
-        taskId: taskId
+        taskId: getId()
     };
 
     // respond with jobId
@@ -33,7 +27,7 @@ export const getSetup: RequestHandler = (_req, res) => {
 
     //Decrement task amount
     const { projectId, jobId } = responseData;
-    db.incrementTaskAmount(projectId, jobId, -1);
+    db.decrementTaskAmount(projectId, jobId);
 };
 
 /**

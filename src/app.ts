@@ -1,8 +1,18 @@
 import { apiClientRouter, apiProjectRouter } from "./routes/api";
 import { clientRouter, indexRouter, projectRouter } from "./routes";
 
+import fs from "fs";
 import express from "express";
 import config from "./config";
+
+// initialize project model
+import projectModel from "./models/project.model";
+projectModel;
+
+// ensure existence of core directory
+if (!fs.existsSync(config.CORE_ROOT)) {
+    fs.mkdirSync(config.CORE_ROOT, { recursive: true });
+}
 
 // init app
 const app = express();

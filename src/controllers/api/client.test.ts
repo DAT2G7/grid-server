@@ -1,8 +1,9 @@
 import { getSetup } from "./client.controller";
 import { Request, Response } from "express";
-import uuid from "uuid";
-import db from "../../services/project.db";
-import { Project } from "../../types/global.types";
+import projectModel from "../../models/project.model";
+import { getId } from "../../services/uuid";
+// import { Job } from "../../types/global.types";
+// import { ProjectUUID } from "../../types/brand.types";
 
 describe("test endpoint /api/client/getSetup", () => {
     test("has expected response", () => {
@@ -13,12 +14,13 @@ describe("test endpoint /api/client/getSetup", () => {
             send: jest.fn(() => res as Response)
         };
 
-        jest.spyOn(db, "randomProject").mockImplementation(
-            () => setupMockData[0] as unknown as Project
-        );
+        jest.mock("../../services/uuid", () => ({
+            getId: jest.fn()
+        }));
 
-        console.log(uuid);
-        jest.spyOn(uuid, "v4").mockImplementation(() => taskId);
+        jest.spyOn(projectModel, "getRandomJob").mockImplementation(
+            () => setupMockData[0].jobs[0] as any
+        );
 
         // The contents of PROJECT_DB_PATH do no matter, as our mock implementation is used instead when requesting the JSON file.
         process.env.PROJECT_DB_PATH = "test";
@@ -46,7 +48,8 @@ const setupMockData = [
         projectId: "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e",
         jobs: [
             {
-                jobId: "5eb9971f-e713-45b9-8584-8e2bc72a386b",
+                projectId: "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e",
+                jobId: "1eb9971f-e713-45b9-8584-8e2bc72a386b",
                 coreId: "c945fe39-e77e-4b51-a7f4-229bba2ae648",
                 taskAmount: 200,
                 taskRequstEndpoint:
