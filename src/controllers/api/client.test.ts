@@ -1,10 +1,14 @@
-import { getSetup } from "./client.controller";
+import { getCore, getSetup } from "./client.controller";
 import { setupMockData } from "./client.test.data";
 import { Request } from "express";
 import { getMockReq, getMockRes } from "@jest-mock/express";
+import path from "path";
 import { ClientTask } from "../../types/body.types";
+import { ParamTypes } from "../../types";
+import { ParamsDictionary } from "express-serve-static-core";
 import * as uuidService from "../../services/uuid";
 import projectModel from "../../models/project.model";
+import config from "../../config";
 
 describe("getSetup", () => {
     let getIdSpy: jest.SpyInstance;
@@ -15,7 +19,7 @@ describe("getSetup", () => {
         getRandomJobSpy = jest.spyOn(projectModel, "getRandomJob");
     });
 
-    it("will respond with setup data", () => {
+    it("should respond with setup data", () => {
         const req = getMockReq<Request<Record<string, never>, ClientTask>>();
         const { res, next } = getMockRes();
 
@@ -35,7 +39,7 @@ describe("getSetup", () => {
         });
     });
 
-    it("can handle lack of jobs", () => {
+    it("should handle lack of jobs", () => {
         const req = getMockReq<Request<Record<string, never>, ClientTask>>();
         const { res, next } = getMockRes();
 
@@ -51,5 +55,25 @@ describe("getSetup", () => {
     afterEach(() => {
         getIdSpy.mockRestore();
         getRandomJobSpy.mockRestore();
+    });
+});
+
+type GetCoreRequest = Request<ParamsDictionary & ParamTypes.Core, Buffer>;
+
+describe("getCore", () => {
+    it("should respond with expected core file", () => {
+        const coreId = uuidService.getId();
+        const expectedPath = path.resolve(config.CORE_ROOT, coreId + ".js");
+
+        const { res, next } = getMockRes();
+        const req = getMockReq<GetCoreRequest>({
+            params: {
+                coreid: coreId
+            }
+        });
+
+        getCore(req, res, next);
+
+        expect(res.sendFile).toHaveBeenCalledWith(expectedPath);
     });
 });

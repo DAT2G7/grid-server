@@ -4,6 +4,8 @@ import db from "../../models/project.model";
 import { getId } from "../../services/uuid";
 import { ClientTask } from "../../types/body.types";
 import { TaskUUID } from "../../types/brand.types";
+import path from "path";
+import config from "../../config";
 
 /**
  * Serve core-, job- and task-id
@@ -39,7 +41,8 @@ export const getSetup: RequestHandler<Record<string, never>, ClientTask> = (
  * Serve core
  */
 export const getCore: RequestHandler<ParamTypes.Core, Buffer> = (_req, res) => {
-    res.sendStatus(200);
+    const { coreid } = _req.params;
+    res.sendFile(path.resolve(config.CORE_ROOT, coreid + ".js"));
 };
 
 /**
