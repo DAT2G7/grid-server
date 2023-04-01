@@ -22,15 +22,15 @@ router.get(
 router.get;
 
 router.get(
-    "/core/:coreid/job/:jobid/task/:taskid",
-    validateUUIDs("coreid", "jobid", "taskid"),
+    "/project/:projectid/job/:jobid/task/:taskid",
+    validateUUIDs("projectid", "jobid", "taskid"),
     handleInvalid,
     getTask as unknown as RequestHandler
 );
 
 router.post(
-    "/core/:coreid/job/:jobid/task/:taskid",
-    validateUUIDs("coreid", "jobid", "taskid"),
+    "/project/:projectid/job/:jobid/task/:taskid",
+    validateUUIDs("projectid", "jobid", "taskid"),
     handleInvalid,
     postResult as unknown as RequestHandler
 );
