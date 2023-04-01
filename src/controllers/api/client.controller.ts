@@ -2,11 +2,16 @@ import { ParamTypes } from "../../types";
 import { RequestHandler } from "express";
 import db from "../../models/project.model";
 import { getId } from "../../services/uuid";
+import { ClientTask } from "../../types/body.types";
+import { TaskUUID } from "../../types/brand.types";
 
 /**
  * Serve core-, job- and task-id
  */
-export const getSetup: RequestHandler = (_req, res) => {
+export const getSetup: RequestHandler<Record<string, never>, ClientTask> = (
+    _req,
+    res
+) => {
     //Get random project and random job from within that project
     const job = db.getRandomJob();
 
@@ -15,15 +20,15 @@ export const getSetup: RequestHandler = (_req, res) => {
         throw new Error(`no projects has jobs`);
     }
 
-    const responseData = {
+    const responseData: ClientTask = {
         projectId: job.projectId,
         jobId: job.jobId,
         coreId: job.coreId,
-        taskId: getId()
+        taskId: getId() as TaskUUID
     };
 
     // respond with jobId
-    res.status(200).send(JSON.stringify(responseData));
+    res.status(200).send(responseData);
 
     //Decrement task amount
     const { projectId, jobId } = responseData;
@@ -33,7 +38,7 @@ export const getSetup: RequestHandler = (_req, res) => {
 /**
  * Serve core
  */
-export const getCore: RequestHandler<ParamTypes.Core> = (_req, res) => {
+export const getCore: RequestHandler<ParamTypes.Core, Buffer> = (_req, res) => {
     res.sendStatus(200);
 };
 
