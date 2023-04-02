@@ -8,7 +8,6 @@ import { ParamTypes } from "../../types";
 import { ParamsDictionary } from "express-serve-static-core";
 import * as UuidService from "../../utils/random";
 import projectModel from "../../models/project.model";
-import { UUID } from "../../types/brand.types";
 import config from "../../config";
 
 describe("getSetup", () => {
