@@ -1,9 +1,8 @@
 import { getSetup } from "./client.controller";
 import { Request, Response } from "express";
 import projectModel from "../../models/project.model";
-import { getId } from "../../services/uuid";
-// import { Job } from "../../types/global.types";
-// import { ProjectUUID } from "../../types/brand.types";
+import * as UuidModule from "../../utils/random";
+import { UUID } from "../../types/brand.types";
 
 describe("test endpoint /api/client/getSetup", () => {
     test("has expected response", () => {
@@ -14,9 +13,7 @@ describe("test endpoint /api/client/getSetup", () => {
             send: jest.fn(() => res as Response)
         };
 
-        jest.mock("../../services/uuid", () => ({
-            getId: jest.fn()
-        }));
+        jest.spyOn(UuidModule, "getId").mockImplementation(() => taskId);
 
         jest.spyOn(projectModel, "getRandomJob").mockImplementation(
             () => setupMockData[0].jobs[0] as any
@@ -41,7 +38,7 @@ describe("test endpoint /api/client/getSetup", () => {
     });
 });
 
-const taskId = "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e";
+const taskId = "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e" as UUID;
 
 const setupMockData = [
     {

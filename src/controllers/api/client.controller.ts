@@ -1,7 +1,7 @@
 import { ParamTypes } from "../../types";
 import { RequestHandler } from "express";
 import db from "../../models/project.model";
-import { getId } from "../../services/uuid";
+import { getId } from "../../utils/random";
 
 /**
  * Serve core-, job- and task-id
