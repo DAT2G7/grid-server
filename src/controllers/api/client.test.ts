@@ -1,4 +1,4 @@
-import { getCore, getSetup, getTask } from "./client.controller";
+import { getCore, getSetup, getTask, postResult } from "./client.controller";
 import { setupMockData } from "./client.test.data";
 import { Request, Response, NextFunction } from "express";
 import { getMockReq, getMockRes } from "@jest-mock/express";
@@ -13,6 +13,26 @@ import projectModel from "../../models/project.model";
 import config from "../../config";
 
 describe("api/client", () => {
+    let res: Response;
+    let next: NextFunction;
+    let getJobSpy: jest.SpyInstance;
+    let taskId: TaskUUID;
+    let job: Job;
+
+    beforeEach(() => {
+        const mockRes = getMockRes();
+        res = mockRes.res;
+        next = mockRes.next;
+
+        job = { ...setupMockData[0].jobs[0] };
+
+        getJobSpy = jest.spyOn(projectModel, "getJob").mockReturnValue(job);
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
     describe("getSetup", () => {
         let getIdSpy: jest.SpyInstance;
         let getRandomJobSpy: jest.SpyInstance;
@@ -25,9 +45,8 @@ describe("api/client", () => {
         it("should respond with setup data", () => {
             const req =
                 getMockReq<Request<Record<string, never>, ClientTask>>();
-            const { res, next } = getMockRes();
 
-            const taskId = UuidService.getId();
+            taskId = UuidService.getId();
 
             getIdSpy.mockReturnValue(taskId);
             getRandomJobSpy.mockReturnValue(setupMockData[0].jobs[0]);
@@ -46,20 +65,12 @@ describe("api/client", () => {
         it("should handle lack of jobs", () => {
             const req =
                 getMockReq<Request<Record<string, never>, ClientTask>>();
-            const { res, next } = getMockRes();
 
             getRandomJobSpy.mockImplementation(() => null);
 
-            expect(() => {
-                getSetup(req, res, next);
-            }).toThrowError();
+            getSetup(req, res, next);
 
-            expect(res.status).toHaveBeenCalledWith(500);
-        });
-
-        afterEach(() => {
-            getIdSpy.mockRestore();
-            getRandomJobSpy.mockRestore();
+            expect(res.sendStatus).toHaveBeenCalledWith(422);
         });
     });
 
@@ -68,7 +79,6 @@ describe("api/client", () => {
             const coreId = UuidService.getId();
             const expectedPath = path.resolve(config.CORE_ROOT, coreId + ".js");
 
-            const { res, next } = getMockRes();
             const req = getMockReq<GetCoreRequest>({
                 params: {
                     coreid: coreId
@@ -83,12 +93,6 @@ describe("api/client", () => {
 
     describe("getTask", () => {
         let req: GetTaskRequest;
-        let res: Response;
-        let next: NextFunction;
-        let getJobSpy: jest.SpyInstance;
-        let saveSpy: jest.SpyInstance;
-        let taskId: TaskUUID;
-
         const mockTaskData = { test: 100 };
 
         beforeEach(() => {
@@ -102,12 +106,6 @@ describe("api/client", () => {
                 }
             });
 
-            res = getMockRes().res;
-            next = getMockRes().next;
-
-            saveSpy = jest.spyOn(projectModel, "save");
-            saveSpy.mockImplementation(() => projectModel);
-
             global.fetch = jest.fn(() =>
                 Promise.resolve({
                     json: () => Promise.resolve(mockTaskData)
@@ -115,11 +113,9 @@ describe("api/client", () => {
             ) as jest.Mock;
         });
 
-        afterEach(() => {
-            jest.restoreAllMocks();
-        });
-
         it("should respond with error if job is not found", async () => {
+            getJobSpy.mockRestore();
+
             req.params.jobid = UuidService.getId();
 
             await getTask(req, res, next);
@@ -128,55 +124,37 @@ describe("api/client", () => {
         });
 
         it("should respond with error if task amount is 0", async () => {
-            getJobSpy = jest.spyOn(projectModel, "getJob");
-            getJobSpy.mockReturnValue({
-                ...setupMockData[0].jobs[0],
-                taskAmount: 0
-            } as Job);
+            job.taskAmount = 0;
 
             await getTask(req, res, next);
 
             expect(res.sendStatus).toHaveBeenCalledWith(422);
-
-            getJobSpy.mockRestore();
         });
 
         it("should decrement task amount", async () => {
-            const job = {
-                ...setupMockData[0].jobs[0]
-            } as Job;
             const initialTaskAmount = job.taskAmount;
 
-            getJobSpy = jest.spyOn(projectModel, "getJob");
-            getJobSpy.mockReturnValue(job);
+            const decrementSpy = jest
+                .spyOn(projectModel, "decrementTaskAmount")
+                .mockImplementation(() => {
+                    job.taskAmount--;
+                });
 
             await getTask(req, res, next);
 
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(saveSpy).toHaveBeenCalledTimes(1);
+            expect(decrementSpy).toHaveBeenCalledTimes(1);
             expect(job.taskAmount).toEqual(initialTaskAmount - 1);
         });
 
         it("should request task data from project owner", async () => {
-            getJobSpy = jest.spyOn(projectModel, "getJob");
-            getJobSpy.mockReturnValue({
-                ...setupMockData[0].jobs[0]
-            } as Job);
-
             await getTask(req, res, next);
-            const fetchRequest =
-                setupMockData[0].jobs[0].taskRequestEndpoint + "/" + taskId;
+            const fetchRequest = `${setupMockData[0].jobs[0].taskRequestEndpoint}/${taskId}`;
 
             expect(global.fetch).toHaveBeenCalledWith(fetchRequest);
         });
 
         it("should respond with task data", async () => {
-            getJobSpy = jest.spyOn(projectModel, "getJob");
-            getJobSpy.mockReturnValue({
-                ...setupMockData[0].jobs[0],
-                taskAmount: 100
-            } as Job);
-
             await getTask(req, res, next);
 
             expect(res.sendStatus).not.toHaveBeenCalled();
@@ -186,10 +164,68 @@ describe("api/client", () => {
     });
 
     describe("postResult", () => {
-        it("should post result to project owner", () => {});
-        it("should respond to client with status 200", () => {});
+        let req: PostTaskRequest;
+
+        beforeEach(() => {
+            taskId = UuidService.getId();
+
+            req = getMockReq<PostTaskRequest>({
+                params: {
+                    projectid: setupMockData[0].projectId,
+                    jobid: setupMockData[0].jobs[0].jobId,
+                    taskid: taskId
+                },
+                body: {
+                    result: "test"
+                }
+            });
+
+            global.fetch = jest.fn();
+        });
+
+        it("should respond with error if the job is not found", () => {
+            getJobSpy.mockRestore();
+
+            req.params.jobid = UuidService.getId();
+
+            postResult(req, res, next);
+
+            expect(res.sendStatus).toHaveBeenCalledWith(422);
+            expect(global.fetch).not.toHaveBeenCalled();
+        });
+
+        it("should post result to project owner", () => {
+            const req = getMockReq<PostTaskRequest>({
+                params: {
+                    projectid: setupMockData[0].projectId,
+                    jobid: setupMockData[0].jobs[0].jobId,
+                    taskid: taskId
+                },
+                body: {
+                    result: "test"
+                }
+            });
+
+            postResult(req, res, next);
+
+            expect(global.fetch).toHaveBeenCalledWith(
+                setupMockData[0].jobs[0].taskResultEndpoint + "/" + taskId,
+                {
+                    method: "POST",
+                    body: req.body,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+        });
+        it("should respond to client with status 200", () => {
+            postResult(req, res, next);
+            expect(res.sendStatus).toHaveBeenCalledWith(200);
+        });
     });
 });
 
 type GetCoreRequest = Request<ParamsDictionary & ParamTypes.Core, Buffer>;
 type GetTaskRequest = Request<ParamsDictionary & ParamTypes.Task>;
+type PostTaskRequest = Request<ParamsDictionary & ParamTypes.Task>;

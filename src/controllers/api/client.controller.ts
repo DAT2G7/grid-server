@@ -14,12 +14,11 @@ export const getSetup: RequestHandler<Record<string, never>, ClientTask> = (
     _req,
     res
 ) => {
-    //Get random project and random job from within that project
     const job = db.getRandomJob();
 
     if (!job) {
-        res.status(500);
-        throw new Error(`no projects has jobs`);
+        res.sendStatus(422);
+        return;
     }
 
     const responseData: ClientTask = {
@@ -29,12 +28,7 @@ export const getSetup: RequestHandler<Record<string, never>, ClientTask> = (
         taskId: getId() as TaskUUID
     };
 
-    // respond with jobId
     res.status(200).send(responseData);
-
-    //Decrement task amount
-    const { projectId, jobId } = responseData;
-    db.decrementTaskAmount(projectId, jobId);
 };
 
 /**
@@ -57,6 +51,7 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
         return;
     }
 
+    // TODO: Better error handling
     let taskData: unknown;
     try {
         taskData = await (
@@ -67,16 +62,30 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
         return;
     }
 
-    job.taskAmount--;
-    db.save();
+    db.decrementTaskAmount(projectid, jobid);
 
-    res.status(200);
-    res.send(taskData);
+    res.status(200).send(taskData);
 };
 
 /**
  * Post result to project owner
  */
 export const postResult: RequestHandler<ParamTypes.Task> = (_req, res) => {
+    const { projectid, jobid, taskid } = _req.params;
+    const job = db.getJob(projectid, jobid);
+
+    if (!job || job.taskAmount < 1) {
+        res.sendStatus(422);
+        return;
+    }
+
+    fetch(`${job.taskResultEndpoint}/${taskid}`, {
+        method: "POST",
+        body: _req.body,
+        headers: {
+            "Content-Type": _req.headers["content-type"] || "application/json"
+        }
+    });
+
     res.sendStatus(200);
 };
