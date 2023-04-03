@@ -1,36 +1,55 @@
 import fs from "fs";
-import { JobUUID, CoreUUID } from "../../types/brand.types";
+import { JobUUID, CoreUUID, ProjectUUID } from "../../types/brand.types";
 import { Job, Core } from "../../types/global.types";
 import { CORE_ROOT } from "../../config";
 import { v4 } from "uuid";
 import { ProjectModel } from "../../models/project.model";
 import { PROJECT_DB_PATH } from "../../config";
 
+const dbModel = new ProjectModel(PROJECT_DB_PATH);
+
+/**
+ * Responsible for checking the core before it is saved.
+ * @param core The core object that needs to be validated.
+ * @returns Returns an HTTP status code, as that code is forwarded to the project owner.
+ */
 export function checkCore(core: Core): number {
     core;
     // Function for furure testing of contents, before acceptance of core.
     return 200;
 }
 
+/**
+ * Responsible for checking incoming jobs before they are added to the database.
+ * @param job The job object that needs to be validated.
+ * @returns boolean, true if the job is valid, false if not.
+ */
 export function checkJob(job: Job) {
-    job;
-    // Function for furure testing of jobs, before acceptance of job.
+    // Check if the core needed by the job exists.
+    if (!fs.existsSync(CORE_ROOT + "/" + job.coreId + ".js")) {
+        return false;
+    }
+
     return true;
 }
 
-export function saveJob(job: Job): JobUUID {
-    const dbModel = new ProjectModel(PROJECT_DB_PATH);
-    dbModel.addJob(job.projectId, job);
-    return job.jobId;
+/**
+ * Responsible for retrieving a job from the database.
+ * @param projectId The projectId of the project that the job belongs to.
+ * @param jobID The jobID of the job that needs to be retrieved.
+ * @returns The job object that was requested.
+ */
+export function readJob(projectId: ProjectUUID, jobID: JobUUID) {
+    return dbModel.getJob(projectId, jobID);
 }
 
-export function readJob(jobID: JobUUID) {
-    jobID;
-    // TODO: Implement job reading.
-}
-
+/**
+ * Responsible for deleting a core from the file system.
+ * @param coreId The coreId of the core that needs to be deleted.
+ * @returns boolean, true if the core was deleted, false if the core doesn't exist.
+ */
 export function deleteCoreFile(coreId: CoreUUID): boolean {
-    // TODO: Check if any jobs are using this core, and if so, do not delete.
+    // TODO: Check if any jobs are depending on this core, and if so, do not delete.
     const path = CORE_ROOT + "/" + coreId + ".js";
     if (!fs.existsSync(path)) {
         return false;
@@ -40,6 +59,11 @@ export function deleteCoreFile(coreId: CoreUUID): boolean {
     return true;
 }
 
+/**
+ * Resposible for creating a core object from a file.
+ * @param file The core file that needs to be saved.
+ * @returns returns the core object created from the file.
+ */
 export function createCoreObject(file: Express.Multer.File | string): Core {
     if (typeof file === "string") {
         return {
@@ -54,17 +78,21 @@ export function createCoreObject(file: Express.Multer.File | string): Core {
     }
 }
 
-export function createJobObject(json: string) {
-    const incomingJob = JSON.parse(json);
+/**
+ * Responsible for adding a JobUUID to a job object, if one is not already present.
+ * @param incomingJob The job object that needs to be checked.
+ * @returns The job object with a JobUUID.
+ */
+export function createJobObject(incomingJob: Partial<Job>): Job {
+    incomingJob.jobId ??= v4() as JobUUID;
 
-    const job = {
-        jobId: v4() as JobUUID,
-        coreId: incomingJob.coreId,
-        projectId: incomingJob.projectId,
-        taskAmount: incomingJob.taskAmount,
-        taskRequestEndpoint: incomingJob.taskRequestEndpoint,
-        taskResultEndpoint: incomingJob.taskResultEndpoint
-    };
+    return incomingJob as Job;
+}
 
-    return job;
+/** Responsible for checking whether a core exists in the file system.
+ * @param coreId The coreId of the core that needs to be checked.
+ * @returns boolean, true if the core exists, false if not.
+ * */
+export function coreExists(coreId: CoreUUID): boolean {
+    return fs.existsSync(CORE_ROOT + "/" + coreId + ".js");
 }

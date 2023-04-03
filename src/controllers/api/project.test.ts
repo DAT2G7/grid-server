@@ -9,29 +9,9 @@ import {
     checkCore,
     createJobObject,
     checkJob,
-    saveJob,
-    readJob,
-    deleteCoreFile
+    deleteCoreFile,
+    coreExists
 } from "./project.model";
-
-test("saveCore", () => {
-    const mockCore: Core = createMockCore();
-
-    const hashSum = crypto.createHash("md5");
-    hashSum.update(mockCore.contents);
-
-    saveCore(mockCore);
-
-    const corePath: string = CORE_ROOT + "/" + mockCore.coreid + ".js";
-
-    const savedFileContent = fs.readFileSync(corePath);
-
-    const newHashSum = crypto.createHash("md5");
-    newHashSum.update(savedFileContent);
-
-    expect(hashSum.digest("hex")).toBe(newHashSum.digest("hex"));
-    fs.rmSync(corePath);
-});
 
 test("checkCore", () => {
     const mockCore: Core = createMockCore();
@@ -42,7 +22,7 @@ test("checkCore", () => {
     expect(actualResult).toBe(expectedResult);
 });
 
-test("deleteCore", () => {
+test("deleteCoreFile", () => {
     const mockCore: Core = createMockCore();
     saveCore(mockCore);
 
@@ -52,10 +32,10 @@ test("deleteCore", () => {
     );
 });
 
-test("createJob", () => {
+test("createJobObject", () => {
     const expectedResult = createMockJob();
 
-    const tmpJob = {
+    const tmpJob: Partial<Job> = {
         coreId: expectedResult.coreId,
         taskAmount: expectedResult.taskAmount,
         projectId: expectedResult.projectId,
@@ -63,7 +43,7 @@ test("createJob", () => {
         taskResultEndpoint: expectedResult.taskResultEndpoint
     };
 
-    const actualResult = createJobObject(JSON.stringify(tmpJob));
+    const actualResult = createJobObject(tmpJob);
 
     expect(actualResult.coreId).toBe(expectedResult.coreId);
     expect(actualResult.taskAmount).toBe(expectedResult.taskAmount);
@@ -77,21 +57,20 @@ test("createJob", () => {
     expect(typeof actualResult.jobId).toBe(typeof expectedResult.jobId);
 });
 
-test("saveJob", () => {
-    const mockJob: Job = createMockJob();
-
-    saveJob(mockJob);
-
-    const actualJob = readJob(mockJob.jobId);
-
-    expect(actualJob).toBe(mockJob);
-});
-
 test("checkJob", () => {
     const mockJob: Job = createMockJob();
 
     const expectedResult = true;
     const actualResult = checkJob(mockJob);
+
+    expect(actualResult).toBe(expectedResult);
+});
+
+test("coreExists", () => {
+    const mockCore: Core = createMockCore();
+
+    const expectedResult = true;
+    const actualResult = coreExists(mockCore.coreid);
 
     expect(actualResult).toBe(expectedResult);
 });
