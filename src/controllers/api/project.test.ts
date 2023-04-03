@@ -1,4 +1,3 @@
-import crypto from "crypto";
 import fs from "fs";
 import { v4 } from "uuid";
 import { CoreUUID, JobUUID, ProjectUUID } from "../../types/brand.types";
@@ -59,20 +58,27 @@ test("createJobObject", () => {
 
 test("checkJob", () => {
     const mockJob: Job = createMockJob();
+    const mockCore: Core = createMockCore();
+    saveCore(mockCore);
+
+    mockJob.coreId = mockCore.coreid;
 
     const expectedResult = true;
     const actualResult = checkJob(mockJob);
 
     expect(actualResult).toBe(expectedResult);
+    deleteCoreFile(mockCore.coreid);
 });
 
 test("coreExists", () => {
     const mockCore: Core = createMockCore();
+    saveCore(mockCore);
 
     const expectedResult = true;
     const actualResult = coreExists(mockCore.coreid);
 
     expect(actualResult).toBe(expectedResult);
+    deleteCoreFile(mockCore.coreid);
 });
 
 function createMockCore(): Core {

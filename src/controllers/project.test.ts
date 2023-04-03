@@ -2,8 +2,8 @@ import crypto from "crypto";
 import fs from "fs";
 import { v4 } from "uuid";
 import { CORE_ROOT } from "../config";
-import { CoreUUID, JobUUID, ProjectUUID } from "../types/brand.types";
-import { Core, Job } from "../types/global.types";
+import { CoreUUID } from "../types/brand.types";
+import { Core } from "../types/global.types";
 import { saveCore } from "./project.controller";
 
 // TODO: Write test for createCore.
