@@ -13,8 +13,9 @@ export default class JsonDB<T> {
     }
 
     /**
-     * Refresh data from JSON file.
-     * @returns Itself
+     * Refreshes the in-memory data by reading the JSON file from disk.
+     * If the file does not exist, saves the current data to disk.
+     * @returns {JsonDB<T>} The current JsonDB instance for method chaining.
      */
     refresh(): JsonDB<T> {
         if (!fs.existsSync(this.path)) return this.save();
@@ -24,7 +25,6 @@ export default class JsonDB<T> {
     }
 
     save(): JsonDB<T> {
-        //ensureDirectoryExistence(this.path);
         const dirname = path.dirname(this.path);
         if (!fs.existsSync(dirname)) {
             fs.mkdirSync(dirname, { recursive: true });

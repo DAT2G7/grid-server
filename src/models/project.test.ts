@@ -1,7 +1,8 @@
-import { UUID } from "../types/brand.types";
-import { Job, Project } from "../types/global.types";
 import { ProjectModel } from "./project.model";
+import { testData, testJob, testProject } from "./project.test.data";
+import { Job, Project } from "../types/global.types";
 import JsonDB from "../services/json.db";
+import "jest-extended";
 
 describe("ProjectModel", () => {
     let testDB: ProjectModelMock;
@@ -13,11 +14,21 @@ describe("ProjectModel", () => {
 
         expect(testDB.data).toEqual(testData);
     });
+
+    //If this fuckes up getProject and romeveProject will also fail due to bad implementation
     describe("addProject", () => {
         it("can add projects", () => {
+            const dataChange = jest
+                .spyOn(testDB.data, "push")
+                .mockImplementation((...newdata: Project[]) => {
+                    testDB.data = [...testDB.data, ...newdata];
+                    return 0;
+                }) as jest.MockInstance<unknown, unknown[], any>;
+
             const projectCount = testDB.projects.length;
             testDB.addProject(testProject);
-            expect(testDB.save).toHaveBeenCalled();
+            expect(dataChange).toHaveBeenCalled();
+            expect(testDB.save).toHaveBeenCalledAfter(dataChange);
             expect(testDB.projects).toContainEqual(testProject);
             expect(testDB.projects.length).toEqual(projectCount + 1);
         });
@@ -46,6 +57,7 @@ describe("ProjectModel", () => {
             expect(testDB.data.length).toEqual(length - 1);
         });
     });
+
     describe("getRandomJob", () => {
         it("can find random jobs", () => {
             //for specific project
@@ -55,10 +67,10 @@ describe("ProjectModel", () => {
             expect(project?.jobs).toContainEqual(job);
 
             //for all projects
-            job = testDB.getRandomJob();
+            job = testDB.getRandomJob() as Job;
             expect(job).toBeTruthy();
 
-            project = testDB.getProject(job!.projectId);
+            project = testDB.getProject(job.projectId);
             expect(project?.jobs).toContainEqual(job);
         });
     });
@@ -83,27 +95,43 @@ describe("ProjectModel", () => {
         });
     });
 
-    describe("incrementTaskAmount", () => {
-        it("can increment task amount", () => {
+    describe("decrementTaskAmount", () => {
+        it("can decrement task amount", () => {
             const projectId = testData[0].projectId;
             const jobId = testData[0].jobs[1].jobId;
-            const job = testDB.getJob(projectId, jobId);
-            //Test for correct increment
-            const currentTaskAmount = testDB.data[0].jobs[1].taskAmount;
-            testDB.incrementTaskAmount(projectId, jobId, -1);
-            expect(testDB.data[0].jobs[1].taskAmount).toEqual(
-                currentTaskAmount - 1
-            );
 
-            //test for correct deletion
-            const jobAmount = testDB.data[0].jobs.length;
-            testDB.incrementTaskAmount(projectId, jobId, -1);
-            expect(testDB.data[0].jobs).not.toContainEqual(job);
-            expect(testDB.data[0].jobs.length).toEqual(jobAmount - 1);
+            const job = testDB.getJob(projectId, jobId) as Job;
+            expect(job).toBeTruthy();
+
+            const prevTaskAmount = job.taskAmount;
+
+            testDB.decrementTaskAmount(projectId, jobId);
+            expect(job.taskAmount).toEqual(prevTaskAmount - 1);
         });
     });
+
+    describe("setTaskAmount", () => {
+        let job: Job, project: Project;
+
+        beforeAll(() => {
+            project = testData[0];
+            const jobId = project.jobs[1].jobId;
+
+            job = testDB.getJob(project.projectId, jobId) as Job;
+        });
+
+        it("can set task amount", () => {
+            expect(job).toBeTruthy();
+
+            const newTaskAmount = 500;
+
+            testDB.setTaskAmount(job.projectId, job.jobId, newTaskAmount);
+            expect(job.taskAmount).toEqual(newTaskAmount);
+        });
+    });
+
     describe("removeJob", () => {
-        it("can remove jobs (removeJob)", () => {
+        it("can remove jobs", () => {
             const projectId = testData[0].projectId;
             const jobId = testData[0].jobs[0].jobId;
             const job = testDB.getJob(projectId, jobId);
@@ -126,45 +154,3 @@ class ProjectModelMock extends ProjectModel {
         return this;
     }
 }
-
-const testData: Project[] = [
-    {
-        projectId: "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e" as UUID,
-        jobs: [
-            {
-                jobId: "5eb9971f-e713-45b9-8584-8e2bc72a386b" as UUID,
-                coreId: "c945fe39-e77e-4b51-a7f4-229bba2ae648" as UUID,
-                projectId: "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e" as UUID,
-                taskAmount: 200,
-                taskRequestEndpoint:
-                    "http://url/to/project/owner/taskRequstEndpoint",
-                taskResultEndpoint:
-                    "http://url/to/project/owner/taskResultEndpoint"
-            },
-            {
-                jobId: "495886eb-f6ee-4a65-bf0d-4f6f3aa2c599" as UUID,
-                coreId: "d7e36d1e-5f87-4b03-89ac-cb5767f4c61b" as UUID,
-                projectId: "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e" as UUID,
-                taskAmount: 2,
-                taskRequestEndpoint:
-                    "http://url/to/project/owner/taskRequstEndpoint",
-                taskResultEndpoint:
-                    "http://url/to/project/owner/taskResultEndpoint"
-            }
-        ]
-    }
-];
-
-const testProject: Project = {
-    projectId: "d68993c6-050e-4ff5-8fb4-d7501386890c" as UUID,
-    jobs: []
-};
-
-const testJob: Job = {
-    jobId: "195886eb-f6ee-4a65-bf0d-4f6f3aa2c599" as UUID,
-    coreId: "d7e36d1e-5f87-4b03-89ac-cb5767f4c61b" as UUID,
-    projectId: "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e" as UUID,
-    taskAmount: 100,
-    taskRequestEndpoint: "http://url/to/project/owner/taskRequstEndpoint",
-    taskResultEndpoint: "http://url/to/project/owner/taskResultEndpoint"
-};
