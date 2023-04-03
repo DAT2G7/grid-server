@@ -1,15 +1,11 @@
 import { ClientTask } from "../../../../types/body.types";
 
-// extend the window object so that we can put our own methods on `self`
-// this isn't techinally 100% correct, since the type of `self` in a webworker is `DedicatedWorkerGlobalScope`,
-// but it works fine, so it will have to do
-declare global {
-    interface Window {
-        getData: () => Promise<unknown | never>;
-        sendResult: (data: unknown) => Promise<void | never>;
-        onDone: () => void;
-    }
-}
+// Declares type of self,
+declare const self: DedicatedWorkerGlobalScope & {
+    getData: () => Promise<unknown | never>;
+    sendResult: (data: unknown) => Promise<void | never>;
+    onDone: () => void;
+};
 
 const run = async () => {
     const response = await fetch("/api/client/setup");
