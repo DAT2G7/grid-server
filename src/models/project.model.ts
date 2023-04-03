@@ -1,7 +1,7 @@
 import JsonDB from "../services/json.db";
 import { Project, Job } from "../types/global.types";
 import { ProjectUUID, JobUUID } from "../types/brand.types";
-import { getRandomInt, getRandomElement } from "../utils/random";
+import { getRandomElement } from "../utils/random";
 import { v4 as uuid } from "uuid";
 import { PROJECT_DB_PATH } from "../config";
 
@@ -57,8 +57,14 @@ export class ProjectModel extends JsonDB<Project[]> {
      * Returns a random project.
      * @returns {Project} The random project.
      */
-    getRandomProject(): Project {
-        return this.data[getRandomInt(0, this.data.length)];
+    getRandomProject(): Project | null {
+        const eligibleProjects = this.projects.filter((project) =>
+            project.jobs.some((job) => job.taskAmount > 0)
+        );
+
+        return eligibleProjects.length
+            ? getRandomElement(eligibleProjects)
+            : null;
     }
 
     /**
@@ -118,24 +124,21 @@ export class ProjectModel extends JsonDB<Project[]> {
      * @returns {Job | null} The random job if found, or null if not found.
      */
     getRandomJob(projectId?: ProjectUUID): Job | null {
-        const projects = projectId
-            ? [this.getProject(projectId)]
-            : this.projects;
+        const project = projectId
+            ? this.getProject(projectId)
+            : this.getRandomProject();
 
-        const eligibleProjects = projects.filter(
-            (project): project is Project =>
-                project !== null && project.jobs.length > 0
-        );
+        if (!project) return null;
 
-        if (eligibleProjects.length === 0) return null;
+        const jobs = project?.jobs.filter((job) => job.taskAmount > 0);
+        if (jobs.length === 0) return null;
 
-        const jobs = eligibleProjects.flatMap((project) => project.jobs);
         return getRandomElement(jobs);
     }
 
     /**
      * Sets the task amount of a job to a specified value and saves the database.
-     * If there are no tasks left, the job is removed.
+     * @deprecated There is no reason to use this anymore, just set it directly (and remember to save).
      * @param {ProjectUUID} projectId - The ID of the project.
      * @param {JobUUID} jobId - The ID of the job.
      * @param {number} amount - The new job amount value.
@@ -150,14 +153,12 @@ export class ProjectModel extends JsonDB<Project[]> {
 
         job.taskAmount = amount;
 
-        if (job.taskAmount < 1) this.removeJob(projectId, jobId);
-
         this.save();
     }
 
     /**
      * Decrements the task amount of a job by 1 and saves the database.
-     * If there are no tasks left, the job is removed.
+     * @deprecated There is no reason to use this anymore, just decrement it directly (and remember to save).
      * @param {ProjectUUID} projectId - The ID of the project.
      * @param {JobUUID} jobId - The ID of the job.
      */
