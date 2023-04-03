@@ -138,7 +138,6 @@ export class ProjectModel extends JsonDB<Project[]> {
 
     /**
      * Sets the task amount of a job to a specified value and saves the database.
-     * @deprecated There is no reason to use this anymore, just set it directly (and remember to save).
      * @param {ProjectUUID} projectId - The ID of the project.
      * @param {JobUUID} jobId - The ID of the job.
      * @param {number} amount - The new job amount value.
@@ -158,7 +157,6 @@ export class ProjectModel extends JsonDB<Project[]> {
 
     /**
      * Decrements the task amount of a job by 1 and saves the database.
-     * @deprecated There is no reason to use this anymore, just decrement it directly (and remember to save).
      * @param {ProjectUUID} projectId - The ID of the project.
      * @param {JobUUID} jobId - The ID of the job.
      */
