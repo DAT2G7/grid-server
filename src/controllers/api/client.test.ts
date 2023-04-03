@@ -1,8 +1,10 @@
-import { getCore, getSetup } from "./client.controller";
+import { getCore, getSetup, getTask } from "./client.controller";
 import { setupMockData } from "./client.test.data";
-import { Request } from "express";
+import { Request, Response, NextFunction } from "express";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 import path from "path";
+import { Job } from "../../types/global.types";
+import { TaskUUID } from "../../types/brand.types";
 import { ClientTask } from "../../types/body.types";
 import { ParamTypes } from "../../types";
 import { ParamsDictionary } from "express-serve-static-core";
@@ -61,8 +63,6 @@ describe("api/client", () => {
         });
     });
 
-    type GetCoreRequest = Request<ParamsDictionary & ParamTypes.Core, Buffer>;
-
     describe("getCore", () => {
         it("should respond with expected core file", () => {
             const coreId = UuidService.getId();
@@ -80,18 +80,116 @@ describe("api/client", () => {
             expect(res.sendFile).toHaveBeenCalledWith(expectedPath);
         });
     });
+
     describe("getTask", () => {
-        it("Recived valid task endpoint", () => {});
-        it("Does decrement task amount correctly", () => {});
-        it("Respond with error if task amount is 0", () => {});
-        it("Does not remove job even if task amount is 0 afterwords", () => {});
-        it("Does respond with valid task asuming endpoint is valid", () => {});
+        let req: GetTaskRequest;
+        let res: Response;
+        let next: NextFunction;
+        let getJobSpy: jest.SpyInstance;
+        let saveSpy: jest.SpyInstance;
+        let taskId: TaskUUID;
+
+        const mockTaskData = { test: 100 };
+
+        beforeEach(() => {
+            taskId = UuidService.getId();
+
+            req = getMockReq<GetTaskRequest>({
+                params: {
+                    projectid: setupMockData[0].projectId,
+                    jobid: setupMockData[0].jobs[0].jobId,
+                    taskid: taskId
+                }
+            });
+
+            res = getMockRes().res;
+            next = getMockRes().next;
+
+            saveSpy = jest.spyOn(projectModel, "save");
+            saveSpy.mockImplementation(() => projectModel);
+
+            global.fetch = jest.fn(() =>
+                Promise.resolve({
+                    json: () => Promise.resolve(mockTaskData)
+                })
+            ) as jest.Mock;
+        });
+
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
+        it("should respond with error if job is not found", async () => {
+            req.params.jobid = UuidService.getId();
+
+            await getTask(req, res, next);
+
+            expect(res.sendStatus).toHaveBeenCalledWith(422);
+        });
+
+        it("should respond with error if task amount is 0", async () => {
+            getJobSpy = jest.spyOn(projectModel, "getJob");
+            getJobSpy.mockReturnValue({
+                ...setupMockData[0].jobs[0],
+                taskAmount: 0
+            } as Job);
+
+            await getTask(req, res, next);
+
+            expect(res.sendStatus).toHaveBeenCalledWith(422);
+
+            getJobSpy.mockRestore();
+        });
+
+        it("should decrement task amount", async () => {
+            const job = {
+                ...setupMockData[0].jobs[0]
+            } as Job;
+            const initialTaskAmount = job.taskAmount;
+
+            getJobSpy = jest.spyOn(projectModel, "getJob");
+            getJobSpy.mockReturnValue(job);
+
+            await getTask(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(saveSpy).toHaveBeenCalledTimes(1);
+            expect(job.taskAmount).toEqual(initialTaskAmount - 1);
+        });
+
+        it("should request task data from project owner", async () => {
+            getJobSpy = jest.spyOn(projectModel, "getJob");
+            getJobSpy.mockReturnValue({
+                ...setupMockData[0].jobs[0]
+            } as Job);
+
+            await getTask(req, res, next);
+            const fetchRequest =
+                setupMockData[0].jobs[0].taskRequestEndpoint + "/" + taskId;
+
+            expect(global.fetch).toHaveBeenCalledWith(fetchRequest);
+        });
+
+        it("should respond with task data", async () => {
+            getJobSpy = jest.spyOn(projectModel, "getJob");
+            getJobSpy.mockReturnValue({
+                ...setupMockData[0].jobs[0],
+                taskAmount: 100
+            } as Job);
+
+            await getTask(req, res, next);
+
+            expect(res.sendStatus).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.send).toHaveBeenCalledWith(mockTaskData);
+        });
     });
 
     describe("postResult", () => {
-        it("Recived valid reslut endpoint", () => {});
-        it("Does reincrement taskAmount if result is invalid", () => {});
-        it("Does remove job if task amount is 0", () => {});
-        it("Does send reslut corectly to project owner", () => {});
+        it("should post result to project owner", () => {});
+        it("should respond to client with status 200", () => {});
     });
 });
+
+type GetCoreRequest = Request<ParamsDictionary & ParamTypes.Core, Buffer>;
+type GetTaskRequest = Request<ParamsDictionary & ParamTypes.Task>;

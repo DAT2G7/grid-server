@@ -48,10 +48,30 @@ export const getCore: RequestHandler<ParamTypes.Core, Buffer> = (_req, res) => {
 /**
  * Retrieve and serve task data
  */
-export const getTask: RequestHandler<ParamTypes.Task> = (req, res) => {
+export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
     const { projectid, jobid, taskid } = req.params;
-    console.log("ids:", projectid, jobid, taskid);
-    res.sendStatus(200);
+    const job = db.getJob(projectid, jobid);
+
+    if (!job || job.taskAmount < 1) {
+        res.sendStatus(422);
+        return;
+    }
+
+    let taskData: unknown;
+    try {
+        taskData = await (
+            await fetch(`${job.taskRequestEndpoint}/${taskid}`)
+        ).json();
+    } catch (error) {
+        res.sendStatus(500);
+        return;
+    }
+
+    job.taskAmount--;
+    db.save();
+
+    res.status(200);
+    res.send(taskData);
 };
 
 /**
