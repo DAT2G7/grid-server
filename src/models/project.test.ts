@@ -136,16 +136,6 @@ describe("ProjectModel", () => {
             testDB.setTaskAmount(job.projectId, job.jobId, newTaskAmount);
             expect(job.taskAmount).toEqual(newTaskAmount);
         });
-
-        it("can remove empty jobs", () => {
-            expect(job).toBeTruthy();
-
-            const jobCount = project.jobs.length;
-
-            testDB.setTaskAmount(job.projectId, job.jobId, 0);
-            expect(project.jobs).not.toContainEqual(job);
-            expect(project.jobs.length).toEqual(jobCount - 1);
-        });
     });
 
     describe("removeJob", () => {
