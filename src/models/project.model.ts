@@ -130,7 +130,7 @@ export class ProjectModel extends JsonDB<Project[]> {
 
         if (!project) return null;
 
-        const jobs = project?.jobs.filter((job) => job.taskAmount > 0);
+        const jobs = project.jobs.filter((job) => job.taskAmount > 0);
         if (jobs.length === 0) return null;
 
         return getRandomElement(jobs);
