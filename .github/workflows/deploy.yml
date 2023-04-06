@@ -20,7 +20,7 @@ jobs:
     - name: connect and pull
       run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git checkout ${{ secrets.MAIN_BRANCH }} && git pull && exit"
     - name: terminate server proccess
-      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "kill $(lsof -t -i :3000 -s) && exit"
+      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo kill $(lsof -t -i :3000 -s) && exit"
     - name: build and run server
       run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "npm run build && screen -d -m npm run start && exit"
     - name: cleanup
