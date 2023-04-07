@@ -46,7 +46,7 @@ export function saveCore(core: Core) {
     const corePath: string = CORE_ROOT + "/" + core.coreid + ".js";
     try {
         writeFileSync(corePath, core.contents);
-    } catch {
-        throw new Error("Error: Core file not saved.");
+    } catch (e) {
+        console.error(e);
     }
 }
