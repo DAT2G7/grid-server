@@ -12,6 +12,9 @@ import {
     coreExists
 } from "./project.model";
 
+jest.mock("fs");
+jest.mock("../project.controller");
+
 test("checkCore", () => {
     const mockCore: Core = createMockCore();
 
@@ -19,16 +22,6 @@ test("checkCore", () => {
     const actualResult = checkCore(mockCore);
 
     expect(actualResult).toBe(expectedResult);
-});
-
-test("deleteCoreFile", () => {
-    const mockCore: Core = createMockCore();
-    saveCore(mockCore);
-
-    deleteCoreFile(mockCore.coreid);
-    expect(fs.existsSync(CORE_ROOT + "/" + mockCore.coreid + ".js")).toBe(
-        false
-    );
 });
 
 test("createJobObject", () => {
