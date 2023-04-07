@@ -2,7 +2,6 @@ import fs from "fs";
 import { v4 } from "uuid";
 import { CoreUUID, JobUUID, ProjectUUID } from "../../types/brand.types";
 import { Job, Core } from "../../types/global.types";
-import { saveCore } from "../project.controller";
 import { CORE_ROOT } from "../../config";
 import {
     checkCore,
@@ -11,6 +10,8 @@ import {
     deleteCoreFile,
     coreExists
 } from "./project.model";
+
+jest.mock("fs");
 
 test("checkCore", () => {
     const mockCore: Core = createMockCore();
@@ -21,14 +22,40 @@ test("checkCore", () => {
     expect(actualResult).toBe(expectedResult);
 });
 
-test("deleteCoreFile", () => {
-    const mockCore: Core = createMockCore();
-    saveCore(mockCore);
+describe("deleteCoreFile", () => {
+    const mockCore = createMockCore();
 
-    deleteCoreFile(mockCore.coreid);
-    expect(fs.existsSync(CORE_ROOT + "/" + mockCore.coreid + ".js")).toBe(
-        false
-    );
+    beforeAll(() => {
+        jest.resetModules();
+        (fs.existsSync as jest.Mock).mockReturnValue(true);
+        deleteCoreFile(mockCore.coreid);
+    });
+
+    it("should call fs.existsSync", () => {
+        expect(fs.existsSync).toHaveBeenCalled();
+    });
+
+    it("should call fs.existsSync with correct path", () => {
+        expect(fs.existsSync).toHaveBeenCalledWith(
+            CORE_ROOT + "/" + mockCore.coreid + ".js"
+        );
+    });
+
+    it("should call fs.rmSync", () => {
+        expect(fs.rmSync).toHaveBeenCalled();
+    });
+
+    it("should call fs.rmSync with correct path", () => {
+        expect(fs.rmSync).toHaveBeenCalledWith(
+            CORE_ROOT + "/" + mockCore.coreid + ".js"
+        );
+    });
+
+    it("should fail if core does not exist", () => {
+        (fs.existsSync as jest.Mock).mockReturnValue(false);
+        const actualResult = deleteCoreFile(mockCore.coreid);
+        expect(actualResult).toBe(false);
+    });
 });
 
 test("createJobObject", () => {
@@ -56,29 +83,70 @@ test("createJobObject", () => {
     expect(typeof actualResult.jobId).toBe(typeof expectedResult.jobId);
 });
 
-test("checkJob", () => {
+describe("checkJob", () => {
     const mockJob: Job = createMockJob();
     const mockCore: Core = createMockCore();
-    saveCore(mockCore);
 
-    mockJob.coreId = mockCore.coreid;
+    beforeAll(() => {
+        jest.resetModules();
+        (fs.existsSync as jest.Mock).mockReturnValue(true);
+        checkJob(mockJob);
+    });
 
-    const expectedResult = true;
-    const actualResult = checkJob(mockJob);
+    it("should call fs.existsSync", () => {
+        expect(fs.existsSync).toHaveBeenCalled();
+    });
 
-    expect(actualResult).toBe(expectedResult);
-    deleteCoreFile(mockCore.coreid);
+    it("should call fs.existsSync with correct path", () => {
+        expect(fs.existsSync).toHaveBeenCalledWith(
+            CORE_ROOT + "/" + mockJob.coreId + ".js"
+        );
+    });
+
+    it("should return true if core exists", () => {
+        const expectedResult = true;
+        expect(checkJob(mockJob)).toBe(expectedResult);
+    });
+
+    it("should fail if core does not exist", () => {
+        (fs.existsSync as jest.Mock).mockReturnValue(false);
+        const expectedResult = false;
+        const actualResult = checkJob(mockJob);
+
+        expect(actualResult).toBe(expectedResult);
+        deleteCoreFile(mockCore.coreid);
+    });
 });
 
-test("coreExists", () => {
-    const mockCore: Core = createMockCore();
-    saveCore(mockCore);
+describe("coreExists", () => {
+    const mockCore = createMockCore();
 
-    const expectedResult = true;
-    const actualResult = coreExists(mockCore.coreid);
+    beforeAll(() => {
+        jest.resetModules();
+        (fs.existsSync as jest.Mock).mockReturnValue(true);
+        coreExists(mockCore.coreid);
+    });
 
-    expect(actualResult).toBe(expectedResult);
-    deleteCoreFile(mockCore.coreid);
+    it("should call fs.existsSync", () => {
+        expect(fs.existsSync).toHaveBeenCalled();
+    });
+
+    it("should call fs.existsSync with correct path", () => {
+        expect(fs.existsSync).toHaveBeenCalledWith(
+            CORE_ROOT + "/" + mockCore.coreid + ".js"
+        );
+    });
+
+    it("should return true if core exists", () => {
+        const actualResult = coreExists(mockCore.coreid);
+        expect(actualResult).toBe(true);
+    });
+
+    it("should fail if core does not exist", () => {
+        (fs.existsSync as jest.Mock).mockReturnValue(false);
+        const actualResult = coreExists(mockCore.coreid);
+        expect(actualResult).toBe(false);
+    });
 });
 
 function createMockCore(): Core {
