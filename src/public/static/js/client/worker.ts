@@ -1,3 +1,5 @@
+/// <reference lib="webworker" />
+
 import { ClientTask } from "../../../../types/body.types";
 
 // Declares type of self,
