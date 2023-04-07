@@ -17,7 +17,7 @@ describe("saveCore", () => {
     it("should call writeFileSync", () => {
         expect(fs.writeFileSync).toHaveBeenCalled();
     });
-    it("should call writeFileSync with correct path", () => {
+    it("should call writeFileSync with correct path and content", () => {
         expect(fs.writeFileSync).toHaveBeenCalledWith(
             CORE_ROOT + "/" + mockCore.coreid + ".js",
             mockCore.contents
