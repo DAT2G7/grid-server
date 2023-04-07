@@ -6,17 +6,23 @@ import { Core } from "../types/global.types";
 import { saveCore } from "./project.controller";
 
 jest.mock("fs");
-const mockedFs = jest.mocked(fs);
 
-test("saveCore", () => {
-    const mockCore: Core = createMockCore();
+describe("saveCore", () => {
+    const mockCore = createMockCore();
 
-    mockedFs.writeFileSync.mockImplementation((_path, data) => {
-        expect(_path).toBe(CORE_ROOT + "/" + mockCore.coreid + ".js");
-        expect(data).toEqual(mockCore.contents);
+    beforeAll(() => {
+        jest.resetModules();
+        saveCore(mockCore);
     });
-    expect(jest.isMockFunction(mockedFs.writeFileSync)).toBeTruthy();
-    saveCore(mockCore);
+    it("should call writeFileSync", () => {
+        expect(fs.writeFileSync).toHaveBeenCalled();
+    });
+    it("should call writeFileSync with correct path", () => {
+        expect(fs.writeFileSync).toHaveBeenCalledWith(
+            CORE_ROOT + "/" + mockCore.coreid + ".js",
+            mockCore.contents
+        );
+    });
 });
 
 function createMockCore(): Core {
