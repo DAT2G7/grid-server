@@ -6,11 +6,6 @@ import { CoreUUID } from "../types/brand.types";
 import { Core } from "../types/global.types";
 import { saveCore } from "./project.controller";
 
-// TODO: Write test for createCore.
-test("createCore", () => {
-    //expect("Test").toBe("Written");
-});
-
 test("saveCore", () => {
     const mockCore: Core = createMockCore();
 
