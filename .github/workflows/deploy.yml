@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   
 jobs:
-  run_pull:
+  deploy:
     name: run pull
     runs-on: ubuntu-latest
     
@@ -19,5 +19,9 @@ jobs:
         ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
     - name: connect and pull
       run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git checkout ${{ secrets.MAIN_BRANCH }} && git pull && exit"
+    - name: run deploy script
+      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "./deploy-script && exit"
     - name: cleanup
       run: rm -rf ~/.ssh
+      
+      
