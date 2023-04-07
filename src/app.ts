@@ -1,14 +1,22 @@
 import { apiClientRouter, apiProjectRouter } from "./routes/api";
 import { clientRouter, indexRouter, projectRouter } from "./routes";
 
-import { config as dotenvConfig } from "dotenv";
+import fs from "fs";
 import express from "express";
+import config from "./config";
 
-dotenvConfig();
+// initialize project model
+import projectModel from "./models/project.model";
+projectModel;
+
+// ensure existence of core directory
+if (!fs.existsSync(config.CORE_ROOT)) {
+    fs.mkdirSync(config.CORE_ROOT, { recursive: true });
+}
 
 // init app
 const app = express();
-const port = process.env.PORT || 3000;
+const port = config.PORT;
 
 // Use pug for views
 app.set("view engine", "pug");
