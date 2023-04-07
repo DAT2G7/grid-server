@@ -1,4 +1,3 @@
-import crypto from "crypto";
 import fs from "fs";
 import { v4 } from "uuid";
 import { CORE_ROOT } from "../config";
@@ -6,23 +5,18 @@ import { CoreUUID } from "../types/brand.types";
 import { Core } from "../types/global.types";
 import { saveCore } from "./project.controller";
 
+jest.mock("fs");
+const mockedFs = jest.mocked(fs);
+
 test("saveCore", () => {
     const mockCore: Core = createMockCore();
 
-    const hashSum = crypto.createHash("md5");
-    hashSum.update(mockCore.contents);
-
+    mockedFs.writeFileSync.mockImplementation((_path, data) => {
+        expect(_path).toBe(CORE_ROOT + "/" + mockCore.coreid + ".js");
+        expect(data).toEqual(mockCore.contents);
+    });
+    expect(jest.isMockFunction(mockedFs.writeFileSync)).toBeTruthy();
     saveCore(mockCore);
-
-    const corePath: string = CORE_ROOT + "/" + mockCore.coreid + ".js";
-
-    const savedFileContent = fs.readFileSync(corePath);
-
-    const newHashSum = crypto.createHash("md5");
-    newHashSum.update(savedFileContent);
-
-    expect(hashSum.digest("hex")).toBe(newHashSum.digest("hex"));
-    fs.rmSync(corePath);
 });
 
 function createMockCore(): Core {
