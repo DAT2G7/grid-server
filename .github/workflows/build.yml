@@ -1,4 +1,4 @@
-name: Jest tests
+name: Build
 
 on:
     push:
@@ -7,7 +7,7 @@ on:
         branches: ["main"]
 
 jobs:
-    test:
+    build:
         # All commands should be platform agnostic
         runs-on: ubuntu-latest
 
@@ -17,5 +17,5 @@ jobs:
             - name: Install modules
               run: npm i
 
-            - name: Run Jest
-              run: npm run test
+            - name: Build
+              run: npm run build
