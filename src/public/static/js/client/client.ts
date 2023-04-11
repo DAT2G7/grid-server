@@ -13,39 +13,41 @@ Swal.fire({
     cancelButtonColor: "#d33",
     confirmButtonText: "Yes"
 }).then((result) => {
-    if (result.isConfirmed)
-        if (window.Worker) {
-            // Create web worker. This way is not ideal, but allows for a simpler build process.
-            worker = new Worker("/static/js/client/worker.js");
+    if (!result.isConfirmed) {
+        return;
+    }
+    if (!window.Worker) {
+        Swal.fire("Web worker not supported on device");
+        return;
+    }
+    // Create web worker. This way is not ideal, but allows for a simpler build process.
+    worker = new Worker("/static/js/client/worker.js");
 
-            // Listen for messages from worker
-            worker.addEventListener("message", (event) => {
-                switch (event.data.type) {
-                    case "error":
-                        // TODO: better communication with the user
-                        tryCount++;
-                        worker?.terminate();
-                        if (tryCount < MAX_TRY_COUNT) {
-                            worker = new Worker("/static/js/client/worker.js");
-                        } else {
-                            // swal alert when error with web worker.
-                            // TODO set footer with ref for how to solve problem
-                            Swal.fire({
-                                icon: "error",
-                                title: "Error with web worker",
-                                text: event.data.message
-                            });
-                        }
-                        break;
-                    case "workDone":
-                        Swal.fire("Web worker task done! Starting a new one.");
-                        tryCount = 0;
-                        worker?.terminate();
-                        worker = new Worker("/static/js/client/worker.js");
-                        break;
+    // Listen for messages from worker
+    worker.addEventListener("message", (event) => {
+        switch (event.data.type) {
+            case "error":
+                // TODO: better communication with the user
+                tryCount++;
+                worker?.terminate();
+                if (tryCount < MAX_TRY_COUNT) {
+                    worker = new Worker("/static/js/client/worker.js");
+                } else {
+                    // swal alert when error with web worker.
+                    // TODO set footer with ref for how to solve problem
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error with web worker",
+                        text: event.data.message
+                    });
                 }
-            });
-        } else {
-            Swal.fire("Web worker not supported on device");
+                break;
+            case "workDone":
+                Swal.fire("Web worker task done! Starting a new one.");
+                tryCount = 0;
+                worker?.terminate();
+                worker = new Worker("/static/js/client/worker.js");
+                break;
         }
+    });
 });
