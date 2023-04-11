@@ -7,6 +7,8 @@ export type UUID<T = any> = Branded<string, { __UUID: never }, T>;
 
 /** UUID Sub-brand for cores */
 export type CoreUUID = UUID<{ __coreUuid: never }>;
+/** UUID Sub-brand for projects */
+export type ProjectUUID = UUID<{ __projectUuid: never }>;
 /** UUID Sub-brand for jobs */
 export type JobUUID = UUID<{ __jobUuid: never }>;
 /** UUID Sub-brand for tasks */
