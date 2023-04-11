@@ -23,19 +23,11 @@ Swal.fire({
                 switch (event.data.type) {
                     case "error":
                         // TODO: better communication with the user
-                        console.error(
-                            "Something went wrong while running the web worker:",
-                            event.data.message
-                        );
-
                         tryCount++;
                         worker?.terminate();
                         if (tryCount < MAX_TRY_COUNT) {
                             worker = new Worker("/static/js/client/worker.js");
                         } else {
-                            console.error(
-                                `Could not finish work after ${MAX_TRY_COUNT} attempts. No more workers will be created until the site is refreshed`
-                            );
                             // swal alert when error with web worker.
                             // TODO set footer with ref for how to solve problem
                             Swal.fire({
@@ -47,9 +39,6 @@ Swal.fire({
                         break;
                     case "workDone":
                         Swal.fire("Web worker task done! Starting a new one.");
-                        console.log(
-                            "Web worker is done running! Starting a new one."
-                        );
                         tryCount = 0;
                         worker?.terminate();
                         worker = new Worker("/static/js/client/worker.js");
@@ -57,7 +46,6 @@ Swal.fire({
                 }
             });
         } else {
-            console.log("Web worker not supported");
             Swal.fire("Web worker not supported on device");
         }
 });
