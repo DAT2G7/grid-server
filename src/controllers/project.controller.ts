@@ -31,7 +31,7 @@ export const createCore: RequestHandler = (_req, res) => {
 
     const checkResult = checkCore(core);
 
-    if (checkResult === 200) {
+    if (checkResult === 201) {
         saveCore(core);
         res.contentType("application/json");
         res.json({ coreID: core.coreId });
