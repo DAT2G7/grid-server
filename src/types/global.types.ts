@@ -14,12 +14,12 @@ export interface Project {
 }
 
 export interface Core {
-    coreid: BrandTypes.CoreUUID;
+    coreId: BrandTypes.CoreUUID;
     contents: Buffer;
 }
 
 export interface Task {
-    taskid: BrandTypes.TaskUUID;
-    jobid: BrandTypes.JobUUID;
-    coreid: BrandTypes.CoreUUID;
+    taskId: BrandTypes.TaskUUID;
+    jobId: BrandTypes.JobUUID;
+    coreId: BrandTypes.CoreUUID;
 }

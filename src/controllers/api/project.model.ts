@@ -3,20 +3,12 @@ import { JobUUID, CoreUUID, ProjectUUID } from "../../types/brand.types";
 import { Job, Core } from "../../types/global.types";
 import { CORE_ROOT } from "../../config";
 import { v4 } from "uuid";
-import { ProjectModel } from "../../models/project.model";
-import { PROJECT_DB_PATH } from "../../config";
+import dbModel from "../../models/project.model";
 
-const dbModel = new ProjectModel(PROJECT_DB_PATH);
-
-/**
- * Responsible for checking the core before it is saved.
- * @param core The core object that needs to be validated.
- * @returns Returns an HTTP status code, as that code is forwarded to the project owner.
- */
 export function checkCore(core: Core): number {
     core;
     // Function for furure testing of contents, before acceptance of core.
-    return 200;
+    return 201;
 }
 
 /**
@@ -67,12 +59,12 @@ export function deleteCoreFile(coreId: CoreUUID): boolean {
 export function createCoreObject(file: Express.Multer.File | string): Core {
     if (typeof file === "string") {
         return {
-            coreid: v4() as CoreUUID,
+            coreId: v4() as CoreUUID,
             contents: Buffer.from(file)
         };
     } else {
         return {
-            coreid: v4() as CoreUUID,
+            coreId: v4() as CoreUUID,
             contents: Buffer.from(file.buffer)
         };
     }

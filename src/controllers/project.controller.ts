@@ -34,7 +34,7 @@ export const createCore: RequestHandler = (_req, res) => {
     if (checkResult === 200) {
         saveCore(core);
         res.contentType("application/json");
-        res.json({ coreID: core.coreid });
+        res.json({ coreID: core.coreId });
     } else {
         res.status(checkResult);
         res.send("Error: Core validation failed. Core not saved.");
@@ -43,7 +43,7 @@ export const createCore: RequestHandler = (_req, res) => {
 };
 
 export function saveCore(core: Core) {
-    const corePath: string = CORE_ROOT + "/" + core.coreid + ".js";
+    const corePath: string = CORE_ROOT + "/" + core.coreId + ".js";
     try {
         writeFileSync(corePath, core.contents);
     } catch (e) {
