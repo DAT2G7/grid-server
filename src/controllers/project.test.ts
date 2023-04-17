@@ -19,7 +19,7 @@ describe("saveCore", () => {
     });
     it("should call writeFileSync with correct path and content", () => {
         expect(fs.writeFileSync).toHaveBeenCalledWith(
-            CORE_ROOT + "/" + mockCore.coreid + ".js",
+            CORE_ROOT + "/" + mockCore.coreId + ".js",
             mockCore.contents
         );
     });
@@ -27,7 +27,7 @@ describe("saveCore", () => {
 
 function createMockCore(): Core {
     const mockCore = {
-        coreid: v4() as CoreUUID,
+        coreId: v4() as CoreUUID,
         contents: Buffer.from("function mockCore() { return (1 + 1); }")
     };
     return mockCore;
