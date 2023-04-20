@@ -20,6 +20,7 @@ const run = () => {
     // Listen for messages from worker
     worker.addEventListener("message", (event) => {
         switch (event.data.type) {
+            // If there is an error with the web worker
             case "error":
                 // TODO: better communication with the user
                 tryCount++;
@@ -31,6 +32,8 @@ const run = () => {
                     alert("Something went wrong in the webworker");
                 }
                 break;
+
+            // Web worker telling it's done with its current work
             case "workDone":
                 alert("Web worker task done! Starting a new one.");
                 tryCount = 0;
