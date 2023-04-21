@@ -1,12 +1,13 @@
-import { Job, Core, Project } from "../../types/global.types";
-import { RequestHandler } from "express";
+import { Core, Job, Project } from "../../types/global.types";
+import { checkCore, checkJob, createJobObject } from "./project.model";
+
 import { CoreUUID } from "../../types/brand.types";
-import { saveCore } from "../project.controller";
-import { checkCore, createJobObject, checkJob } from "./project.model";
-import { isDefined } from "../../utils/helpers";
-import { deleteCoreFile } from "./project.model";
+import { RequestHandler } from "express";
 import { createCoreObject } from "../api/project.model";
+import { deleteCoreFile } from "./project.model";
+import { isDefined } from "../../utils/helpers";
 import projectModel from "../../models/project.model";
+import { saveCore } from "../project.controller";
 
 /**
  * Receive project core
@@ -93,8 +94,8 @@ export const readJob: RequestHandler<Job> = (req, res) => {
     res.json(job);
 };
 
-export const updateJob: RequestHandler<Job> = (_req, res) => {
-    const job = createJobObject(_req.body);
+export const updateJob: RequestHandler<Job> = (req, res) => {
+    const job = createJobObject(req.body);
     if (!checkJob(job)) {
         res.sendStatus(400);
         return;
@@ -106,8 +107,8 @@ export const updateJob: RequestHandler<Job> = (_req, res) => {
     res.sendStatus(200);
 };
 
-export const deleteJob: RequestHandler<Job> = (_req, res) => {
-    projectModel.removeJob(_req.params.projectId, _req.params.jobId);
+export const deleteJob: RequestHandler<Job> = (req, res) => {
+    projectModel.removeJob(req.params.projectId, req.params.jobId);
     res.sendStatus(200);
 };
 

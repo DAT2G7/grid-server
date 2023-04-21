@@ -1,10 +1,10 @@
-import { RequestHandler } from "express";
-import { Core } from "../types/global.types";
-import { writeFileSync } from "fs";
-import { checkCore } from "./api/project.model";
 import { CORE_ROOT } from "../config";
-import { isDefined } from "../utils/helpers";
+import { Core } from "../types/global.types";
+import { RequestHandler } from "express";
+import { checkCore } from "./api/project.model";
 import { createCoreObject } from "./api/project.model";
+import { isDefined } from "../utils/helpers";
+import { writeFileSync } from "fs";
 
 /**
  * Serve the project owner index page
@@ -16,15 +16,15 @@ export const renderIndex: RequestHandler = (_req, res) => {
 /**
  * Receive project core
  */
-export const createCore: RequestHandler = (_req, res) => {
+export const createCore: RequestHandler = (req, res) => {
     let recievedCore: Express.Multer.File;
 
-    if (!isDefined(_req.file)) {
+    if (!isDefined(req.file)) {
         res.status(400);
         res.send("Error: Core file not received.");
         return;
     } else {
-        recievedCore = _req.file;
+        recievedCore = req.file;
     }
 
     const core: Core = createCoreObject(recievedCore);
