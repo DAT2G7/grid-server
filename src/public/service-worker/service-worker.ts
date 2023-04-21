@@ -1,5 +1,7 @@
+/* eslint-disable no-console */ // Allowed in this since SW uses a special console
 /// <reference lib="webworker" />
 
+// add correct type to self. Cannot use declare global as it is not allowed outside modules
 const _self = self as unknown as ServiceWorkerGlobalScope;
 
 /** Gets the default cache for network ressources */
@@ -17,7 +19,8 @@ const putInCache = async (request: Request, response: Response) => {
     await cache.put(request, response);
 };
 
-const createResponse = (message: string, status: number) =>
+/** Ensures uniform response formatting */
+const createErrorResponse = (message: string, status: number) =>
     new Response(JSON.stringify({ error: { message } }), {
         status,
         headers: {
@@ -40,17 +43,11 @@ const cacheFirst = async (request: Request): Promise<Response> => {
             url.hostname,
             self.location.hostname
         );
-        return createResponse(
+        return createErrorResponse(
             "Requesting custom ressources is not allowed, to protect the identities of our users",
             403
         );
     }
-
-    // console.log("Returning not allowed");
-    // return createResponse(
-    //     "Requesting custom ressources is not allowed, to protect the identities of our users",
-    //     403
-    // );
 
     // Attempt network
     console.log("Attempting network");
@@ -60,7 +57,7 @@ const cacheFirst = async (request: Request): Promise<Response> => {
         putInCache(request, responseFromNetwork.clone());
         return responseFromNetwork;
     } catch {
-        return createResponse("Network error", 408);
+        return createErrorResponse("Network error", 408);
     }
 };
 
