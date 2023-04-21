@@ -26,6 +26,7 @@
         "express-validator": "^6.15.0",
         "jest-extended": "^3.2.4",
         "pug": "^3.0.2",
+        "sweetalert2": "^11.7.3",
         "ts-node": "^10.9.1",
         "uuid": "^9.0.0"
     },
