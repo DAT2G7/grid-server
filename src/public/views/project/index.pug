@@ -5,7 +5,7 @@ block content
         <h1>Project owner</h1>
         <p>This is the project owner module of the grid server.</p>
         <p>Please upload your file using the button below</p>
-        <form action="/project/core" method="post" enctype="multipart/form-data">
+        <form id="form-core-upload" action="/project/core" method="post" enctype="multipart/form-data">
             <input type="file" name="core" id="file">
             <input type="submit" value="Upload">
         </form>
@@ -23,6 +23,22 @@ block content
             <div id="deletionResult"></div>
         </div>
         script.
+            function renameme() {
+                const data = new FormData(document.getElementById("form-core-upload"))
+                fetch("/api/core", {
+                    method: "POST",
+                    body: data.get("core"),
+                }).then((res) => {
+                    if (res.status === 200) {
+                        document.getElementById("form-core-upload").innerHTML = "<p>Core uploaded</p>"
+                    } else if (res.status === 400) {
+                        document.getElementById("form-core-upload").innerHTML = "<p>Invalid input, please input a file</p>"
+                    } else {
+                        document.getElementById("form-core-upload").innerHTML = "<p>Unknown error</p>"
+                    }
+                })
+                
+            }
             function deleteCore() {
                 if (document.getElementById("coreID").value === "") {
                     document.getElementById("deletionResult").innerHTML = "<p>Please input core id.</p>"
@@ -41,5 +57,6 @@ block content
                     }
                 })
             }
+
     </main>
 

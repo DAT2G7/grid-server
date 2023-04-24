@@ -12,10 +12,12 @@ import express, { RequestHandler } from "express";
 import { handleInvalid } from "../../middleware/validators/invalid";
 import { validateUUIDs } from "../../middleware/validators/uuid";
 import bodyParser from "body-parser";
+import multer from "multer";
 
 const router = express.Router();
+const upload = multer();
 
-router.post("/core", bodyParser.text(), createCoreAPI);
+router.post("/core", upload.single("core"), createCoreAPI);
 
 router.delete(
     "/core/:coreid",
@@ -32,8 +34,8 @@ router.post(
 );
 
 router.get(
-    "/:projectId/job/:jobId",
-    validateUUIDs("projectId", "jobId"),
+    "/:projectid/job/:jobid",
+    validateUUIDs("projectid", "jobid"),
     handleInvalid,
     readJob as unknown as RequestHandler
 );
@@ -46,8 +48,8 @@ router.put(
 );
 
 router.delete(
-    "/:projectId/job/:jobId",
-    validateUUIDs("projectId", "jobId"),
+    "/:projectid/job/:jobid",
+    validateUUIDs("projectid", "jobid"),
     handleInvalid,
     deleteJob as unknown as RequestHandler
 );

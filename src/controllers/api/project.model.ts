@@ -20,7 +20,7 @@ export function checkCore(core: Core): number {
  */
 export function checkJob(job: Job) {
     // Check if the core needed by the job exists.
-    if (!fs.existsSync(CORE_ROOT + "/" + job.coreId + ".js")) {
+    if (!fs.existsSync(CORE_ROOT + "/" + job.coreid + ".js")) {
         return false;
     }
 
@@ -42,7 +42,7 @@ export function readJob(projectId: ProjectUUID, jobID: JobUUID) {
  * @param core core file to save
  */
 export function saveCore(core: Core) {
-    const corePath: string = CORE_ROOT + "/" + core.coreId + ".js";
+    const corePath: string = CORE_ROOT + "/" + core.coreid + ".js";
     try {
         writeFileSync(corePath, core.contents);
     } catch (e) {
@@ -74,12 +74,12 @@ export function deleteCoreFile(coreId: CoreUUID): boolean {
 export function createCoreObject(file: Express.Multer.File | string): Core {
     if (typeof file === "string") {
         return {
-            coreId: v4() as CoreUUID,
+            coreid: v4() as CoreUUID,
             contents: Buffer.from(file)
         };
     } else {
         return {
-            coreId: v4() as CoreUUID,
+            coreid: v4() as CoreUUID,
             contents: Buffer.from(file.buffer)
         };
     }
@@ -91,7 +91,7 @@ export function createCoreObject(file: Express.Multer.File | string): Core {
  * @returns The job object with a JobUUID.
  */
 export function createJobObject(incomingJob: Partial<Job>): Job {
-    incomingJob.jobId ??= v4() as JobUUID;
+    incomingJob.jobid ??= v4() as JobUUID;
 
     return incomingJob as Job;
 }

@@ -1,17 +1,15 @@
 import { Core, Job, Project } from "../../types/global.types";
-import {
-    checkCore,
-    checkJob,
-    createJobObject,
-    saveCore
-} from "./project.model";
+import { ParamTypes } from "../../types";
+import { BodyTypes } from "../../types";
+import { checkCore, checkJob, createJobObject } from "./project.model";
 
-import { CoreUUID } from "../../types/brand.types";
+import { CoreUUID, ProjectUUID } from "../../types/brand.types";
 import { RequestHandler } from "express";
 import { createCoreObject } from "../api/project.model";
 import { deleteCoreFile } from "./project.model";
 import { isDefined } from "../../utils/helpers";
 import projectModel from "../../models/project.model";
+import { saveCore } from "./project.model";
 
 /**
  * Receive project core
@@ -20,8 +18,8 @@ import projectModel from "../../models/project.model";
  * @param res Response object.
  */
 export const createCoreAPI: RequestHandler<
-    Record<string, never>,
-    unknown,
+    never,
+    string,
     Express.Multer.File
 > = (req, res) => {
     if (!isDefined(req.body)) {
@@ -39,7 +37,7 @@ export const createCoreAPI: RequestHandler<
 
         res.status(checkResult);
         res.contentType("application/json");
-        res.json({ coreId: core.coreId });
+        res.send(core.coreid.toString());
     } else {
         res.status(checkResult);
         res.send("Error: Core validation failed. Core not saved.");
@@ -51,8 +49,8 @@ export const createCoreAPI: RequestHandler<
  * @param req Request object. Must contain a coreid.
  * @param res Response object. Returns 200 if core was deleted, 404 if core was not found. 400 if coreid was not provided.
  */
-export const deleteCore: RequestHandler<Core> = (req, res) => {
-    if (!deleteCoreFile(req.params.coreId as CoreUUID)) {
+export const deleteCore: RequestHandler<ParamTypes.Core> = (req, res) => {
+    if (!deleteCoreFile(req.params.coreid as CoreUUID)) {
         res.sendStatus(404);
     }
 
@@ -66,13 +64,15 @@ export const deleteCore: RequestHandler<Core> = (req, res) => {
  * @param req Request object. Must contain a job object in the request body, that job must not contain a jobid.
  * @param res Response object. Returns 200 if job was created, along with a jobId in the response body. 400 if job failed validation or jobid was provided.
  * */
-export const createJob: RequestHandler<Core> = (req, res) => {
+export const createJob: RequestHandler<
+    ParamTypes.Job,
+    string,
+    BodyTypes.Job
+> = (req, res) => {
     // Make sure jobid is not provided.
-    if (isDefined(req.body.jobId)) {
+    if (isDefined(req.body.jobid)) {
         res.status(400);
-        res.send(
-            "Error: JobID was provided. If you want to update a job, use the PUT method."
-        );
+        res.send("Error: JobID was provided.");
         return;
     }
 
@@ -85,13 +85,27 @@ export const createJob: RequestHandler<Core> = (req, res) => {
         return;
     }
 
-    res.contentType("application/json");
-    res.json({ jobID: projectModel.addJob(job.projectId, job) });
-    res.sendStatus(201);
+    if (!isDefined(projectModel.addJob(job.projectid, job))) {
+        res.status(400);
+        res.send("Error: Job could not be added to project.");
+        return;
+    } else {
+        res.status(201);
+        res.contentType("application/json");
+        res.send(job.jobid.toString());
+    }
 };
 
-export const readJob: RequestHandler<Job> = (req, res) => {
-    const job = projectModel.getJob(req.params.projectId, req.params.jobId);
+export const readJob: RequestHandler<ParamTypes.Job> = (req, res) => {
+    if (!isDefined(req.params.jobid)) {
+        res.sendStatus(400);
+        return;
+    }
+
+    const job = projectModel.getJob(
+        req.params.projectid as ProjectUUID,
+        req.params.jobid
+    );
     if (!job) {
         res.sendStatus(404);
         return;
@@ -102,21 +116,29 @@ export const readJob: RequestHandler<Job> = (req, res) => {
     res.json(job);
 };
 
-export const updateJob: RequestHandler<Job> = (req, res) => {
+export const updateJob: RequestHandler<ParamTypes.Job, never, BodyTypes.Job> = (
+    req,
+    res
+) => {
     const job = createJobObject(req.body);
     if (!checkJob(job)) {
         res.sendStatus(400);
         return;
     }
 
-    projectModel.removeJob(job.projectId, job.jobId);
-    projectModel.addJob(job.projectId, job);
+    projectModel.removeJob(job.projectid, job.jobid);
+    projectModel.addJob(job.projectid, job);
 
     res.sendStatus(200);
 };
 
-export const deleteJob: RequestHandler<Job> = (req, res) => {
-    projectModel.removeJob(req.params.projectId, req.params.jobId);
+export const deleteJob: RequestHandler<ParamTypes.Job> = (req, res) => {
+    if (!isDefined(req.params.projectid)) {
+        res.sendStatus(400);
+        return;
+    }
+
+    projectModel.removeJob(req.params.projectid, req.params.jobid);
     res.sendStatus(200);
 };
 
@@ -127,9 +149,9 @@ export const deleteJob: RequestHandler<Job> = (req, res) => {
  */
 export const createProject: RequestHandler = (_req, res) => {
     const project = {} as Partial<Project>;
-    project.projectId = projectModel.addProject(project);
+    project.projectid = projectModel.addProject(project);
 
     res.contentType("application/json");
     res.statusCode = 201;
-    res.json(project.projectId);
+    res.json(project.projectid);
 };

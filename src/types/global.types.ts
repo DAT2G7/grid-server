@@ -1,25 +1,25 @@
 import { BrandTypes } from ".";
 
 export interface Job {
-    jobId: BrandTypes.JobUUID;
-    projectId: BrandTypes.ProjectUUID;
-    coreId: BrandTypes.CoreUUID;
+    jobid: BrandTypes.JobUUID;
+    projectid: BrandTypes.ProjectUUID;
+    coreid: BrandTypes.CoreUUID;
     taskAmount: number;
     taskRequestEndpoint: string; //url
     taskResultEndpoint: string; //url
 }
 export interface Project {
-    projectId: BrandTypes.ProjectUUID;
+    projectid: BrandTypes.ProjectUUID;
     jobs: Job[];
 }
 
 export interface Core {
-    coreId: BrandTypes.CoreUUID;
+    coreid: BrandTypes.CoreUUID;
     contents: Buffer;
 }
 
 export interface Task {
-    taskId: BrandTypes.TaskUUID;
-    jobId: BrandTypes.JobUUID;
-    coreId: BrandTypes.CoreUUID;
+    taskid: BrandTypes.TaskUUID;
+    jobid: BrandTypes.JobUUID;
+    coreid: BrandTypes.CoreUUID;
 }
