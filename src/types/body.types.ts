@@ -8,12 +8,10 @@ export interface Job {
     taskRequestEndpoint: string; //url
     taskResultEndpoint: string; //url
 }
-import { UUID, CoreUUID, JobUUID, TaskUUID } from "./brand.types";
 
 export interface ClientTask {
-    // TODO: use the `ProjectUUID` type from another branch once that gets merged
-    projectId: UUID;
-    coreId: CoreUUID;
-    jobId: JobUUID;
-    taskId: TaskUUID;
+    projectId: BrandTypes.ProjectUUID;
+    coreId: BrandTypes.CoreUUID;
+    jobId: BrandTypes.JobUUID;
+    taskId: BrandTypes.TaskUUID;
 }

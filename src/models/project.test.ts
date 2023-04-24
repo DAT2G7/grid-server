@@ -1,8 +1,10 @@
-import { ProjectModel } from "./project.model";
-import { testAddJob, testData, testProject } from "./project.test.data";
-import { Job, Project } from "../types/global.types";
-import JsonDB from "../services/json.db";
 import "jest-extended";
+
+import { Job, Project } from "../types/global.types";
+import { testAddJob, testData, testProject } from "./project.test.data";
+
+import JsonDB from "../services/json.db";
+import { ProjectModel } from "./project.model";
 
 describe("ProjectModel", () => {
     let testDB: ProjectModelMock;
@@ -17,20 +19,27 @@ describe("ProjectModel", () => {
 
     //If this fuckes up getProject and romeveProject will also fail due to bad implementation
     describe("addProject", () => {
+        beforeEach(() => {
+            testDB.save = jest.fn().mockImplementation(() => undefined);
+        });
         it("can add projects", () => {
+            const projectCount = testDB.projects.length;
+            testDB.addProject(testProject);
+
+            expect(testDB.projects).toContainEqual(testProject);
+            expect(testDB.projects.length).toEqual(projectCount + 1);
+        });
+        it("runs save after change", () => {
             const dataChange = jest
                 .spyOn(testDB.data, "push")
-                .mockImplementation((...newdata: Project[]) => {
-                    testDB.data = [...testDB.data, ...newdata];
-                    return 0;
-                }) as jest.MockInstance<unknown, unknown[], any>;
+                .mockImplementation(() => 0) as jest.MockInstance<
+                unknown,
+                unknown[]
+            >;
 
-            const projectCount = testDB.projects.length;
             testDB.addProject(testProject);
             expect(dataChange).toHaveBeenCalled();
             expect(testDB.save).toHaveBeenCalledAfter(dataChange);
-            expect(testDB.projects).toContainEqual(testProject);
-            expect(testDB.projects.length).toEqual(projectCount + 1);
         });
     });
 

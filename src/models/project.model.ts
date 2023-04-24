@@ -1,9 +1,10 @@
+import { Job, Project } from "../types/global.types";
+import { JobUUID, ProjectUUID } from "../types/brand.types";
+
 import JsonDB from "../services/json.db";
-import { Project, Job } from "../types/global.types";
-import { ProjectUUID, JobUUID } from "../types/brand.types";
+import { PROJECT_DB_PATH } from "../config";
 import { getRandomElement } from "../utils/random";
 import { v4 as uuid } from "uuid";
-import { PROJECT_DB_PATH } from "../config";
 
 export class ProjectModel extends JsonDB<Project[]> {
     constructor(path: string) {
