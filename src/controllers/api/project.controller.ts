@@ -1,13 +1,13 @@
 import { Core, Job, Project } from "../../types/global.types";
-import { ParamTypes } from "../../types";
-import { BodyTypes } from "../../types";
+import { CoreUUID, ProjectUUID } from "../../types/brand.types";
 import {
     checkCore,
     checkJob,
     createJobObject
 } from "../../models/project.controller.model";
 
-import { CoreUUID, ProjectUUID } from "../../types/brand.types";
+import { BodyTypes } from "../../types";
+import { ParamTypes } from "../../types";
 import { RequestHandler } from "express";
 import { createCoreObject } from "../../models/project.controller.model";
 import { deleteCoreFile } from "../../models/project.controller.model";
@@ -67,11 +67,10 @@ export const deleteCore: RequestHandler<ParamTypes.Core> = (req, res) => {
  * @param req Request object. Must contain a job object in the request body, that job must not contain a jobid.
  * @param res Response object. Returns 200 if job was created, along with a jobId in the response body. 400 if job failed validation or jobid was provided.
  * */
-export const createJob: RequestHandler<
-    ParamTypes.Job,
-    string,
-    BodyTypes.Job
-> = (req, res) => {
+export const createJob: RequestHandler<never, string, BodyTypes.Job> = (
+    req,
+    res
+) => {
     // Make sure jobid is not provided.
     if (isDefined(req.body.jobid)) {
         res.status(400);

@@ -2,3 +2,6 @@
 **/dist
 **/*.env
 **/data/
+
+# Ignore accidental swap files
+**/*.swp
