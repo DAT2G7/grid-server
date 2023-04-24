@@ -19,8 +19,8 @@ export const getCore: RequestHandler<ParamTypes.Core> = (_req, res) => {
  * Retrieve and serve task data
  */
 export const getTask: RequestHandler<ParamTypes.Task> = (req, res) => {
-    const { coreid, jobid, taskid } = req.params;
-    console.log("ids:", coreid, jobid, taskid);
+    const { projectid, jobid, taskid } = req.params;
+    console.log("ids:", projectid, jobid, taskid);
     res.sendStatus(200);
 };
 
