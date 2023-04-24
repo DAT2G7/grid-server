@@ -45,7 +45,7 @@ export const testJob: Job = {
 };
 
 export const testAddJob: AddJobPayload = {
-    coreId: "d7e36d1e-5f87-4b03-89ac-cb5767f4c61b" as UUID,
+    coreid: "d7e36d1e-5f87-4b03-89ac-cb5767f4c61b" as UUID,
     taskAmount: 100,
     taskRequestEndpoint: "http://url/to/project/owner/taskRequstEndpoint",
     taskResultEndpoint: "http://url/to/project/owner/taskResultEndpoint"

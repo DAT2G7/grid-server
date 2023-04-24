@@ -69,15 +69,15 @@ export class ProjectModel extends JsonDB<Project[]> {
 
     /**
      * Adds a job to the specified project and saves the database.
-     * @param {ProjectUUID} projectId - The ID of the project.
-     * @param {AddJobPayload} job - The job payload with no jobId and projectId.
+     * @param {ProjectUUID} projectid - The ID of the project.
+     * @param {AddJobPayload} job - The job payload with no jobid and projectid.
      * @returns {JobUUID | null} The ID of the added job or null if the project is not found.
      */
-    addJob(projectId: ProjectUUID, job: AddJobPayload): JobUUID | null {
+    addJob(projectid: ProjectUUID, job: AddJobPayload): JobUUID | null {
         const _job: Job = {
             ...job,
-            jobId: uuid() as JobUUID,
-            projectId: projectId
+            jobid: uuid() as JobUUID,
+            projectid: projectid
         };
 
         const project = this.getProject(projectid);
@@ -86,7 +86,7 @@ export class ProjectModel extends JsonDB<Project[]> {
         project.jobs.push(_job);
         this.save();
 
-        return _job.jobId;
+        return _job.jobid;
     }
 
     /**
@@ -175,7 +175,7 @@ export class ProjectModel extends JsonDB<Project[]> {
     }
 }
 
-export type AddJobPayload = Omit<Job, "jobId" | "projectId">;
+export type AddJobPayload = Omit<Job, "jobid" | "projectid">;
 
 const projectModel = new ProjectModel(PROJECT_DB_PATH);
 export default projectModel;

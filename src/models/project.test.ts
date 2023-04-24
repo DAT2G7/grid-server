@@ -79,7 +79,7 @@ describe("ProjectModel", () => {
         it("can add jobs", () => {
             const projectid = testData[0].projectid;
             const jobAmount = testDB.data[0].jobs.length;
-            testDB.addJob(projectId, testAddJob);
+            testDB.addJob(projectid, testAddJob);
 
             expect(testDB.data[0].jobs).toPartiallyContain(testAddJob);
             expect(testDB.data[0].jobs.length).toEqual(jobAmount + 1);
