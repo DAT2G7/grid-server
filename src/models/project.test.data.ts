@@ -1,5 +1,6 @@
 import { UUID } from "../types/brand.types";
 import { Job, Project } from "../types/global.types";
+import { AddJobPayload } from "./project.model";
 
 export const testData: Project[] = [
     {
@@ -38,6 +39,13 @@ export const testJob: Job = {
     jobId: "195886eb-f6ee-4a65-bf0d-4f6f3aa2c599" as UUID,
     coreId: "d7e36d1e-5f87-4b03-89ac-cb5767f4c61b" as UUID,
     projectId: "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e" as UUID,
+    taskAmount: 100,
+    taskRequestEndpoint: "http://url/to/project/owner/taskRequstEndpoint",
+    taskResultEndpoint: "http://url/to/project/owner/taskResultEndpoint"
+};
+
+export const testAddJob: AddJobPayload = {
+    coreId: "d7e36d1e-5f87-4b03-89ac-cb5767f4c61b" as UUID,
     taskAmount: 100,
     taskRequestEndpoint: "http://url/to/project/owner/taskRequstEndpoint",
     taskResultEndpoint: "http://url/to/project/owner/taskResultEndpoint"
