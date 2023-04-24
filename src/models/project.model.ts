@@ -70,7 +70,7 @@ export class ProjectModel extends JsonDB<Project[]> {
     /**
      * Adds a job to the specified project and saves the database.
      * @param {ProjectUUID} projectId - The ID of the project.
-     * @param {AddJobPayload} job - The job payload with optional jobId and projectId.
+     * @param {AddJobPayload} job - The job payload with no jobId and projectId.
      * @returns {JobUUID | null} The ID of the added job or null if the project is not found.
      */
     addJob(projectId: ProjectUUID, job: AddJobPayload): JobUUID | null {
