@@ -1,16 +1,18 @@
+import * as UuidService from "../../utils/random";
+
+import { NextFunction, Request, Response } from "express";
 import { getCore, getSetup, getTask, postResult } from "./client.controller";
-import { setupMockData } from "./client.test.data";
-import { Request, Response, NextFunction } from "express";
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import path from "path";
-import { Job } from "../../types/global.types";
-import { TaskUUID } from "../../types/brand.types";
+
 import { ClientTask } from "../../types/body.types";
+import { Job } from "../../types/global.types";
 import { ParamTypes } from "../../types";
 import { ParamsDictionary } from "express-serve-static-core";
-import * as UuidService from "../../utils/random";
-import projectModel from "../../models/project.model";
+import { TaskUUID } from "../../types/brand.types";
 import config from "../../config";
+import path from "path";
+import projectModel from "../../models/project.model";
+import { setupMockData } from "./client.test.data";
 
 describe("api/client", () => {
     let res: Response;
@@ -55,9 +57,9 @@ describe("api/client", () => {
 
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.send).toHaveBeenCalledWith({
-                projectId: setupMockData[0].projectId,
-                jobId: setupMockData[0].jobs[0].jobId,
-                coreId: setupMockData[0].jobs[0].coreId,
+                projectId: setupMockData[0].projectid,
+                jobId: setupMockData[0].jobs[0].jobid,
+                coreId: setupMockData[0].jobs[0].coreid,
                 taskId: taskId
             });
         });
@@ -100,8 +102,8 @@ describe("api/client", () => {
 
             req = getMockReq<GetTaskRequest>({
                 params: {
-                    projectid: setupMockData[0].projectId,
-                    jobid: setupMockData[0].jobs[0].jobId,
+                    projectid: setupMockData[0].projectid,
+                    jobid: setupMockData[0].jobs[0].jobid,
                     taskid: taskId
                 }
             });
@@ -115,6 +117,9 @@ describe("api/client", () => {
 
         it("should respond with error if job is not found", async () => {
             getJobSpy.mockRestore();
+            getJobSpy = jest
+                .spyOn(projectModel, "getJob")
+                .mockReturnValue(null);
 
             req.params.jobid = UuidService.getId();
 
@@ -171,8 +176,8 @@ describe("api/client", () => {
 
             req = getMockReq<PostTaskRequest>({
                 params: {
-                    projectid: setupMockData[0].projectId,
-                    jobid: setupMockData[0].jobs[0].jobId,
+                    projectid: setupMockData[0].projectid,
+                    jobid: setupMockData[0].jobs[0].jobid,
                     taskid: taskId
                 },
                 body: {
@@ -185,6 +190,9 @@ describe("api/client", () => {
 
         it("should respond with error if the job is not found", () => {
             getJobSpy.mockRestore();
+            getJobSpy = jest
+                .spyOn(projectModel, "getJob")
+                .mockReturnValue(null);
 
             req.params.jobid = UuidService.getId();
 
@@ -197,8 +205,8 @@ describe("api/client", () => {
         it("should post result to project owner", () => {
             const req = getMockReq<PostTaskRequest>({
                 params: {
-                    projectid: setupMockData[0].projectId,
-                    jobid: setupMockData[0].jobs[0].jobId,
+                    projectid: setupMockData[0].projectid,
+                    jobid: setupMockData[0].jobs[0].jobid,
                     taskid: taskId
                 },
                 body: {

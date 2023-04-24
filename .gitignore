@@ -1,4 +1,7 @@
 **/node_modules
 **/dist
+**/data
 **/*.env
-data/
+
+# Ignore accidental swap files
+**/*.swp

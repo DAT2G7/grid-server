@@ -1,11 +1,11 @@
+import { ClientTask } from "../../types/body.types";
 import { ParamTypes } from "../../types";
 import { RequestHandler } from "express";
-import db from "../../models/project.model";
-import { ClientTask } from "../../types/body.types";
 import { TaskUUID } from "../../types/brand.types";
-import path from "path";
 import config from "../../config";
+import db from "../../models/project.model";
 import { getId } from "../../utils/random";
+import path from "path";
 
 /**
  * Serve core-, job- and task-id
@@ -22,9 +22,9 @@ export const getSetup: RequestHandler<Record<string, never>, ClientTask> = (
     }
 
     const responseData: ClientTask = {
-        projectId: job.projectId,
-        jobId: job.jobId,
-        coreId: job.coreId,
+        projectId: job.projectid,
+        jobId: job.jobid,
+        coreId: job.coreid,
         taskId: getId() as TaskUUID
     };
 

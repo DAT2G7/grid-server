@@ -4,4 +4,59 @@ block content
     <main id="top">
         <h1>Project owner</h1>
         <p>This is the project owner module of the grid server.</p>
+        <p>Please upload your file using the button below</p>
+        <form id="form-core-upload" action="/project/core" method="post" enctype="multipart/form-data">
+            <input type="file" name="core" id="file">
+            <input type="submit" value="Upload">
+        </form>
+        <div>
+            <div>
+            <p>Input coreID to delete core:</p>
+            </div>
+                <div>
+                    <form action="api/project/core" method="delete">
+                        <label for="coreID">CoreID:</label>
+                        <input type="text" name="coreID" id="coreID" label="CoreID"> 
+                        button(type="button" onclick='deleteCore()') Delete core
+                    </form>
+                </div>
+            <div id="deletionResult"></div>
+        </div>
+        script.
+            function renameme() {
+                const data = new FormData(document.getElementById("form-core-upload"))
+                fetch("/api/core", {
+                    method: "POST",
+                    body: data.get("core"),
+                }).then((res) => {
+                    if (res.status === 200) {
+                        document.getElementById("form-core-upload").innerHTML = "<p>Core uploaded</p>"
+                    } else if (res.status === 400) {
+                        document.getElementById("form-core-upload").innerHTML = "<p>Invalid input, please input a file</p>"
+                    } else {
+                        document.getElementById("form-core-upload").innerHTML = "<p>Unknown error</p>"
+                    }
+                })
+                
+            }
+            function deleteCore() {
+                if (document.getElementById("coreID").value === "") {
+                    document.getElementById("deletionResult").innerHTML = "<p>Please input core id.</p>"
+                    return
+                }
+
+                fetch("/api/project/core/" + coreID.value, {
+                    method: "DELETE",
+                }).then((res) => {
+                    if (res.status === 200) {
+                        document.getElementById("deletionResult").innerHTML = "<p>Core " + coreID.value + " deleted</p>"
+                    } else if (res.status === 404) {
+                        document.getElementById("deletionResult").innerHTML = "<p>Core " + coreID.value + " not found</p>"
+                    } else {
+                        document.getElementById("deletionResult").innerHTML = "<p>Invalid input, please input a UUID. Input was: " + coreID.value +"</p>"
+                    }
+                })
+            }
+
     </main>
+

@@ -8,6 +8,7 @@
         "build": "npx tsc && npx tscp",
         "start": "node dist/app.js",
         "lint": "eslint . --ext .ts",
+        "lint:error": "eslint . --ext .ts --quiet",
         "lint:fix": "eslint . --ext .ts --fix",
         "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write",
         "test": "jest --verbose"
@@ -21,10 +22,14 @@
     "type": "commonjs",
     "author": "",
     "dependencies": {
+        "@types/multer": "^1.4.7",
+        "body-parser": "^1.20.2",
         "dotenv": "^16.0.3",
         "express": "^4.18.2",
         "express-validator": "^6.15.0",
         "jest-extended": "^3.2.4",
+        "multer": "^1.4.5-lts.1",
+        "node-mocks-http": "^1.12.2",
         "pug": "^3.0.2",
         "sweetalert2": "^11.7.3",
         "ts-node": "^10.9.1",
