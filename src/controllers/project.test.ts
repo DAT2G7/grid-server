@@ -3,7 +3,7 @@ import { v4 } from "uuid";
 import { CORE_ROOT } from "../config";
 import { CoreUUID } from "../types/brand.types";
 import { Core } from "../types/global.types";
-import { saveCore } from "./project.controller";
+import { saveCore } from "../models/project.controller.model";
 
 jest.mock("fs");
 
@@ -19,7 +19,7 @@ describe("saveCore", () => {
     });
     it("should call writeFileSync with correct path and content", () => {
         expect(fs.writeFileSync).toHaveBeenCalledWith(
-            CORE_ROOT + "/" + mockCore.coreId + ".js",
+            CORE_ROOT + "/" + mockCore.coreid + ".js",
             mockCore.contents
         );
     });
@@ -27,7 +27,7 @@ describe("saveCore", () => {
 
 function createMockCore(): Core {
     const mockCore = {
-        coreId: v4() as CoreUUID,
+        coreid: v4() as CoreUUID,
         contents: Buffer.from("function mockCore() { return (1 + 1); }")
     };
     return mockCore;

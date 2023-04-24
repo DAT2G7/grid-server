@@ -1,15 +1,19 @@
 import { Core, Job, Project } from "../../types/global.types";
 import { ParamTypes } from "../../types";
 import { BodyTypes } from "../../types";
-import { checkCore, checkJob, createJobObject } from "./project.model";
+import {
+    checkCore,
+    checkJob,
+    createJobObject
+} from "../../models/project.controller.model";
 
 import { CoreUUID, ProjectUUID } from "../../types/brand.types";
 import { RequestHandler } from "express";
-import { createCoreObject } from "../api/project.model";
-import { deleteCoreFile } from "./project.model";
+import { createCoreObject } from "../../models/project.controller.model";
+import { deleteCoreFile } from "../../models/project.controller.model";
 import { isDefined } from "../../utils/helpers";
 import projectModel from "../../models/project.model";
-import { saveCore } from "./project.model";
+import { saveCore } from "../../models/project.controller.model";
 
 /**
  * Receive project core
@@ -22,13 +26,13 @@ export const createCoreAPI: RequestHandler<
     string,
     Express.Multer.File
 > = (req, res) => {
-    if (!isDefined(req.body)) {
+    if (!isDefined(req.file)) {
         res.status(400);
         res.send("Error: Core file not received.");
         return;
     }
 
-    const core: Core = createCoreObject(req.body);
+    const core: Core = createCoreObject(req.file);
 
     const checkResult = checkCore(core);
 
@@ -36,7 +40,6 @@ export const createCoreAPI: RequestHandler<
         saveCore(core);
 
         res.status(checkResult);
-        res.contentType("application/json");
         res.send(core.coreid.toString());
     } else {
         res.status(checkResult);

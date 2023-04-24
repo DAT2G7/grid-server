@@ -1,8 +1,8 @@
-import { Core, Job } from "../../types/global.types";
-import { CoreUUID, JobUUID, ProjectUUID } from "../../types/brand.types";
+import { Core, Job } from "../types/global.types";
+import { CoreUUID, JobUUID, ProjectUUID } from "../types/brand.types";
 
-import { CORE_ROOT } from "../../config";
-import dbModel from "../../models/project.model";
+import { CORE_ROOT } from "../config";
+import dbModel from "./project.model";
 import fs from "fs";
 import { v4 } from "uuid";
 import { writeFileSync } from "fs";

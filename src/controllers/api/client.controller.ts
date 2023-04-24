@@ -20,7 +20,7 @@ export const getCore: RequestHandler<Core> = (_req, res) => {
  * Retrieve and serve task data
  */
 export const getTask: RequestHandler<Task> = (req, res) => {
-    const { coreId: coreid, jobId: jobid, taskId: taskid } = req.params;
+    const { coreid: coreid, jobid: jobid, taskid: taskid } = req.params;
     console.log("ids:", coreid, jobid, taskid);
     res.sendStatus(200);
 };

@@ -9,7 +9,7 @@ import {
     checkJob,
     deleteCoreFile,
     coreExists
-} from "./project.model";
+} from "../../models/project.controller.model";
 
 jest.mock("fs");
 
@@ -28,7 +28,7 @@ describe("deleteCoreFile", () => {
     beforeAll(() => {
         jest.resetModules();
         (fs.existsSync as jest.Mock).mockReturnValue(true);
-        deleteCoreFile(mockCore.coreId);
+        deleteCoreFile(mockCore.coreid);
     });
 
     it("should call fs.existsSync", () => {
@@ -37,7 +37,7 @@ describe("deleteCoreFile", () => {
 
     it("should call fs.existsSync with correct path", () => {
         expect(fs.existsSync).toHaveBeenCalledWith(
-            CORE_ROOT + "/" + mockCore.coreId + ".js"
+            CORE_ROOT + "/" + mockCore.coreid + ".js"
         );
     });
 
@@ -47,13 +47,13 @@ describe("deleteCoreFile", () => {
 
     it("should call fs.rmSync with correct path", () => {
         expect(fs.rmSync).toHaveBeenCalledWith(
-            CORE_ROOT + "/" + mockCore.coreId + ".js"
+            CORE_ROOT + "/" + mockCore.coreid + ".js"
         );
     });
 
     it("should fail if core does not exist", () => {
         (fs.existsSync as jest.Mock).mockReturnValue(false);
-        const actualResult = deleteCoreFile(mockCore.coreId);
+        const actualResult = deleteCoreFile(mockCore.coreid);
         expect(actualResult).toBe(false);
     });
 });
@@ -62,25 +62,25 @@ test("createJobObject", () => {
     const expectedResult = createMockJob();
 
     const tmpJob: Partial<Job> = {
-        coreId: expectedResult.coreId,
+        coreid: expectedResult.coreid,
         taskAmount: expectedResult.taskAmount,
-        projectId: expectedResult.projectId,
+        projectid: expectedResult.projectid,
         taskRequestEndpoint: expectedResult.taskRequestEndpoint,
         taskResultEndpoint: expectedResult.taskResultEndpoint
     };
 
     const actualResult = createJobObject(tmpJob);
 
-    expect(actualResult.coreId).toBe(expectedResult.coreId);
+    expect(actualResult.coreid).toBe(expectedResult.coreid);
     expect(actualResult.taskAmount).toBe(expectedResult.taskAmount);
-    expect(actualResult.projectId).toBe(expectedResult.projectId);
+    expect(actualResult.projectid).toBe(expectedResult.projectid);
     expect(actualResult.taskRequestEndpoint).toBe(
         expectedResult.taskRequestEndpoint
     );
     expect(actualResult.taskResultEndpoint).toBe(
         expectedResult.taskResultEndpoint
     );
-    expect(typeof actualResult.jobId).toBe(typeof expectedResult.jobId);
+    expect(typeof actualResult.jobid).toBe(typeof expectedResult.jobid);
 });
 
 describe("checkJob", () => {
@@ -99,7 +99,7 @@ describe("checkJob", () => {
 
     it("should call fs.existsSync with correct path", () => {
         expect(fs.existsSync).toHaveBeenCalledWith(
-            CORE_ROOT + "/" + mockJob.coreId + ".js"
+            CORE_ROOT + "/" + mockJob.coreid + ".js"
         );
     });
 
@@ -114,7 +114,7 @@ describe("checkJob", () => {
         const actualResult = checkJob(mockJob);
 
         expect(actualResult).toBe(expectedResult);
-        deleteCoreFile(mockCore.coreId);
+        deleteCoreFile(mockCore.coreid);
     });
 });
 
@@ -124,7 +124,7 @@ describe("coreExists", () => {
     beforeAll(() => {
         jest.resetModules();
         (fs.existsSync as jest.Mock).mockReturnValue(true);
-        coreExists(mockCore.coreId);
+        coreExists(mockCore.coreid);
     });
 
     it("should call fs.existsSync", () => {
@@ -133,25 +133,25 @@ describe("coreExists", () => {
 
     it("should call fs.existsSync with correct path", () => {
         expect(fs.existsSync).toHaveBeenCalledWith(
-            CORE_ROOT + "/" + mockCore.coreId + ".js"
+            CORE_ROOT + "/" + mockCore.coreid + ".js"
         );
     });
 
     it("should return true if core exists", () => {
-        const actualResult = coreExists(mockCore.coreId);
+        const actualResult = coreExists(mockCore.coreid);
         expect(actualResult).toBe(true);
     });
 
     it("should fail if core does not exist", () => {
         (fs.existsSync as jest.Mock).mockReturnValue(false);
-        const actualResult = coreExists(mockCore.coreId);
+        const actualResult = coreExists(mockCore.coreid);
         expect(actualResult).toBe(false);
     });
 });
 
 function createMockCore(): Core {
     const mockCore = {
-        coreId: v4() as CoreUUID,
+        coreid: v4() as CoreUUID,
         contents: Buffer.from("function mockCore() { return (1 + 1); }")
     };
     return mockCore;
@@ -159,9 +159,9 @@ function createMockCore(): Core {
 
 function createMockJob(): Job {
     const mockJob: Job = {
-        coreId: v4() as CoreUUID,
-        jobId: v4() as JobUUID,
-        projectId: v4() as ProjectUUID,
+        coreid: v4() as CoreUUID,
+        jobid: v4() as JobUUID,
+        projectid: v4() as ProjectUUID,
         taskAmount: 1,
         taskRequestEndpoint: "http://localhost:3000/api/task/request",
         taskResultEndpoint: "http://localhost:3000/api/task/result"
