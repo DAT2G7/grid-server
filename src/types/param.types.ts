@@ -4,7 +4,8 @@ export interface Core {
     coreid: BrandTypes.CoreUUID;
 }
 
-export interface Job extends Core {
+export interface Job {
+    projectid: BrandTypes.ProjectUUID;
     jobid: BrandTypes.JobUUID;
 }
 
