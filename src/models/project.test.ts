@@ -1,5 +1,5 @@
 import { ProjectModel } from "./project.model";
-import { testData, testJob, testProject } from "./project.test.data";
+import { testAddJob, testData, testProject } from "./project.test.data";
 import { Job, Project } from "../types/global.types";
 import JsonDB from "../services/json.db";
 import "jest-extended";
@@ -79,8 +79,9 @@ describe("ProjectModel", () => {
         it("can add jobs", () => {
             const projectId = testData[0].projectId;
             const jobAmount = testDB.data[0].jobs.length;
-            testDB.addJob(projectId, testJob);
-            expect(testDB.data[0].jobs).toContainEqual(testJob);
+            testDB.addJob(projectId, testAddJob);
+
+            expect(testDB.data[0].jobs).toPartiallyContain(testAddJob);
             expect(testDB.data[0].jobs.length).toEqual(jobAmount + 1);
         });
     });
