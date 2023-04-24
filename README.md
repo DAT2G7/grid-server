@@ -1,3 +1,6 @@
+![example event parameter](https://github.com/DAT2G7/grid-server/actions/workflows/build.yml/badge.svg?event=push)
+![example event parameter](https://github.com/DAT2G7/grid-server/actions/workflows/jest.yml/badge.svg?event=push)
+
 # Setup
 
 This is a simple project with external dependencies not handled by `npm`.
