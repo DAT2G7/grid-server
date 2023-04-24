@@ -1,4 +1,5 @@
-import { Task, Core } from "../../types/global.types";
+import { Core, Task } from "../../types/global.types";
+
 import { RequestHandler } from "express";
 
 /**

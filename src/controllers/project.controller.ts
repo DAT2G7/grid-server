@@ -1,10 +1,9 @@
-import { CORE_ROOT } from "../config";
+import { checkCore, saveCore } from "./api/project.model";
+
 import { Core } from "../types/global.types";
 import { RequestHandler } from "express";
-import { checkCore } from "./api/project.model";
 import { createCoreObject } from "./api/project.model";
 import { isDefined } from "../utils/helpers";
-import { writeFileSync } from "fs";
 
 /**
  * Serve the project owner index page
@@ -41,12 +40,3 @@ export const createCore: RequestHandler = (req, res) => {
         return;
     }
 };
-
-export function saveCore(core: Core) {
-    const corePath: string = CORE_ROOT + "/" + core.coreId + ".js";
-    try {
-        writeFileSync(corePath, core.contents);
-    } catch (e) {
-        console.error(e);
-    }
-}

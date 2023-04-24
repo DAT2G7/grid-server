@@ -1,9 +1,11 @@
-import fs from "fs";
-import { JobUUID, CoreUUID, ProjectUUID } from "../../types/brand.types";
-import { Job, Core } from "../../types/global.types";
+import { Core, Job } from "../../types/global.types";
+import { CoreUUID, JobUUID, ProjectUUID } from "../../types/brand.types";
+
 import { CORE_ROOT } from "../../config";
-import { v4 } from "uuid";
 import dbModel from "../../models/project.model";
+import fs from "fs";
+import { v4 } from "uuid";
+import { writeFileSync } from "fs";
 
 export function checkCore(core: Core): number {
     core;
@@ -33,6 +35,19 @@ export function checkJob(job: Job) {
  */
 export function readJob(projectId: ProjectUUID, jobID: JobUUID) {
     return dbModel.getJob(projectId, jobID);
+}
+
+/**
+ * Saves a core to disk
+ * @param core core file to save
+ */
+export function saveCore(core: Core) {
+    const corePath: string = CORE_ROOT + "/" + core.coreId + ".js";
+    try {
+        writeFileSync(corePath, core.contents);
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 /**
