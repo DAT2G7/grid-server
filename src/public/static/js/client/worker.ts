@@ -39,7 +39,7 @@ const run = async () => {
     };
 
     const sendResult: (data: unknown) => Promise<void | never> = async () => {
-        const options = {
+        const options: RequestInit = {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
