@@ -55,7 +55,9 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
     let taskData: unknown;
     try {
         taskData = await (
-            await fetch(`${job.taskRequestEndpoint}/${taskid}`)
+            await fetch(
+                `${job.taskRequestEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`
+            )
         ).json();
     } catch (error) {
         res.sendStatus(500);
@@ -79,7 +81,7 @@ export const postResult: RequestHandler<ParamTypes.Task> = (_req, res) => {
         return;
     }
 
-    fetch(`${job.taskResultEndpoint}/${taskid}`, {
+    fetch(`${job.taskResultEndpoint}?taskid=${taskid}`, {
         method: "POST",
         body: _req.body,
         headers: {
