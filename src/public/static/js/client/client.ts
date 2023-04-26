@@ -5,7 +5,10 @@ const MAX_TRY_COUNT = 5;
 let worker: Worker | null = null;
 let tryCount = 0;
 
-const run = () => {
+const run = async () => {
+    // Important to register service worker before starting web worker to ensure core and setup are cached
+    await registerServiceWorker();
+
     if (!window.Worker) {
         alert("Web worker not supported on device");
         return;
@@ -44,10 +47,6 @@ const run = () => {
     });
 };
 //TODO setup something so you can start computing without reloading after pressing no
-run();
-} else {
-    console.log("Web worker not supported");
-}
 
 const registerServiceWorker = async () => {
     if (navigator.serviceWorker) {
@@ -66,6 +65,22 @@ const registerServiceWorker = async () => {
             );
             if (registration.installing) {
                 console.log("Service worker installing");
+
+                const installingWorker = registration.installing;
+                await new Promise<void>((resolve, reject) => {
+                    installingWorker.onstatechange = () => {
+                        if (installingWorker.state === "installed") {
+                            resolve();
+                        }
+                    };
+
+                    // Resolve even though it failed, as there is no error handling to be done.
+                    setTimeout(reject, 30000);
+                })
+                    .then(() => console.log("Service worker installed"))
+                    .catch(() =>
+                        console.warn("Service worker failed to install")
+                    );
             } else if (registration.waiting) {
                 console.log("Service worker installed");
             } else if (registration.active) {
@@ -86,4 +101,4 @@ const registerServiceWorker = async () => {
     }
 };
 
-registerServiceWorker();
+run();
