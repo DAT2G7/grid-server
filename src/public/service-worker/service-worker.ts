@@ -1,15 +1,31 @@
-/* eslint-disable no-console */ // Allowed in this since SW uses a special console
 /// <reference lib="webworker" />
+
+//? Console is allowed in this since SW uses a special console only visible through special tools
+/* eslint-disable no-console */
 
 // add correct type to self. Cannot use declare global as it is not allowed outside modules
 const _self = self as unknown as ServiceWorkerGlobalScope;
 
+enum CacheKeys {
+    Dynamic = "dynamic.v1",
+    Precache = "precache.v1"
+}
+
+enum CacheMode {
+    Cache = "cache",
+    Network = "network"
+}
+
+// Set mode to CacheMode.Network to disable caching entirely. Should only be used for debugging.
+const MODE = CacheMode.Cache;
+
 /** Gets the default cache for network ressources */
-const getCache = () => caches.open("v1");
+const getCache = () => caches.open(CacheKeys.Dynamic);
+const getPreCache = () => caches.open(CacheKeys.Precache);
 
 /** Adds urls to ressources which should be pre-cached */
 const addResourcesToCache = async (resources: string[]) => {
-    const cache = await getCache();
+    const cache = await getPreCache();
     await cache.addAll(resources);
 };
 
@@ -30,27 +46,32 @@ const createErrorResponse = (message: string, status: number) =>
 
 /** Attempts to get cached response. Otherwise fetches network ressource */
 const cacheFirst = async (request: Request): Promise<Response> => {
-    // Attempt cache
-    console.log("Attempting cache");
-    const fromCache = await caches.match(request);
-    if (fromCache) return fromCache;
+    if (MODE === CacheMode.Cache) {
+        // Attempt cache
+        console.log("Attempting cache");
+        const fromCache = await caches.match(request);
+        if (fromCache) {
+            console.log("Found in cache:", fromCache);
+            return fromCache;
+        }
 
-    // Check URL before attempting network. Dissalow requests to foreign domains
-    const url = new URL(request.url);
-    if (url.hostname !== self.location.hostname) {
-        console.log(
-            "Hostname not allowed.\n",
-            url.hostname,
-            self.location.hostname
-        );
-        return createErrorResponse(
-            "Requesting custom ressources is not allowed, to protect the identities of our users",
-            403
-        );
+        // Check URL before attempting network. Dissalow requests to foreign domains
+        const url = new URL(request.url);
+        if (url.hostname !== self.location.hostname) {
+            console.warn(
+                "Hostname not allowed.\n",
+                url.hostname,
+                self.location.hostname
+            );
+            return createErrorResponse(
+                "Requesting custom ressources is not allowed, to protect the identities of our users",
+                403
+            );
+        }
+
+        // Attempt network
+        console.log("Attempting network");
     }
-
-    // Attempt network
-    console.log("Attempting network");
     try {
         const responseFromNetwork = await fetch(request);
         // Cache response. Cloned as the response can only be consumed once.
@@ -64,7 +85,15 @@ const cacheFirst = async (request: Request): Promise<Response> => {
 // Set up pages to be pre-cached
 _self.addEventListener("install", (event) => {
     console.log("installing", event);
-    event.waitUntil(addResourcesToCache(["/", "/client", "/project"]));
+    event.waitUntil(
+        addResourcesToCache([
+            "/",
+            "/client",
+            "/project",
+            "/static/js/client/client.js",
+            "/static/js/client/worker.js"
+        ])
+    );
 });
 
 // Intercept fetch requests to serve cached resources and block requests to foreign domains
@@ -73,9 +102,13 @@ _self.addEventListener("fetch", async (event) => {
     event.respondWith(cacheFirst(event.request));
 });
 
-console.log("service worker loaded");
+_self.addEventListener("message", (event) => {
+    console.log("message:", event);
+    if (event.data === "RESET_DYNAMIC_CACHE") {
+        caches.delete(CacheKeys.Dynamic);
+    }
+});
 
-// const exportMe = "exportMe";
-// export { exportMe };
-// export {};
-// module.exports = {};
+// TODO: Look into the necessity of skipWaiting for this project. Right now there is no good way of resetting early outside of browser tools
+
+console.log("service worker loaded in mode:", MODE);
