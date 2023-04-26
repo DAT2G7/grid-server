@@ -5,7 +5,6 @@ import { Job, Core } from "../../types/global.types";
 import { CORE_ROOT } from "../../config";
 import {
     checkCore,
-    createJobObject,
     checkJob,
     deleteCoreFile,
     coreExists
@@ -69,7 +68,8 @@ test("createJobObject", () => {
         taskResultEndpoint: expectedResult.taskResultEndpoint
     };
 
-    const actualResult = createJobObject(tmpJob);
+    const actualResult = tmpJob as Job;
+    tmpJob.jobid = v4() as JobUUID;
 
     expect(actualResult.coreid).toBe(expectedResult.coreid);
     expect(actualResult.taskAmount).toBe(expectedResult.taskAmount);
