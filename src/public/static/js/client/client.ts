@@ -1,21 +1,50 @@
-console.log("Client running");
+/// <reference lib="DOM" />
 
-if (window.Worker) {
-    console.log("Web worker supported");
+const MAX_TRY_COUNT = 5;
 
+let worker: Worker | null = null;
+let tryCount = 0;
+
+const run = () => {
+    if (!window.Worker) {
+        alert("Web worker not supported on device");
+        return;
+    }
+    const start = confirm("Do you want to start computing?");
+    if (!start) {
+        return;
+    }
     // Create web worker. This way is not ideal, but allows for a simpler build process.
-    const worker = new Worker("/static/js/client/worker.js");
-
-    // The ideal would be to use this, but it requires a more complex build process.
-    // const worker = new Worker(new URL("./worker.ts", import.meta.url));
+    worker = new Worker("/static/js/client/worker.js");
 
     // Listen for messages from worker
     worker.addEventListener("message", (event) => {
-        console.log("Message from worker:\n", event);
+        switch (event.data.type) {
+            // If there is an error with the web worker
+            case "error":
+                // TODO: better communication with the user
+                tryCount++;
+                worker?.terminate();
+                if (tryCount < MAX_TRY_COUNT) {
+                    worker = new Worker("/static/js/client/worker.js");
+                } else {
+                    // TODO set footer with ref for how to solve problem
+                    alert("Something went wrong in the webworker");
+                }
+                break;
 
-        // Send message to worker
-        worker.postMessage({ type: "message", data: "Hello worker!" });
+            // Web worker telling it's done with its current work
+            case "workDone":
+                alert("Web worker task done! Starting a new one.");
+                tryCount = 0;
+                worker?.terminate();
+                worker = new Worker("/static/js/client/worker.js");
+                break;
+        }
     });
+};
+//TODO setup something so you can start computing without reloading after pressing no
+run();
 } else {
     console.log("Web worker not supported");
 }
