@@ -81,13 +81,17 @@ export const postResult: RequestHandler<ParamTypes.Task> = (_req, res) => {
         return;
     }
 
-    fetch(`${job.taskResultEndpoint}?taskid=${taskid}`, {
-        method: "POST",
-        body: _req.body,
-        headers: {
-            "Content-Type": _req.headers["content-type"] || "application/json"
+    fetch(
+        `${job.taskResultEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`,
+        {
+            method: "POST",
+            body: _req.body,
+            headers: {
+                "Content-Type":
+                    _req.headers["content-type"] || "application/json"
+            }
         }
-    });
+    );
 
     res.sendStatus(200);
 };

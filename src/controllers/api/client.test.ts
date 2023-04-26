@@ -154,7 +154,7 @@ describe("api/client", () => {
 
         it("should request task data from project owner", async () => {
             await getTask(req, res, next);
-            const fetchRequest = `${setupMockData[0].jobs[0].taskRequestEndpoint}/${taskId}`;
+            const fetchRequest = `${setupMockData[0].jobs[0].taskRequestEndpoint}?taskid=${taskId}&jobid=${req.params.jobid}&projectid=${req.params.projectid}`;
 
             expect(global.fetch).toHaveBeenCalledWith(fetchRequest);
         });
@@ -217,7 +217,7 @@ describe("api/client", () => {
             postResult(req, res, next);
 
             expect(global.fetch).toHaveBeenCalledWith(
-                setupMockData[0].jobs[0].taskResultEndpoint + "/" + taskId,
+                `${setupMockData[0].jobs[0].taskResultEndpoint}?taskid=${taskId}&jobid=${req.params.jobid}&projectid=${req.params.projectid}`,
                 {
                     method: "POST",
                     body: req.body,
