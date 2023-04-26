@@ -38,12 +38,13 @@ const run = async () => {
         return (await response.json()) as unknown;
     };
 
-    const sendResult: (data: unknown) => Promise<void | never> = async () => {
-        const options = {
+    const sendResult = async (data: unknown): Promise<void | never> => {
+        const options: RequestInit = {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
-            }
+            },
+            body: JSON.stringify(data),
         };
 
         const response = await fetch(
