@@ -220,15 +220,15 @@ describe("api/client", () => {
                 `${setupMockData[0].jobs[0].taskResultEndpoint}?taskid=${taskId}&jobid=${req.params.jobid}&projectid=${req.params.projectid}`,
                 {
                     method: "POST",
-                    body: req.body,
+                    body: JSON.stringify(req.body),
                     headers: {
                         "Content-Type": "application/json"
                     }
                 }
             );
         });
-        it("should respond to client with status 200", () => {
-            postResult(req, res, next);
+        it("should respond to client with status 200", async () => {
+            await postResult(req, res, next);
             expect(res.sendStatus).toHaveBeenCalledWith(200);
         });
     });

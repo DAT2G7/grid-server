@@ -8,6 +8,7 @@ import {
 
 import { handleInvalid } from "../../middleware/validators/invalid";
 import { validateUUIDs } from "../../middleware/validators/uuid";
+import bodyParser from "body-parser";
 
 const router = express.Router();
 
@@ -31,6 +32,7 @@ router.get(
 router.post(
     "/project/:projectid/job/:jobid/task/:taskid",
     validateUUIDs("projectid", "jobid", "taskid"),
+    bodyParser.json(),
     handleInvalid,
     postResult as unknown as RequestHandler
 );

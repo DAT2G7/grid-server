@@ -85,17 +85,6 @@ export function createCoreObject(file: Express.Multer.File | string): Core {
     }
 }
 
-/**
- * Responsible for adding a JobUUID to a job object, if one is not already present.
- * @param incomingJob The job object that needs to be checked.
- * @returns The job object with a JobUUID.
- */
-export function createJobObject(incomingJob: Partial<Job>): Job {
-    incomingJob.jobid ??= v4() as JobUUID;
-
-    return incomingJob as Job;
-}
-
 /** Responsible for checking whether a core exists in the file system.
  * @param coreId The coreId of the core that needs to be checked.
  * @returns boolean, true if the core exists, false if not.
