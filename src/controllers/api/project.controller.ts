@@ -1,10 +1,6 @@
 import { Core, Job, Project } from "../../types/global.types";
-import { CoreUUID, ProjectUUID } from "../../types/brand.types";
-import {
-    checkCore,
-    checkJob,
-    createJobObject
-} from "../../models/project.controller.model";
+import { CoreUUID, JobUUID, ProjectUUID } from "../../types/brand.types";
+import { checkCore, checkJob } from "../../models/project.controller.model";
 
 import { BodyTypes } from "../../types";
 import { ParamTypes } from "../../types";
@@ -78,7 +74,7 @@ export const createJob: RequestHandler<never, string, BodyTypes.Job> = (
         return;
     }
 
-    const job: Job = createJobObject(req.body);
+    const job: Job = req.body as Job;
 
     // Make sure job is valid.
     if (!checkJob(job)) {
@@ -87,14 +83,17 @@ export const createJob: RequestHandler<never, string, BodyTypes.Job> = (
         return;
     }
 
-    if (!isDefined(projectModel.addJob(job.projectid, job))) {
+    const jobid: JobUUID | null = projectModel.addJob(job.projectid, job);
+
+    if (!isDefined(jobid)) {
         res.status(400);
         res.send("Error: Job could not be added to project.");
         return;
     } else {
         res.status(201);
         res.contentType("application/json");
-        res.send(job.jobid.toString());
+        const responseData = { jobid: jobid };
+        res.send(JSON.stringify(responseData));
     }
 };
 
@@ -122,7 +121,7 @@ export const updateJob: RequestHandler<ParamTypes.Job, never, BodyTypes.Job> = (
     req,
     res
 ) => {
-    const job = createJobObject(req.body);
+    const job = req.body as Job;
     if (!checkJob(job)) {
         res.sendStatus(400);
         return;

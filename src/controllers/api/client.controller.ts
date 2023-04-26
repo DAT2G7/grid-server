@@ -72,8 +72,8 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
 /**
  * Post result to project owner
  */
-export const postResult: RequestHandler<ParamTypes.Task> = (_req, res) => {
-    const { projectid, jobid, taskid } = _req.params;
+export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
+    const { projectid, jobid, taskid } = req.params;
     const job = db.getJob(projectid, jobid);
 
     if (!job || job.taskAmount < 1) {
@@ -81,17 +81,16 @@ export const postResult: RequestHandler<ParamTypes.Task> = (_req, res) => {
         return;
     }
 
-    fetch(
+    await fetch(
         `${job.taskResultEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`,
         {
             method: "POST",
-            body: _req.body,
+            body: JSON.stringify(req.body),
             headers: {
                 "Content-Type":
-                    _req.headers["content-type"] || "application/json"
+                    req.headers["content-type"] || "application/json"
             }
         }
     );
-
     res.sendStatus(200);
 };
