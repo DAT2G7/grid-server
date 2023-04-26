@@ -82,18 +82,19 @@ const cacheFirst = async (request: Request): Promise<Response> => {
     }
 };
 
+const precacheResources = () =>
+    addResourcesToCache([
+        "/",
+        "/client",
+        "/project",
+        "/static/js/client/client.js",
+        "/static/js/client/worker.js"
+    ]);
+
 // Set up pages to be pre-cached
 _self.addEventListener("install", (event) => {
     console.log("installing", event);
-    event.waitUntil(
-        addResourcesToCache([
-            "/",
-            "/client",
-            "/project",
-            "/static/js/client/client.js",
-            "/static/js/client/worker.js"
-        ])
-    );
+    event.waitUntil(precacheResources());
 });
 
 // Intercept fetch requests to serve cached resources and block requests to foreign domains
@@ -112,3 +113,14 @@ _self.addEventListener("message", (event) => {
 // TODO: Look into the necessity of skipWaiting for this project. Right now there is no good way of resetting early outside of browser tools
 
 console.log("service worker loaded in mode:", MODE);
+
+//! Expose functions for testing, Cannot be exported as SW breaks if it's a module
+const testSelf = self as unknown as Record<string, unknown>;
+testSelf["getCache"] = getCache;
+testSelf["getPreCache"] = getPreCache;
+testSelf["addResourcesToCache"] = addResourcesToCache;
+testSelf["putInCache"] = putInCache;
+testSelf["createErrorResponse"] = createErrorResponse;
+testSelf["cacheFirst"] = cacheFirst;
+testSelf["precacheResources"] = precacheResources;
+testSelf["MODE"] = MODE;
