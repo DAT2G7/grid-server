@@ -1,23 +1,17 @@
+/// <reference lib="DOM" />
+
 const MAX_TRY_COUNT = 5;
-import Swal from "sweetalert2";
 
 let worker: Worker | null = null;
 let tryCount = 0;
 
-//TODO setup something so you can start computing without reloading after pressing no
-Swal.fire({
-    title: "Do you want to start computing?",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes"
-}).then((result) => {
-    if (!result.isConfirmed) {
+const run = () => {
+    if (!window.Worker) {
+        alert("Web worker not supported on device");
         return;
     }
-    if (!window.Worker) {
-        Swal.fire("Web worker not supported on device");
+    const start = confirm("Do you want to start computing?");
+    if (!start) {
         return;
     }
     // Create web worker. This way is not ideal, but allows for a simpler build process.
@@ -26,6 +20,7 @@ Swal.fire({
     // Listen for messages from worker
     worker.addEventListener("message", (event) => {
         switch (event.data.type) {
+            // If there is an error with the web worker
             case "error":
                 // TODO: better communication with the user
                 tryCount++;
@@ -33,21 +28,20 @@ Swal.fire({
                 if (tryCount < MAX_TRY_COUNT) {
                     worker = new Worker("/static/js/client/worker.js");
                 } else {
-                    // swal alert when error with web worker.
                     // TODO set footer with ref for how to solve problem
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error with web worker",
-                        text: event.data.message
-                    });
+                    alert("Something went wrong in the webworker");
                 }
                 break;
+
+            // Web worker telling it's done with its current work
             case "workDone":
-                Swal.fire("Web worker task done! Starting a new one.");
+                alert("Web worker task done! Starting a new one.");
                 tryCount = 0;
                 worker?.terminate();
                 worker = new Worker("/static/js/client/worker.js");
                 break;
         }
     });
-});
+};
+//TODO setup something so you can start computing without reloading after pressing no
+run();

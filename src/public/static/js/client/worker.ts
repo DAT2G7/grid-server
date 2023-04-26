@@ -24,7 +24,7 @@ const run = async () => {
 
     const getData: () => Promise<unknown | never> = async () => {
         const response = await fetch(
-            `/api/client/core/${setupData.projectId}/job/${setupData.jobId}/task/${setupData.taskId}`
+            `/api/client/project/${setupData.projectId}/job/${setupData.jobId}/task/${setupData.taskId}`
         );
         if (!response.ok) {
             postMessage({
@@ -48,7 +48,7 @@ const run = async () => {
         };
 
         const response = await fetch(
-            `/api/client/core/${setupData.projectId}/job/${setupData.jobId}/task/${setupData.taskId}`,
+            `/api/client/project/${setupData.projectId}/job/${setupData.jobId}/task/${setupData.taskId}`,
             options
         );
         if (!response.ok) {
