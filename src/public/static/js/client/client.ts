@@ -5,12 +5,17 @@ const MAX_TRY_COUNT = 5;
 let worker: Worker | null = null;
 let tryCount = 0;
 
+const params = new URLSearchParams(window.location.search);
+const quiet = params.get("quiet") === "true";
+
+const tryAlert = (message: string) => quiet || alert(message);
+
 const run = () => {
     if (!window.Worker) {
         alert("Web worker not supported on device");
         return;
     }
-    const start = confirm("Do you want to start computing?");
+    const start = quiet || confirm("Do you want to start computing?");
     if (!start) {
         return;
     }
@@ -29,13 +34,13 @@ const run = () => {
                     worker = new Worker("/static/js/client/worker.js");
                 } else {
                     // TODO set footer with ref for how to solve problem
-                    alert("Something went wrong in the webworker");
+                    tryAlert("Something went wrong in the webworker");
                 }
                 break;
 
             // Web worker telling it's done with its current work
             case "workDone":
-                alert("Web worker task done! Starting a new one.");
+                tryAlert("Web worker task done! Starting a new one.");
                 tryCount = 0;
                 worker?.terminate();
                 worker = new Worker("/static/js/client/worker.js");
