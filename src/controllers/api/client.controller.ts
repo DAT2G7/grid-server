@@ -48,7 +48,7 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
     const { projectid, jobid, taskid } = req.params;
     const job = db.getJob(projectid, jobid);
 
-    if (!job || job.taskAmount < 1) {
+    if (!job) {
         res.sendStatus(422);
         return;
     }
