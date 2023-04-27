@@ -28,6 +28,8 @@ export const getSetup: RequestHandler<Record<string, never>, ClientTask> = (
         taskId: getId() as TaskUUID
     };
 
+    db.decrementTaskAmount(job.projectid, job.jobid);
+
     res.status(200).send(responseData);
 };
 
@@ -63,8 +65,6 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
         res.sendStatus(500);
         return;
     }
-
-    db.decrementTaskAmount(projectid, jobid);
 
     res.status(200).send(taskData);
 };
