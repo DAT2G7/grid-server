@@ -29,6 +29,9 @@ describe("api/client", () => {
         job = { ...setupMockData[0].jobs[0] };
 
         getJobSpy = jest.spyOn(projectModel, "getJob").mockReturnValue(job);
+        getJobSpy = jest
+            .spyOn(projectModel, "getRandomJob")
+            .mockReturnValue(job);
     });
 
     afterEach(() => {
@@ -73,6 +76,24 @@ describe("api/client", () => {
             getSetup(req, res, next);
 
             expect(res.sendStatus).toHaveBeenCalledWith(422);
+        });
+
+        it("should decrement task amount", async () => {
+            const initialTaskAmount = job.taskAmount;
+            const req =
+                getMockReq<Request<Record<string, never>, ClientTask>>();
+
+            const decrementSpy = jest
+                .spyOn(projectModel, "decrementTaskAmount")
+                .mockImplementation(() => {
+                    job.taskAmount--;
+                });
+
+            getSetup(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(decrementSpy).toHaveBeenCalledTimes(1);
+            expect(job.taskAmount).toEqual(initialTaskAmount - 1);
         });
     });
 
@@ -134,22 +155,6 @@ describe("api/client", () => {
             await getTask(req, res, next);
 
             expect(res.sendStatus).toHaveBeenCalledWith(422);
-        });
-
-        it("should decrement task amount", async () => {
-            const initialTaskAmount = job.taskAmount;
-
-            const decrementSpy = jest
-                .spyOn(projectModel, "decrementTaskAmount")
-                .mockImplementation(() => {
-                    job.taskAmount--;
-                });
-
-            await getTask(req, res, next);
-
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(decrementSpy).toHaveBeenCalledTimes(1);
-            expect(job.taskAmount).toEqual(initialTaskAmount - 1);
         });
 
         it("should request task data from project owner", async () => {
