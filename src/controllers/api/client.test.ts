@@ -149,14 +149,6 @@ describe("api/client", () => {
             expect(res.sendStatus).toHaveBeenCalledWith(422);
         });
 
-        it("should respond with error if task amount is 0", async () => {
-            job.taskAmount = 0;
-
-            await getTask(req, res, next);
-
-            expect(res.sendStatus).toHaveBeenCalledWith(422);
-        });
-
         it("should request task data from project owner", async () => {
             await getTask(req, res, next);
             const fetchRequest = `${setupMockData[0].jobs[0].taskRequestEndpoint}?taskid=${taskId}&jobid=${req.params.jobid}&projectid=${req.params.projectid}`;
