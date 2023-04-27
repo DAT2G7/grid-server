@@ -76,12 +76,12 @@ export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
     const { projectid, jobid, taskid } = req.params;
     const job = db.getJob(projectid, jobid);
 
-    if (!job || job.taskAmount < 1) {
+    if (!job) {
         res.sendStatus(422);
         return;
     }
 
-    await fetch(
+    fetch(
         `${job.taskResultEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`,
         {
             method: "POST",
