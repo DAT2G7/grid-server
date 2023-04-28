@@ -1,5 +1,5 @@
 import { Core, Job, Project } from "../../types/global.types";
-import { CoreUUID, JobUUID, ProjectUUID } from "../../types/brand.types";
+import { CoreUUID, ProjectUUID } from "../../types/brand.types";
 import { checkCore, checkJob } from "../../models/project.controller.model";
 
 import { BodyTypes } from "../../types";
@@ -74,7 +74,7 @@ export const createJob: RequestHandler<never, string, BodyTypes.Job> = (
         return;
     }
 
-    const job: Job = req.body as Job;
+    const job = req.body as Job;
 
     // Make sure job is valid.
     if (!checkJob(job)) {
@@ -83,7 +83,7 @@ export const createJob: RequestHandler<never, string, BodyTypes.Job> = (
         return;
     }
 
-    const jobid: JobUUID | null = projectModel.addJob(job.projectid, job);
+    const jobid = projectModel.addJob(job.projectid, job);
 
     if (!isDefined(jobid)) {
         res.status(400);
@@ -117,10 +117,11 @@ export const readJob: RequestHandler<ParamTypes.Job> = (req, res) => {
     res.json(job);
 };
 
-export const updateJob: RequestHandler<ParamTypes.Job, never, BodyTypes.Job> = (
-    req,
-    res
-) => {
+export const updateJob: RequestHandler<
+    ParamTypes.Job,
+    string,
+    BodyTypes.Job
+> = (req, res) => {
     const job = req.body as Job;
     if (!checkJob(job)) {
         res.sendStatus(400);
@@ -128,9 +129,15 @@ export const updateJob: RequestHandler<ParamTypes.Job, never, BodyTypes.Job> = (
     }
 
     projectModel.removeJob(job.projectid, job.jobid);
-    projectModel.addJob(job.projectid, job);
+    const newJobUUID = projectModel.addJob(job.projectid, job);
 
-    res.sendStatus(200);
+    if (!isDefined(newJobUUID)) {
+        res.sendStatus(400);
+        return;
+    } else {
+        res.status(201);
+        res.json(`{jobid: ${newJobUUID}}`);
+    }
 };
 
 export const deleteJob: RequestHandler<ParamTypes.Job> = (req, res) => {
