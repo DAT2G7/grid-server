@@ -6,16 +6,17 @@ let worker: Worker | null = null;
 let tryCount = 0;
 
 const params = new URLSearchParams(window.location.search);
-const quiet = params.get("quiet") === "true";
+let quiet = params.get("quiet") === "true";
 
 const tryAlert = (message: string) => quiet || alert(message);
+const tryConfirm = (message: string) => quiet || confirm(message);
 
 const run = () => {
     if (!window.Worker) {
         alert("Web worker not supported on device");
         return;
     }
-    const start = quiet || confirm("Do you want to start computing?");
+    const start = tryConfirm("Do you want to start computing?");
     if (!start) {
         return;
     }
@@ -43,10 +44,14 @@ const run = () => {
                 tryAlert("Web worker task done! Starting a new one.");
                 tryCount = 0;
                 worker?.terminate();
-                worker = new Worker("/static/js/client/worker.js");
+
+                // Start new worker, but this time quietly
+                quiet = true;
+                run();
                 break;
         }
     });
 };
+
 //TODO setup something so you can start computing without reloading after pressing no
 run();
