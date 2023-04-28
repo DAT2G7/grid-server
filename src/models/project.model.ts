@@ -2,6 +2,7 @@ import { Job, Project } from "../types/global.types";
 import { JobUUID, ProjectUUID } from "../types/brand.types";
 
 import JsonDB from "../services/json.db";
+import { ObjectRecord } from "../types/utility.types";
 import { PROJECT_DB_PATH } from "../config";
 import { getRandomElement } from "../utils/random";
 import { v4 as uuid } from "uuid";
@@ -88,6 +89,28 @@ export class ProjectModel extends JsonDB<Project[]> {
         this.save();
 
         return _job.jobid;
+    }
+
+    updateJob(
+        projectid: ProjectUUID,
+        jobid: JobUUID,
+        job: Partial<Job>
+    ): JobUUID | null {
+        const oldJob = this.getJob(projectid, jobid);
+        if (!oldJob) return null;
+
+        const modifiable = oldJob as unknown as ObjectRecord<Job>;
+
+        Object.entries(job).forEach(([key, value]) => {
+            if (key === "jobid" || key === "projectid") return;
+            if (key === "taskAmount" && (job["taskAmount"] ?? 0) < 1) return;
+
+            if (value) modifiable[key as keyof Job] = value;
+        });
+
+        this.save();
+
+        return oldJob.jobid;
     }
 
     /**

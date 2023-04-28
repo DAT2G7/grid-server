@@ -95,6 +95,22 @@ describe("ProjectModel", () => {
         });
     });
 
+    describe("updateJob", () => {
+        it("Should update fields from input job", () => {
+            const projectid = testData[0].projectid;
+            const job = testData[0].jobs[0];
+            const jobid = job.jobid;
+
+            const updatedJob: Partial<Job> = {
+                taskAmount: 100,
+                taskRequestEndpoint: "http://localhost:3000"
+            };
+            testDB.updateJob(projectid, jobid, updatedJob);
+
+            expect(job).toMatchObject(updatedJob);
+        });
+    });
+
     describe("getJob", () => {
         it("can find jobs", () => {
             const projectid = testData[0].projectid;

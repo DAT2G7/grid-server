@@ -121,14 +121,15 @@ export const updateJob: RequestHandler<ParamTypes.Job, never, BodyTypes.Job> = (
     req,
     res
 ) => {
+    const { projectid, jobid } = req.params;
     const job = req.body as Job;
-    if (!checkJob(job)) {
+
+    if (!checkJob(job) || job.projectid !== projectid || job.jobid !== jobid) {
         res.sendStatus(400);
         return;
     }
 
-    projectModel.removeJob(job.projectid, job.jobid);
-    projectModel.addJob(job.projectid, job);
+    projectModel.updateJob(job.projectid, job.jobid, job);
 
     res.sendStatus(200);
 };
