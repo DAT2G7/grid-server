@@ -91,6 +91,13 @@ export class ProjectModel extends JsonDB<Project[]> {
         return _job.jobid;
     }
 
+    /**
+     * Updates a job with the specified ID in the specified project, and saves the database.
+     * @param {ProjectUUID} projectid - The ID of the project.
+     * @param {JobUUID} jobid - The ID of the job to update.
+     * @param {Partial<Job>} job - The new job data to replace the old data.
+     * @returns {JobUUID | null} The ID of the updated job or null if the project or job is not found.
+     */
     updateJob(
         projectid: ProjectUUID,
         jobid: JobUUID,
