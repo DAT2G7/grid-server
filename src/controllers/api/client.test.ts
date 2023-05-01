@@ -75,7 +75,7 @@ describe("api/client", () => {
 
             getSetup(req, res, next);
 
-            expect(res.sendStatus).toHaveBeenCalledWith(422);
+            expect(res.sendStatus).toHaveBeenCalledWith(400);
         });
 
         it("should decrement task amount", async () => {
@@ -146,7 +146,7 @@ describe("api/client", () => {
 
             await getTask(req, res, next);
 
-            expect(res.sendStatus).toHaveBeenCalledWith(422);
+            expect(res.sendStatus).toHaveBeenCalledWith(400);
         });
 
         it("should request task data from project owner", async () => {
@@ -195,7 +195,7 @@ describe("api/client", () => {
 
             postResult(req, res, next);
 
-            expect(res.sendStatus).toHaveBeenCalledWith(422);
+            expect(res.sendStatus).toHaveBeenCalledWith(400);
             expect(global.fetch).not.toHaveBeenCalled();
         });
 

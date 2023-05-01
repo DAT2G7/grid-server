@@ -17,7 +17,7 @@ export const getSetup: RequestHandler<Record<string, never>, ClientTask> = (
     const job = db.getRandomJob();
 
     if (!job) {
-        res.sendStatus(422);
+        res.sendStatus(400);
         return;
     }
 
@@ -49,7 +49,7 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
     const job = db.getJob(projectid, jobid);
 
     if (!job) {
-        res.sendStatus(422);
+        res.sendStatus(400);
         return;
     }
 
@@ -77,7 +77,7 @@ export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
     const job = db.getJob(projectid, jobid);
 
     if (!job) {
-        res.sendStatus(422);
+        res.sendStatus(400);
         return;
     }
 
