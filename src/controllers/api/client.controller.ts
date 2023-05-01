@@ -59,20 +59,12 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
         return;
     }
 
-    // TODO: Better error handling
-    let taskData: unknown;
-    try {
-        taskData = await (
-            await fetch(
-                `${job.taskRequestEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`
-            )
-        ).json();
-    } catch (error) {
-        res.sendStatus(500);
-        return;
-    }
+    const taskRequestUrl = `${job.taskRequestEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`;
 
-    res.status(200).send(taskData);
+    return fetch(taskRequestUrl)
+        .then((response) => response.json())
+        .then((taskData) => res.status(200).send(taskData))
+        .catch(() => res.sendStatus(500));
 };
 
 /**
