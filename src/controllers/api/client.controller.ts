@@ -8,7 +8,8 @@ import { getId } from "../../utils/random";
 import path from "path";
 
 /**
- * Serve core-, job- and task-id
+ * Assigns a task from a random job and sends the information to the client.
+ * @param {ClientTask} res.body - Contains the raw task data received from the project server.
  */
 export const getSetup: RequestHandler<Record<string, never>, ClientTask> = (
     _req,
@@ -34,15 +35,20 @@ export const getSetup: RequestHandler<Record<string, never>, ClientTask> = (
 };
 
 /**
- * Serve core
+ * Sends the core file to the client.
+ * @param req.params.coreid - The ID of the core.
  */
-export const getCore: RequestHandler<ParamTypes.Core, Buffer> = (_req, res) => {
-    const { coreid } = _req.params;
+export const getCore: RequestHandler<ParamTypes.Core, Buffer> = (req, res) => {
+    const { coreid } = req.params;
     res.sendFile(path.resolve(config.CORE_ROOT, coreid + ".js"));
 };
 
 /**
- * Retrieve and serve task data
+ * Fetches task data from a project server and sends it to the client.
+ * @param req.params.taskId - The task ID.
+ * @param req.params.projectid - The associated project ID.
+ * @param req.params.jobid - The associated job ID.
+ * @param res.body - Contains the raw task data received from the project server.
  */
 export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
     const { projectid, jobid, taskid } = req.params;
@@ -70,7 +76,11 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
 };
 
 /**
- * Post result to project owner
+ * Receives result data from the client and sends it to the project server.
+ * @param req.body - The result data to be relayed.
+ * @param req.params.taskId - The task ID.
+ * @param req.params.projectid - The associated project ID.
+ * @param req.params.jobid - The associated job ID.
  */
 export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
     const { projectid, jobid, taskid } = req.params;
