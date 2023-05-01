@@ -9,7 +9,7 @@ import { writeFileSync } from "fs";
 
 export function checkCore(core: Core): number {
     core;
-    // Function for furure testing of contents, before acceptance of core.
+    // Function for future testing of contents, before acceptance of core.
     return 201;
 }
 
