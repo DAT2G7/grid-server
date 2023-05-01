@@ -61,7 +61,7 @@ export const deleteCore: RequestHandler<ParamTypes.Core> = (req, res) => {
  * Receive job for core
  * Creates the job object and saves it to the json db file.
  * @param req Request object. Must contain a job object in the request body, that job must not contain a jobid.
- * @param res Response object. Returns 200 if job was created, along with a jobId in the response body. 400 if job failed validation or jobid was provided.
+ * @param res Response object. Returns 201 if job was created, along with a jobId in the response body. 400 if job failed validation or jobid was provided.
  * */
 export const createJob: RequestHandler<never, string, BodyTypes.Job> = (
     req,
@@ -89,12 +89,12 @@ export const createJob: RequestHandler<never, string, BodyTypes.Job> = (
         res.status(400);
         res.send("Error: Job could not be added to project.");
         return;
-    } else {
-        res.status(201);
-        res.contentType("application/json");
-        const responseData = { jobid: jobid };
-        res.send(JSON.stringify(responseData));
     }
+
+    res.status(201);
+    res.contentType("application/json");
+    const responseData = { jobid: jobid };
+    res.send(JSON.stringify(responseData));
 };
 
 export const readJob: RequestHandler<ParamTypes.Job> = (req, res) => {
@@ -107,6 +107,7 @@ export const readJob: RequestHandler<ParamTypes.Job> = (req, res) => {
         req.params.projectid as ProjectUUID,
         req.params.jobid
     );
+
     if (!job) {
         res.sendStatus(404);
         return;

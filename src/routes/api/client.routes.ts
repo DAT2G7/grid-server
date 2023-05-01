@@ -20,7 +20,6 @@ router.get(
     handleInvalid,
     getCore as unknown as RequestHandler
 );
-router.get;
 
 router.get(
     "/project/:projectid/job/:jobid/task/:taskid",
