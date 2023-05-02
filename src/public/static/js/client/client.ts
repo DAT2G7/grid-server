@@ -6,10 +6,11 @@ let worker: Worker | null = null;
 let tryCount = 0;
 
 const params = new URLSearchParams(window.location.search);
-let quiet = params.get("quiet") === "true";
+const quiet = params.get("quiet") === "true";
+let forceQuiet = false;
 
-const tryAlert = (message: string) => quiet || alert(message);
-const tryConfirm = (message: string) => quiet || confirm(message);
+const tryAlert = (message: string) => forceQuiet || quiet || alert(message);
+const tryConfirm = (message: string) => forceQuiet || quiet || confirm(message);
 
 const run = () => {
     if (!window.Worker) {
@@ -32,21 +33,24 @@ const run = () => {
                 tryCount++;
                 worker?.terminate();
                 if (tryCount < MAX_TRY_COUNT) {
-                    worker = new Worker("/static/js/client/worker.js");
+                    forceQuiet = true;
+                    run();
                 } else {
                     // TODO set footer with ref for how to solve problem
+                    forceQuiet = false;
                     tryAlert("Something went wrong in the webworker");
                 }
                 break;
 
             // Web worker telling it's done with its current work
             case "workDone":
+                forceQuiet = false;
                 tryAlert("Web worker task done! Starting a new one.");
                 tryCount = 0;
                 worker?.terminate();
 
                 // Start new worker, but this time quietly
-                quiet = true;
+                forceQuiet = true;
                 run();
                 break;
         }
