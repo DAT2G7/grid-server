@@ -4,7 +4,7 @@
     "description": "",
     "main": "dist/app.js",
     "scripts": {
-        "watch": "npx tsc && concurrently \"npx tsc -w\" \"nodemon dist/app.js\"",
+        "watch": "npx tsc && concurrently \"npx tsc -w\" \"nodemon dist/app.js\" \"npx tscp\"",
         "build": "npx tsc && npx tscp",
         "start": "node dist/app.js",
         "lint": "eslint . --ext .ts",
