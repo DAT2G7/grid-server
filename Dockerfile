@@ -12,8 +12,8 @@ COPY package.json .
 COPY package-lock.json .
 COPY dist/ ./dist
 COPY src/ ./src
-COPY ~/sslcert/origin-cert.pem ./sslcert/origin-cert.pem
-COPY ~/sslcert/origin-cert-key.pem ./sslcert/origin-cert-key.pem
+COPY ../sslcert/origin-cert.pem ./sslcert/origin-cert.pem
+COPY ../sslcert/origin-cert-key.pem ./sslcert/origin-cert-key.pem
 
 RUN npm install
 
