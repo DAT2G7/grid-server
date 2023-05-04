@@ -1,5 +1,5 @@
-import { Job, Project } from "../types/global.types";
-import { JobUUID, ProjectUUID } from "../types/brand.types";
+import { Job, Project, Task } from "../types/global.types";
+import { JobUUID, ProjectUUID, TaskUUID } from "../types/brand.types";
 
 import JsonDB from "../services/json.db";
 import { ObjectRecord } from "../types/utility.types";
@@ -157,7 +157,9 @@ export class ProjectModel extends JsonDB<Project[]> {
 
         if (!project) return null;
 
-        const jobs = project.jobs.filter((job) => job.taskAmount > 0);
+        const jobs = project.jobs.filter(
+            (job) => job.taskAmount > 0 || job.failedTaskAmount > 0
+        );
         if (jobs.length === 0) return null;
 
         return getRandomElement(jobs);
@@ -187,11 +189,125 @@ export class ProjectModel extends JsonDB<Project[]> {
      * @param {ProjectUUID} projectid - The ID of the project.
      * @param {JobUUID} jobid - The ID of the job.
      */
-    decrementTaskAmount(projectid: ProjectUUID, jobid: JobUUID): void {
+    incrementTaskAmount(
+        projectid: ProjectUUID,
+        jobid: JobUUID,
+        amount: number
+    ): void {
         const job = this.getJob(projectid, jobid);
         if (!job) return;
 
-        this.setTaskAmount(projectid, jobid, job.taskAmount - 1);
+        this.setTaskAmount(projectid, jobid, job.taskAmount + amount);
+    }
+
+    addNewActiveTask(
+        projectid: ProjectUUID,
+        jobid: JobUUID,
+        taskid: TaskUUID
+    ): void {
+        const job = this.getJob(projectid, jobid);
+        if (!job) return;
+
+        const task: Task = {
+            taskid: taskid,
+            active: true,
+            failed: false
+        };
+
+        job.tasks.push(task);
+
+        this.save();
+    }
+
+    removeTask(projectid: ProjectUUID, jobid: JobUUID, taskid: TaskUUID): void {
+        const job = this.getJob(projectid, jobid);
+        if (!job) return;
+
+        const taskIndex = job.tasks.findIndex((task) => task.taskid === taskid);
+        if (taskIndex === -1) return;
+
+        job.tasks.splice(taskIndex, 1);
+    }
+
+    setTaskIsActive(
+        projectid: ProjectUUID,
+        jobid: JobUUID,
+        taskid: TaskUUID,
+        state: boolean
+    ): void {
+        const job = this.getJob(projectid, jobid);
+        if (!job) return;
+
+        const task = job.tasks.find((task) => task.taskid === taskid);
+        if (!task) return;
+
+        task.active = state;
+
+        this.save();
+    }
+
+    getFailedTaskId(projectid: ProjectUUID, jobid: JobUUID): TaskUUID | null {
+        const job = this.getJob(projectid, jobid);
+        if (!job) return null;
+
+        const task = job.tasks.find((task) => task.failed && task.active);
+        if (!task) return null;
+
+        return task.taskid;
+    }
+
+    setTaskIsFailed(
+        projectid: ProjectUUID,
+        jobid: JobUUID,
+        taskid: TaskUUID,
+        state: boolean
+    ): void {
+        const job = this.getJob(projectid, jobid);
+        if (!job) return;
+
+        const task = job.tasks.find((task) => task.taskid === taskid);
+        if (!task) return;
+
+        task.failed = state;
+
+        this.save();
+    }
+
+    incrementFailedTaskAmount(
+        projectid: ProjectUUID,
+        jobid: JobUUID,
+        amount: number
+    ): void {
+        const job = this.getJob(projectid, jobid);
+        if (!job) return;
+
+        job.failedTaskAmount += amount;
+
+        this.save();
+    }
+
+    getTask(
+        projectid: ProjectUUID,
+        jobid: JobUUID,
+        taskid: TaskUUID
+    ): Task | null {
+        const job = this.getJob(projectid, jobid);
+        if (!job) return null;
+
+        const task = job.tasks.find((task) => task.taskid === taskid);
+        if (!task) return null;
+
+        return task;
+    }
+
+    removeCompletedJobs(): void {
+        this.projects.forEach((project) => {
+            project.jobs.forEach((job) => {
+                if (job.taskAmount === 0 && job.failedTaskAmount === 0) {
+                    this.removeJob(project.projectid, job.jobid);
+                }
+            });
+        });
     }
 
     get projects(): Project[] {

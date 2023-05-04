@@ -10,6 +10,8 @@ export const setupMockData: Project[] = [
                 jobid: "1eb9971f-e713-45b9-8584-8e2bc72a386b" as UUID,
                 coreid: "c945fe39-e77e-4b51-a7f4-229bba2ae648" as UUID,
                 taskAmount: 200,
+                failedTaskAmount: 0,
+                tasks: [],
                 taskRequestEndpoint:
                     "http://url/to/project/owner/taskRequstEndpoint",
                 taskResultEndpoint:

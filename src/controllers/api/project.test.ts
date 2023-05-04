@@ -163,6 +163,8 @@ function createMockJob(): Job {
         jobid: v4() as JobUUID,
         projectid: v4() as ProjectUUID,
         taskAmount: 1,
+        failedTaskAmount: 0,
+        tasks: [],
         taskRequestEndpoint: "http://localhost:3000/api/task/request",
         taskResultEndpoint: "http://localhost:3000/api/task/result"
     };

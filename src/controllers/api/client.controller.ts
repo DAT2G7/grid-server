@@ -21,14 +21,26 @@ export const getSetup: RequestHandler<Record<string, never>, ClientTask> = (
         return;
     }
 
-    const responseData: ClientTask = {
-        projectId: job.projectid,
-        jobId: job.jobid,
-        coreId: job.coreid,
-        taskId: getId() as TaskUUID
-    };
+    const { projectid, jobid } = job;
 
-    db.decrementTaskAmount(job.projectid, job.jobid);
+    let taskId: TaskUUID;
+
+    if (job.failedTaskAmount > 0) {
+        taskId = db.getFailedTaskId(projectid, jobid)!;
+        db.incrementFailedTaskAmount(projectid, jobid, -1);
+        db.setTaskIsFailed(projectid, jobid, taskId, false);
+    } else {
+        taskId = getId();
+        db.incrementTaskAmount(projectid, jobid, -1);
+        db.addNewActiveTask(projectid, jobid, taskId);
+    }
+
+    const responseData: ClientTask = {
+        projectId: projectid,
+        jobId: jobid,
+        coreId: job.coreid,
+        taskId: taskId
+    };
 
     res.status(200).send(responseData);
 };
@@ -62,6 +74,8 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
             )
         ).json();
     } catch (error) {
+        db.incrementFailedTaskAmount(projectid, jobid, 1);
+        db.setTaskIsFailed(projectid, jobid, taskid, true);
         res.sendStatus(500);
         return;
     }
@@ -75,13 +89,14 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
 export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
     const { projectid, jobid, taskid } = req.params;
     const job = db.getJob(projectid, jobid);
+    const task = db.getTask(projectid, jobid, taskid);
 
-    if (!job) {
+    if (!job || !task?.active) {
         res.sendStatus(422);
         return;
     }
 
-    fetch(
+    const projectResponse = await fetch(
         `${job.taskResultEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`,
         {
             method: "POST",
@@ -92,5 +107,13 @@ export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
             }
         }
     );
+
+    if (projectResponse.ok) {
+        db.setTaskIsActive(projectid, jobid, taskid, false);
+    } else {
+        db.setTaskIsFailed(projectid, jobid, taskid, true);
+        db.incrementFailedTaskAmount(projectid, jobid, 1);
+    }
+
     res.sendStatus(200);
 };

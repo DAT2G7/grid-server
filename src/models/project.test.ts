@@ -131,7 +131,7 @@ describe("ProjectModel", () => {
 
             const prevTaskAmount = job.taskAmount;
 
-            testDB.decrementTaskAmount(projectid, jobid);
+            testDB.incrementTaskAmount(projectid, jobid, -1);
             expect(job.taskAmount).toEqual(prevTaskAmount - 1);
         });
     });

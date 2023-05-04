@@ -5,7 +5,7 @@ import { getCore, getSetup, getTask, postResult } from "./client.controller";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 
 import { ClientTask } from "../../types/body.types";
-import { Job } from "../../types/global.types";
+import { Job, Task } from "../../types/global.types";
 import { ParamTypes } from "../../types";
 import { ParamsDictionary } from "express-serve-static-core";
 import { TaskUUID } from "../../types/brand.types";
@@ -21,7 +21,15 @@ describe("api/client", () => {
     let taskId: TaskUUID;
     let job: Job;
 
+    let getIdSpy: jest.SpyInstance;
+    let getRandomJobSpy: jest.SpyInstance;
+
     beforeEach(() => {
+        getIdSpy = jest.spyOn(UuidService, "getId");
+        getIdSpy.mockReturnValue("ba5868ea-8e4d-4f50-87ee-c6bd01ad635e");
+
+        getRandomJobSpy = jest.spyOn(projectModel, "getRandomJob");
+
         const mockRes = getMockRes();
         res = mockRes.res;
         next = mockRes.next;
@@ -39,21 +47,12 @@ describe("api/client", () => {
     });
 
     describe("getSetup", () => {
-        let getIdSpy: jest.SpyInstance;
-        let getRandomJobSpy: jest.SpyInstance;
-
-        beforeEach(() => {
-            getIdSpy = jest.spyOn(UuidService, "getId");
-            getRandomJobSpy = jest.spyOn(projectModel, "getRandomJob");
-        });
-
         it("should respond with setup data", () => {
             const req =
                 getMockReq<Request<Record<string, never>, ClientTask>>();
 
             taskId = UuidService.getId();
 
-            getIdSpy.mockReturnValue(taskId);
             getRandomJobSpy.mockReturnValue(setupMockData[0].jobs[0]);
 
             getSetup(req, res, next);
@@ -84,7 +83,7 @@ describe("api/client", () => {
                 getMockReq<Request<Record<string, never>, ClientTask>>();
 
             const decrementSpy = jest
-                .spyOn(projectModel, "decrementTaskAmount")
+                .spyOn(projectModel, "incrementTaskAmount")
                 .mockImplementation(() => {
                     job.taskAmount--;
                 });
@@ -168,8 +167,17 @@ describe("api/client", () => {
     describe("postResult", () => {
         let req: PostTaskRequest;
 
+        let task: Task | null;
+
         beforeEach(() => {
             taskId = UuidService.getId();
+            task = projectModel.getTask(
+                setupMockData[0].projectid,
+                setupMockData[0].jobs[0].jobid,
+                taskId
+            );
+
+            if (task) task.active = true;
 
             req = getMockReq<PostTaskRequest>({
                 params: {
@@ -182,7 +190,9 @@ describe("api/client", () => {
                 }
             });
 
-            global.fetch = jest.fn();
+            global.fetch = jest.fn().mockReturnValue({
+                ok: true
+            } as unknown as Promise<Response>);
         });
 
         it("should respond with error if the job is not found", () => {
@@ -199,7 +209,12 @@ describe("api/client", () => {
             expect(global.fetch).not.toHaveBeenCalled();
         });
 
-        it("should post result to project owner", () => {
+        it("should respond to client with status 200", async () => {
+            await postResult(req, res, next);
+            expect(res.sendStatus).toHaveBeenCalledWith(200);
+        });
+
+        it("should post result to project owner", async () => {
             const req = getMockReq<PostTaskRequest>({
                 params: {
                     projectid: setupMockData[0].projectid,
@@ -211,7 +226,7 @@ describe("api/client", () => {
                 }
             });
 
-            postResult(req, res, next);
+            await postResult(req, res, next);
 
             expect(global.fetch).toHaveBeenCalledWith(
                 `${setupMockData[0].jobs[0].taskResultEndpoint}?taskid=${taskId}&jobid=${req.params.jobid}&projectid=${req.params.projectid}`,
@@ -223,10 +238,6 @@ describe("api/client", () => {
                     }
                 }
             );
-        });
-        it("should respond to client with status 200", async () => {
-            await postResult(req, res, next);
-            expect(res.sendStatus).toHaveBeenCalledWith(200);
         });
     });
 });
