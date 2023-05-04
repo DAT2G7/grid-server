@@ -19,12 +19,12 @@ import { saveCore } from "../../models/project.controller.model";
  */
 export const createCoreAPI: RequestHandler<
     never,
-    string,
+    Partial<Core>,
     Express.Multer.File
 > = (req, res) => {
     if (!isDefined(req.file)) {
         res.status(400);
-        res.send("Error: Core file not received.");
+        res.send;
         return;
     }
 
@@ -36,10 +36,10 @@ export const createCoreAPI: RequestHandler<
         saveCore(core);
 
         res.status(checkResult);
-        res.send(core.coreid.toString());
+        res.json({ coreid: core.coreid });
     } else {
         res.status(checkResult);
-        res.send("Error: Core validation failed. Core not saved.");
+        res.send;
     }
 };
 
@@ -155,5 +155,5 @@ export const createProject: RequestHandler = (_req, res) => {
 
     res.contentType("application/json");
     res.statusCode = 201;
-    res.json(project.projectid);
+    res.json({ projectid: project.projectid });
 };
