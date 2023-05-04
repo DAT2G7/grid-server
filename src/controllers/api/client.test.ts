@@ -228,9 +228,17 @@ describe("api/client", () => {
             await postResult(req, res, next);
             expect(res.sendStatus).toHaveBeenCalledWith(200);
         });
+
+        it("should resend fetch request every 10 minuts for 4 hours if it fails", async () => {
+            const mockFetch = jest.fn(() => Promise.reject());
+            global.fetch = mockFetch;
+
+            await postResult(req, res, next);
+
+            expect(mockFetch).toHaveBeenCalledTimes(25);
+        });
     });
 });
-
 type GetCoreRequest = Request<ParamsDictionary & ParamTypes.Core, Buffer>;
 type GetTaskRequest = Request<ParamsDictionary & ParamTypes.Task>;
 type PostTaskRequest = Request<ParamsDictionary & ParamTypes.Task>;
