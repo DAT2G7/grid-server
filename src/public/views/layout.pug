@@ -5,6 +5,26 @@ html
             script(src='/static/js/client/client.js' defer)
     
     body
+        // TODO addeptability for phones/different screen sizes
+        <div class="displayFlex flexColumn flexShrink0 padding0 textWhite backgroundDark" style="width: 280px;">
+            <ul class="navigation navigationPills flexColumn marginBottomAuto">
+                <li class="navigationItem">
+                    <a href="localhost:3000/client" class="navigationLnk active" aria-current="page">
+                        <svg class="bi margin0" width="16" height="16">
+                            <use xlink:href="#client"></use>
+                        </svg>
+                        
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                </li>
+
+                <li class="nav-item">
+                </li>
+            </ul>
+        </div>
+
         block content
         block foot 
             #footer 
