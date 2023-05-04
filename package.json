@@ -24,7 +24,6 @@
     "dependencies": {
         "@types/multer": "^1.4.7",
         "body-parser": "^1.20.2",
-        "bootstrap": "^5.3.0-alpha3",
         "dotenv": "^16.0.3",
         "express": "^4.18.2",
         "express-validator": "^6.15.0",
