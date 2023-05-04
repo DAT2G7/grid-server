@@ -7,8 +7,10 @@ let tryCount = 0;
 
 const params = new URLSearchParams(window.location.search);
 const quiet = params.get("quiet") === "true";
+let forceQuiet = false;
 
-const tryAlert = (message: string) => quiet || alert(message);
+const tryAlert = (message: string) => forceQuiet || quiet || alert(message);
+const tryConfirm = (message: string) => forceQuiet || quiet || confirm(message);
 
 const run = async () => {
     // Important to register service worker before starting web worker to ensure core and setup are cached
@@ -20,7 +22,7 @@ const run = async () => {
     }
 
     //TODO setup something so you can start computing without reloading after pressing no
-    const start = quiet || confirm("Do you want to start computing?");
+    const start = tryConfirm("Do you want to start computing?");
     if (!start) {
         return;
     }
@@ -36,10 +38,12 @@ const run = async () => {
                 tryCount++;
                 worker?.terminate();
                 if (tryCount < MAX_TRY_COUNT) {
-                    worker = new Worker("/static/js/client/worker.js");
+                    forceQuiet = true;
+                    run();
                 } else {
                     // TODO set footer with ref for how to solve problem
                     resetSWCache();
+                    forceQuiet = false;
                     tryAlert("Something went wrong in the webworker");
                 }
                 break;
@@ -50,7 +54,10 @@ const run = async () => {
                 tryCount = 0;
                 worker?.terminate();
                 await resetSWCache();
-                worker = new Worker("/static/js/client/worker.js");
+
+                // Start new worker, but this time quietly
+                forceQuiet = true;
+                run();
                 break;
         }
     });
