@@ -1,5 +1,8 @@
 /// <reference lib="DOM" />
 
+import { ClientTask } from "../../../../types/body.types";
+import { JobUUID, ProjectUUID, TaskUUID } from "../../../../types/brand.types";
+
 const MAX_TRY_COUNT = 5;
 
 let worker: Worker | null = null;
@@ -121,6 +124,13 @@ const resetSWCache = () => {
     navigator.serviceWorker.controller?.postMessage("RESET_DYNAMIC_CACHE");
 
     return resetDone;
+};
+
+export const terminateTask = (setupData: ClientTask) => {
+    const { projectId, jobId, taskId } = setupData;
+    fetch(`/api/client/terminate/${projectId}/${jobId}/${taskId}`, {
+        method: "POST"
+    });
 };
 
 run();

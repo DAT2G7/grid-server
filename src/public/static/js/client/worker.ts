@@ -1,6 +1,7 @@
 /// <reference lib="webworker" />
 
 import { ClientTask } from "../../../../types/body.types";
+import { terminateTask } from "./client";
 
 // Declares type of self,
 declare const self: DedicatedWorkerGlobalScope & {
@@ -35,7 +36,24 @@ const run = async () => {
             return;
         }
 
-        return (await response.json()) as unknown;
+        const data = (await response.json()) as unknown;
+
+        if (
+            typeof data == "object" &&
+            data != null &&
+            "doNotTerminate" in data &&
+            data.doNotTerminate
+        ) {
+            self.removeEventListener("beforeunload", () => {
+                terminateTask(setupData);
+            });
+        } else {
+            self.addEventListener("beforeunload", () => {
+                terminateTask(setupData);
+            });
+        }
+
+        return data;
     };
 
     const sendResult = async (data: unknown): Promise<void | never> => {
@@ -63,6 +81,9 @@ const run = async () => {
     };
 
     const onDone: () => void = () => {
+        self.removeEventListener("beforeunload", () => {
+            terminateTask(setupData);
+        });
         postMessage({ type: "workDone" });
         close();
     };

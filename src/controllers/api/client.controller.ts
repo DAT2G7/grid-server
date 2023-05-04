@@ -117,3 +117,20 @@ export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
 
     res.sendStatus(200);
 };
+
+export const terminateTask: RequestHandler<ParamTypes.Task> = (req, res) => {
+    const { projectid, jobid, taskid } = req.params;
+    const job = db.getJob(projectid, jobid);
+    const task = db.getTask(projectid, jobid, taskid);
+
+    if (!job || !task) {
+        res.sendStatus(200);
+        return;
+    }
+
+    if (task.active) {
+        db.setTaskIsFailed(projectid, jobid, taskid, true);
+        db.incrementFailedTaskAmount(projectid, jobid, 1);
+    }
+    res.sendStatus(200);
+};
