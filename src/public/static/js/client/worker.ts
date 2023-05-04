@@ -87,6 +87,11 @@ const run = async () => {
     };
 
     const onDone: () => void = () => {
+        postMessage({
+            type: "terminateSettings",
+            ...setupData,
+            terminate: false
+        });
         postMessage({ type: "workDone" });
         close();
     };
