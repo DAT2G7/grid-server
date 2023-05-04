@@ -39,17 +39,23 @@ const run = async () => {
         const data = (await response.json()) as unknown;
 
         if (
-            typeof data == "object" &&
-            data != null &&
-            "doNotTerminate" in data &&
-            data.doNotTerminate
+            !(
+                typeof data == "object" &&
+                data != null &&
+                "doNotTerminate" in data &&
+                data.doNotTerminate
+            )
         ) {
-            self.removeEventListener("beforeunload", () => {
-                terminateTask(setupData);
+            postMessage({
+                type: "terminateSettings",
+                ...setupData,
+                terminate: false
             });
         } else {
-            self.addEventListener("beforeunload", () => {
-                terminateTask(setupData);
+            postMessage({
+                type: "terminateSettings",
+                ...setupData,
+                terminate: true
             });
         }
 
@@ -81,9 +87,6 @@ const run = async () => {
     };
 
     const onDone: () => void = () => {
-        self.removeEventListener("beforeunload", () => {
-            terminateTask(setupData);
-        });
         postMessage({ type: "workDone" });
         close();
     };

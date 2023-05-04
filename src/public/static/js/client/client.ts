@@ -62,6 +62,19 @@ const run = async () => {
                 forceQuiet = true;
                 run();
                 break;
+
+            case "terminateSettings":
+                let { projectId, jobId, taskId, terminate } = event.data;
+
+                if (terminate)
+                    window.addEventListener("beforeunload", () => {
+                        terminateTask(projectId, jobId, taskId);
+                    });
+                else
+                    window.removeEventListener("beforeunload", () => {
+                        terminateTask(projectId, jobId, taskId);
+                    });
+                break;
         }
     });
 };
@@ -126,8 +139,11 @@ const resetSWCache = () => {
     return resetDone;
 };
 
-export const terminateTask = (setupData: ClientTask) => {
-    const { projectId, jobId, taskId } = setupData;
+export const terminateTask = (
+    projectId: ProjectUUID,
+    jobId: JobUUID,
+    taskId: TaskUUID
+) => {
     fetch(`/api/client/terminate/${projectId}/${jobId}/${taskId}`, {
         method: "POST"
     });
