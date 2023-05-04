@@ -10,6 +10,7 @@ import https from "https";
 // initialize project model
 import projectModel from "./models/project.model";
 import { getSSLCredentials } from "./utils/helpers";
+import bodyParser from "body-parser";
 projectModel;
 
 // ensure existence of core directory
@@ -19,6 +20,10 @@ if (!fs.existsSync(config.CORE_ROOT)) {
 
 // init app
 const app = express();
+
+// Add body parser middleware to parse JSON body, and set limit to 50mb.
+app.use(bodyParser.json({ limit: "50mb" }));
+
 // Attempt to get SSL credentials.
 const credentials = getSSLCredentials();
 

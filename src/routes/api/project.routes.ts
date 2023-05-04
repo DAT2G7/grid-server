@@ -11,7 +11,6 @@ import express, { RequestHandler } from "express";
 
 import { handleInvalid } from "../../middleware/validators/invalid";
 import { validateUUIDs } from "../../middleware/validators/uuid";
-import bodyParser from "body-parser";
 import multer from "multer";
 
 const router = express.Router();
@@ -26,12 +25,7 @@ router.delete(
     deleteCore as unknown as RequestHandler
 );
 
-router.post(
-    "/job",
-    bodyParser.json(),
-    handleInvalid,
-    createJob as unknown as RequestHandler
-);
+router.post("/job", handleInvalid, createJob as unknown as RequestHandler);
 
 router.get(
     "/:projectid/job/:jobid",
@@ -40,12 +34,7 @@ router.get(
     readJob as unknown as RequestHandler
 );
 
-router.put(
-    "/job",
-    bodyParser.json(),
-    handleInvalid,
-    updateJob as unknown as RequestHandler
-);
+router.put("/job", handleInvalid, updateJob as unknown as RequestHandler);
 
 router.delete(
     "/:projectid/job/:jobid",
