@@ -23,10 +23,9 @@ const run = () => {
 
     const computeButton = document.getElementById("computeButton");
     computeButton?.addEventListener("click", () => {
-        computeButton.remove();
         // Create web worker. This way is not ideal, but allows for a simpler build process.
         worker = new Worker("/static/js/client/worker.js");
-
+        customAlert("Worker created", "success");
         // Listen for messages from worker
         worker.addEventListener("message", (event) => {
             switch (event.data.type) {
@@ -34,6 +33,7 @@ const run = () => {
                 case "error":
                     // TODO: better communication with the user
                     tryCount++;
+
                     worker?.terminate();
                     if (tryCount < MAX_TRY_COUNT) {
                         forceQuiet = true;
@@ -41,9 +41,8 @@ const run = () => {
                     } else {
                         // TODO set footer with ref for how to solve problem
                         forceQuiet = false;
-                        alert("Worker problem");
                         customAlert(
-                            "Somthing went wrong with the Web Worker",
+                            "Something went wrong with the Web Worker",
                             "danger"
                         );
                     }
