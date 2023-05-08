@@ -8,6 +8,9 @@ const MAX_TRY_COUNT = 5;
 let worker: Worker | null = null;
 let tryCount = 0;
 
+let doNotTerminate = false;
+let setupData: ClientTask;
+
 const params = new URLSearchParams(window.location.search);
 const quiet = params.get("quiet") === "true";
 let forceQuiet = false;
@@ -58,22 +61,17 @@ const run = async () => {
                 worker?.terminate();
                 await resetSWCache();
 
+                //do not terminate if the task is not running
+                doNotTerminate = true;
+
                 // Start new worker, but this time quietly
                 forceQuiet = true;
                 run();
                 break;
 
             case "terminateSettings":
-                let { projectId, jobId, taskId, terminate } = event.data;
-
-                if (terminate)
-                    window.addEventListener("beforeunload", () => {
-                        terminateTask(projectId, jobId, taskId);
-                    });
-                else
-                    window.removeEventListener("beforeunload", () => {
-                        terminateTask(projectId, jobId, taskId);
-                    });
+                setupData = event.data.setupData;
+                doNotTerminate = event.data.doNotTerminate;
                 break;
         }
     });
@@ -139,14 +137,16 @@ const resetSWCache = () => {
     return resetDone;
 };
 
-export const terminateTask = (
-    projectId: ProjectUUID,
-    jobId: JobUUID,
-    taskId: TaskUUID
-) => {
+export const terminateTask = () => {
+    let { projectId, jobId, taskId } = setupData;
+    if (doNotTerminate) return;
     fetch(`/api/client/terminate/${projectId}/${jobId}/${taskId}`, {
         method: "POST"
     });
 };
+
+window.addEventListener("beforeunload", () => {
+    terminateTask();
+});
 
 run();

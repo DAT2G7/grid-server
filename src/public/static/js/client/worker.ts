@@ -1,7 +1,6 @@
 /// <reference lib="webworker" />
 
 import { ClientTask } from "../../../../types/body.types";
-import { terminateTask } from "./client";
 
 // Declares type of self,
 declare const self: DedicatedWorkerGlobalScope & {
@@ -38,26 +37,15 @@ const run = async () => {
 
         const data = (await response.json()) as unknown;
 
-        if (
-            !(
+        postMessage({
+            type: "terminateSettings",
+            setupData: setupData,
+            doNotTerminate:
                 typeof data == "object" &&
                 data != null &&
                 "doNotTerminate" in data &&
                 data.doNotTerminate
-            )
-        ) {
-            postMessage({
-                type: "terminateSettings",
-                ...setupData,
-                terminate: false
-            });
-        } else {
-            postMessage({
-                type: "terminateSettings",
-                ...setupData,
-                terminate: true
-            });
-        }
+        });
 
         return data;
     };
@@ -87,11 +75,6 @@ const run = async () => {
     };
 
     const onDone: () => void = () => {
-        postMessage({
-            type: "terminateSettings",
-            ...setupData,
-            terminate: false
-        });
         postMessage({ type: "workDone" });
         close();
     };

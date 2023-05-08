@@ -124,7 +124,7 @@ export const terminateTask: RequestHandler<ParamTypes.Task> = (req, res) => {
     const task = db.getTask(projectid, jobid, taskid);
 
     if (!job || !task) {
-        res.sendStatus(200);
+        res.sendStatus(422);
         return;
     }
 
