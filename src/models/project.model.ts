@@ -61,7 +61,9 @@ export class ProjectModel extends JsonDB<Project[]> {
      */
     getRandomProject(): Project | null {
         const eligibleProjects = this.projects.filter((project) =>
-            project.jobs.some((job) => job.taskAmount > 0)
+            project.jobs.some(
+                (job) => job.taskAmount > 0 || job.failedTaskAmount > 0
+            )
         );
 
         return eligibleProjects.length
