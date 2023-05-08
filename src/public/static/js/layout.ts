@@ -13,3 +13,8 @@ const customAlert = (message: string, type: string) => {
 
     liveAlertPlaceholder?.append(wrapper);
 };
+
+const counter = document.getElementById("taskCounter");
+if (counter) {
+    counter.innerHTML = taskCountString;
+}

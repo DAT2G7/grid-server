@@ -5,7 +5,8 @@ const MAX_TRY_COUNT = 5;
 let worker: Worker | null = null;
 let tryCount = 0;
 
-let taskcount = 0;
+let taskCount = 0;
+let taskCountString = "0";
 
 const params = new URLSearchParams(window.location.search);
 const quiet = params.get("quiet") === "true";
@@ -25,7 +26,6 @@ const run = () => {
         computeButton.remove();
         // Create web worker. This way is not ideal, but allows for a simpler build process.
         worker = new Worker("/static/js/client/worker.js");
-        customAlert("Web worker created", "success");
 
         // Listen for messages from worker
         worker.addEventListener("message", (event) => {
@@ -41,6 +41,7 @@ const run = () => {
                     } else {
                         // TODO set footer with ref for how to solve problem
                         forceQuiet = false;
+                        alert("Worker problem");
                         customAlert(
                             "Somthing went wrong with the Web Worker",
                             "danger"
@@ -55,7 +56,9 @@ const run = () => {
                         "Web Worker task done! Starting new one",
                         "success"
                     );
-                    taskcount += 1;
+                    taskCount += 1;
+                    taskCountString = taskCount.toString();
+
                     tryCount = 0;
                     worker?.terminate();
 
