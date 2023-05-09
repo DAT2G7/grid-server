@@ -18,3 +18,13 @@ const counter = document.getElementById("taskCounter");
 if (counter) {
     counter.innerHTML = taskCountString;
 }
+
+const setComputeButtonText = (newComputeButtonText: string) => {
+    const computeButtonText = document.getElementById("computeButtonText");
+    if (computeButtonText) {
+        computeButtonText.innerHTML = newComputeButtonText;
+    }
+};
+
+newComputeButtonText = "Start computing";
+setComputeButtonText(newComputeButtonText);

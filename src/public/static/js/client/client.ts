@@ -8,6 +8,9 @@ let tryCount = 0;
 let taskCount = 0;
 let taskCountString = "0";
 
+let computeState = 0;
+let newComputeButtonText = "Start computing";
+
 const params = new URLSearchParams(window.location.search);
 const quiet = params.get("quiet") === "true";
 let forceQuiet = false;
@@ -21,11 +24,10 @@ const run = () => {
         return;
     }
 
-    const computeButton = document.getElementById("computeButton");
-    computeButton?.addEventListener("click", () => {
+    if (computeState == 1) {
         // Create web worker. This way is not ideal, but allows for a simpler build process.
         worker = new Worker("/static/js/client/worker.js");
-        customAlert("Worker created", "success");
+
         // Listen for messages from worker
         worker.addEventListener("message", (event) => {
             switch (event.data.type) {
@@ -67,8 +69,26 @@ const run = () => {
                     break;
             }
         });
-    });
+    } else {
+        worker?.terminate;
+        customAlert("Worker terminated", "danger");
+    }
 };
+
+const computeButton = document.getElementById("computeButton");
+computeButton?.addEventListener("click", () => {
+    if (computeState === 0) {
+        newComputeButtonText = "Stop computing";
+        setComputeButtonText(newComputeButtonText);
+        computeState = 1;
+        run();
+    } else if (computeState === 1) {
+        newComputeButtonText = "Start computing";
+        setComputeButtonText(newComputeButtonText);
+        computeState = 0;
+        run();
+    }
+});
 
 //TODO setup something so you can start computing without reloading after pressing no
 run();
