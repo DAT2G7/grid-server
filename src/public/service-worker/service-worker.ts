@@ -108,9 +108,8 @@ _self.addEventListener("message", (event) => {
     if (event.data === "RESET_DYNAMIC_CACHE") {
         caches.delete(CacheKeys.Dynamic);
     }
+    event.source?.postMessage("RESET_DYNAMIC_CACHE");
 });
-
-// TODO: Look into the necessity of skipWaiting for this project. Right now there is no good way of resetting early outside of browser tools
 
 console.log("service worker loaded in mode:", MODE);
 

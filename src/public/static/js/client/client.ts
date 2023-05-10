@@ -15,7 +15,10 @@ const tryConfirm = (message: string) => forceQuiet || quiet || confirm(message);
 const run = async () => {
     // Important to register service worker before starting web worker to ensure core and setup are cached
     await registerServiceWorker();
+    runWorker();
+};
 
+const runWorker = () => {
     if (!window.Worker) {
         alert("Web worker not supported on device");
         return;
@@ -37,12 +40,13 @@ const run = async () => {
                 // TODO: better communication with the user
                 tryCount++;
                 worker?.terminate();
+                await resetSWCache();
+
                 if (tryCount < MAX_TRY_COUNT) {
                     forceQuiet = true;
-                    run();
+                    runWorker();
                 } else {
                     // TODO set footer with ref for how to solve problem
-                    resetSWCache();
                     forceQuiet = false;
                     tryAlert("Something went wrong in the webworker");
                 }
@@ -57,7 +61,7 @@ const run = async () => {
 
                 // Start new worker, but this time quietly
                 forceQuiet = true;
-                run();
+                runWorker();
                 break;
         }
     });
@@ -87,16 +91,6 @@ const registerServiceWorker = async () => {
             if (!navigator.serviceWorker.controller)
                 window.location.href =
                     window.location.href + "?_=" + Date.now();
-
-            // TODO: Remove this once SW has been properly integrated and tested
-            setTimeout(() => {
-                console.log("Attempting foreign fetch");
-                fetch("https://get.geojs.io/v1/ip/country.json?ip=8.8.8.8")
-                    .then((response) => {
-                        console.log("fetch status:", response.status);
-                    })
-                    .catch((e) => console.error("fetch error:", e));
-            }, 3000);
         } catch (error) {
             console.error(`Registration failed with ${error}`);
         }
@@ -104,19 +98,25 @@ const registerServiceWorker = async () => {
 };
 
 const resetSWCache = () => {
-    const resetDone = new Promise<void>((resolve) =>
-        navigator.serviceWorker.addEventListener(
-            "message",
-            (event) => {
-                // Give up after 30 seconds
-                setTimeout(resolve, 30000);
+    const resetDone = new Promise<void>((resolve) => {
+        const timeout = setTimeout(() => {
+            console.log("Cache reset timed out");
+            navigator.serviceWorker.removeEventListener("message", listener);
+            resolve();
+        }, 5000);
 
-                // Cache was successfully reset
-                if (event.data === "RESET_DYNAMIC_CACHE") resolve();
-            },
-            { once: true }
-        )
-    );
+        const listener = (event: MessageEvent) => {
+            // Cache was successfully reset
+            if (event.data === "RESET_DYNAMIC_CACHE") {
+                clearTimeout(timeout);
+                resolve();
+            }
+        };
+
+        navigator.serviceWorker.addEventListener("message", listener, {
+            once: true
+        });
+    });
 
     navigator.serviceWorker.controller?.postMessage("RESET_DYNAMIC_CACHE");
 
