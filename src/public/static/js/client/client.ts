@@ -98,6 +98,8 @@ const registerServiceWorker = async () => {
 };
 
 const resetSWCache = () => {
+    if (!navigator.serviceWorker) return;
+
     const resetDone = new Promise<void>((resolve) => {
         const timeout = setTimeout(() => {
             console.log("Cache reset timed out");
