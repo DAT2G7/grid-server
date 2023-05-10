@@ -31,6 +31,7 @@ const addResourcesToCache = async (resources: string[]) => {
 
 /** Puts a ressource to the default cache */
 const putInCache = async (request: Request, response: Response) => {
+    if (request.method !== "GET") return;
     const cache = await getCache();
     await cache.put(request, response);
 };
@@ -48,10 +49,8 @@ const createErrorResponse = (message: string, status: number) =>
 const cacheFirst = async (request: Request): Promise<Response> => {
     if (MODE === CacheMode.Cache) {
         // Attempt cache
-        console.log("Attempting cache");
         const fromCache = await caches.match(request);
         if (fromCache) {
-            console.log("Found in cache:", fromCache);
             return fromCache;
         }
 
@@ -68,13 +67,11 @@ const cacheFirst = async (request: Request): Promise<Response> => {
                 403
             );
         }
-
-        // Attempt network
-        console.log("Attempting network");
     }
     try {
         const responseFromNetwork = await fetch(request);
         // Cache response. Cloned as the response can only be consumed once.
+
         putInCache(request, responseFromNetwork.clone());
         return responseFromNetwork;
     } catch {
