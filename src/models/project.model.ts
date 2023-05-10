@@ -283,7 +283,11 @@ export class ProjectModel extends JsonDB<Project[]> {
     removeCompletedJobs(): void {
         this.projects.forEach((project) => {
             project.jobs.forEach((job) => {
-                if (job.taskAmount === 0 && job.failedTaskAmount === 0) {
+                if (
+                    job.taskAmount === 0 &&
+                    job.failedTaskAmount === 0 &&
+                    job.tasks.length === 0
+                ) {
                     this.removeJob(project.projectid, job.jobid);
                 }
             });
