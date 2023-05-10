@@ -167,17 +167,8 @@ describe("api/client", () => {
     describe("postResult", () => {
         let req: PostTaskRequest;
 
-        let task: Task | null;
-
         beforeEach(() => {
             taskId = UuidService.getId();
-            task = projectModel.getTask(
-                setupMockData[0].projectid,
-                setupMockData[0].jobs[0].jobid,
-                taskId
-            );
-
-            if (task) task.active = true;
 
             req = getMockReq<PostTaskRequest>({
                 params: {
