@@ -28,6 +28,5 @@ export interface Core {
 
 export interface Task {
     taskid: BrandTypes.TaskUUID;
-    active: boolean;
     failed: boolean;
 }

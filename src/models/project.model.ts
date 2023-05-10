@@ -202,17 +202,12 @@ export class ProjectModel extends JsonDB<Project[]> {
         this.setTaskAmount(projectid, jobid, job.taskAmount + amount);
     }
 
-    addNewActiveTask(
-        projectid: ProjectUUID,
-        jobid: JobUUID,
-        taskid: TaskUUID
-    ): void {
+    addNewTask(projectid: ProjectUUID, jobid: JobUUID, taskid: TaskUUID): void {
         const job = this.getJob(projectid, jobid);
         if (!job) return;
 
         const task: Task = {
             taskid: taskid,
-            active: true,
             failed: false
         };
 
@@ -231,28 +226,11 @@ export class ProjectModel extends JsonDB<Project[]> {
         job.tasks.splice(taskIndex, 1);
     }
 
-    setTaskIsActive(
-        projectid: ProjectUUID,
-        jobid: JobUUID,
-        taskid: TaskUUID,
-        state: boolean
-    ): void {
-        const job = this.getJob(projectid, jobid);
-        if (!job) return;
-
-        const task = job.tasks.find((task) => task.taskid === taskid);
-        if (!task) return;
-
-        task.active = state;
-
-        this.save();
-    }
-
     getFailedTaskId(projectid: ProjectUUID, jobid: JobUUID): TaskUUID | null {
         const job = this.getJob(projectid, jobid);
         if (!job) return null;
 
-        const task = job.tasks.find((task) => task.failed && task.active);
+        const task = job.tasks.find((task) => task.failed);
         if (!task) return null;
 
         return task.taskid;

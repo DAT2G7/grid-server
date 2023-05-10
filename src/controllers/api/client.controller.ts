@@ -32,7 +32,7 @@ export const getSetup: RequestHandler<Record<string, never>, ClientTask> = (
     } else {
         taskId = getId();
         db.incrementTaskAmount(projectid, jobid, -1);
-        db.addNewActiveTask(projectid, jobid, taskId);
+        db.addNewTask(projectid, jobid, taskId);
     }
 
     const responseData: ClientTask = {
@@ -89,9 +89,8 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
 export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
     const { projectid, jobid, taskid } = req.params;
     const job = db.getJob(projectid, jobid);
-    const task = db.getTask(projectid, jobid, taskid);
 
-    if (!job || !task?.active) {
+    if (!job) {
         res.sendStatus(422);
         return;
     }
@@ -109,7 +108,7 @@ export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
     );
 
     if (projectResponse.ok) {
-        db.setTaskIsActive(projectid, jobid, taskid, false);
+        db.removeTask(projectid, jobid, taskid);
     } else {
         db.setTaskIsFailed(projectid, jobid, taskid, true);
         db.incrementFailedTaskAmount(projectid, jobid, 1);
@@ -127,10 +126,8 @@ export const terminateTask: RequestHandler<ParamTypes.Task> = (req, res) => {
         res.sendStatus(422);
         return;
     }
+    db.setTaskIsFailed(projectid, jobid, taskid, true);
+    db.incrementFailedTaskAmount(projectid, jobid, 1);
 
-    if (task.active) {
-        db.setTaskIsFailed(projectid, jobid, taskid, true);
-        db.incrementFailedTaskAmount(projectid, jobid, 1);
-    }
     res.sendStatus(200);
 };
