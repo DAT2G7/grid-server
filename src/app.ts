@@ -22,16 +22,6 @@ const app = express();
 // Attempt to get SSL credentials.
 const credentials = getSSLCredentials();
 
-// Redirect http to https before giving access to the rest of the app.
-if (credentials)
-    app.use((req, res, next) => {
-        if (!req.secure) {
-            return res.redirect(301, `https://${req.headers.host}${req.url}`);
-        }
-
-        next();
-    });
-
 // Use pug for views
 app.set("view engine", "pug");
 app.set("views", "src/public/views");
