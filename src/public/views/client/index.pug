@@ -1,4 +1,5 @@
 extends layout.pug
+script(src='/static/js/client/client.js' defer)
 
 block content
     <main id="top">
@@ -11,4 +12,5 @@ block content
                     item Project owners may upload js files (cores) to our platform under a project id, as well as urls for us to contact them on <br>
                     item No other identifying information exists. <br>
         </p>
+        <div class="close" data-dismiss="alert" id="liveAlertPlaceholder"></div>
     </main>

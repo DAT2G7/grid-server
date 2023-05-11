@@ -8,15 +8,10 @@ let tryCount = 0;
 let taskCount = 0;
 
 let computeState = false;
-let newComputeButtonText = "Start computing";
-let newComputeButtonClass: string;
 
 const params = new URLSearchParams(window.location.search);
 const quiet = params.get("quiet") === "true";
 let forceQuiet = false;
-
-const tryAlert = (message: string) => forceQuiet || quiet || alert(message);
-const tryConfirm = (message: string) => forceQuiet || quiet || confirm(message);
 
 const run = async () => {
     // Important to register service worker before starting web worker to ensure core and setup are cached
@@ -29,7 +24,7 @@ const runWorker = () => {
         customAlert("Web worker not supported on device.", "danger");
         return;
     }
-    if (computeState === false) {
+    if (!computeState) {
         worker?.terminate();
         return;
     }
@@ -51,16 +46,8 @@ const runWorker = () => {
                 } else {
                     // TODO set footer with ref for how to solve problem
                     forceQuiet = false;
-                    customAlert(
-                        "There is no current work available.",
-                        "danger"
-                    );
                     computeState = false;
-                    setComputeButtonText("Start computing");
-                    setComputeButtonClass(
-                        "btn btn-primary btn-lg m-3 bs-danger"
-                    );
-                    computeState = false;
+                    updateComputeButton;
                 }
                 break;
 
@@ -139,19 +126,59 @@ const resetSWCache = () => {
     return resetDone;
 };
 
-const computeButton = document.getElementById("computeButton");
-computeButton?.addEventListener("click", () => {
-    if (computeState === false) {
-        newComputeButtonText = "Stop computing";
-        setComputeButtonText(newComputeButtonText);
-        setComputeButtonClass("btn btn-danger btn-lg m-3 bs-danger");
+const liveAlertPlaceholder = document.getElementById("liveAlertPlaceholder");
+const customAlert = (message: string, type: string) => {
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = [
+        `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+        `   <div>${message}</div>`,
+        '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+        "</div>"
+    ].join("");
+
+    liveAlertPlaceholder?.append(wrapper);
+};
+
+const counter = document.getElementById("taskCounter");
+if (counter) counter.innerHTML = "0";
+const updateTaskCounter = (taskCounter: string) => {
+    if (counter) {
+        counter.innerHTML = taskCounter;
+    }
+};
+
+window.addEventListener("onload", () => {
+    if (forceQuiet) {
         computeState = true;
         run();
-    } else if (computeState === true) {
-        newComputeButtonText = "Start computing";
-        setComputeButtonText(newComputeButtonText);
-        setComputeButtonClass("btn btn-primary btn-lg m-3 bs-danger");
+    }
+    updateComputeButton;
+});
+
+const updateComputeButton = () => {
+    const computeButton = document.getElementById("computeButton");
+    const computeButtonText = document.getElementById("computeButtonText");
+
+    if (!computeButton || !computeButtonText) return;
+
+    if (computeState) {
+        computeButtonText.textContent = "Stop computing";
+        computeButton.classList.replace("btn-primary", "btn-danger");
+    } else {
+        computeButtonText.textContent = "Start computing";
+        computeButton.classList.replace("btn-danger", "btn-primary");
+    }
+};
+
+const computeButton = document.getElementById("computeButton");
+computeButton?.addEventListener("click", () => {
+    if (!computeState) {
+        computeState = true;
+        updateComputeButton;
+        run();
+    } else {
         computeState = false;
+        updateComputeButton;
         run();
     }
 });
