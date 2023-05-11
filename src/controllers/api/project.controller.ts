@@ -36,7 +36,7 @@ export const createCoreAPI: RequestHandler<
         saveCore(core);
 
         res.status(checkResult);
-        res.send(core.coreid.toString());
+        res.send(`{"coreid": "${core.coreid}"}`);
     } else {
         res.status(checkResult);
         res.send("Error: Core validation failed. Core not saved.");
@@ -155,5 +155,5 @@ export const createProject: RequestHandler = (_req, res) => {
 
     res.contentType("application/json");
     res.statusCode = 201;
-    res.json(project.projectid);
+    res.send(`{"projectid": "${project.projectid}"}`);
 };
