@@ -81,7 +81,9 @@ export class ProjectModel extends JsonDB<Project[]> {
         const _job: Job = {
             ...job,
             jobid: uuid() as JobUUID,
-            projectid: projectid
+            projectid: projectid,
+            failedTaskAmount: 0,
+            tasks: []
         };
 
         const project = this.getProject(projectid);
