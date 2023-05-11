@@ -31,10 +31,10 @@ const setComputeButtonText = (newComputeButtonText: string) => {
     }
 };
 
-const setComputeButtonClass = (newComputeButtonText: string) => {
+const setComputeButtonClass = (newComputeButtonClass: string) => {
     const computeButtonClass = document.getElementById("computeButton");
     if (computeButtonClass) {
-        computeButtonClass.className = newComputeButtonText;
+        computeButtonClass.className = newComputeButtonClass;
     }
 };
 

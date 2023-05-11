@@ -26,7 +26,7 @@ const run = async () => {
 
 const runWorker = () => {
     if (!window.Worker) {
-        customAlert("Web worker not supported on device", "danger");
+        customAlert("Web worker not supported on device.", "danger");
         return;
     }
     if (computeState === false) {
@@ -72,6 +72,7 @@ const runWorker = () => {
                 updateTaskCounter(taskCount.toString());
                 tryCount = 0;
                 worker?.terminate();
+                await resetSWCache();
 
                 // Start new worker, but this time quietly
                 forceQuiet = true;
