@@ -47,7 +47,7 @@ const runWorker = () => {
                     // TODO set footer with ref for how to solve problem
                     forceQuiet = false;
                     computeState = false;
-                    updateComputeButton;
+                    updateComputeButton();
                 }
                 break;
 
@@ -152,7 +152,7 @@ window.addEventListener("onload", () => {
         computeState = true;
         run();
     }
-    updateComputeButton;
+    updateComputeButton();
 });
 
 const updateComputeButton = () => {
@@ -172,15 +172,9 @@ const updateComputeButton = () => {
 
 const computeButton = document.getElementById("computeButton");
 computeButton?.addEventListener("click", () => {
-    if (!computeState) {
-        computeState = true;
-        updateComputeButton;
-        run();
-    } else {
-        computeState = false;
-        updateComputeButton;
-        run();
-    }
+    computeState = !computeState;
+    updateComputeButton();
+    run();
 });
 
 run();
