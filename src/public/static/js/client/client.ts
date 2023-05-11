@@ -18,7 +18,13 @@ let forceQuiet = false;
 const tryAlert = (message: string) => forceQuiet || quiet || alert(message);
 const tryConfirm = (message: string) => forceQuiet || quiet || confirm(message);
 
-const run = () => {
+const run = async () => {
+    // Important to register service worker before starting web worker to ensure core and setup are cached
+    await registerServiceWorker();
+    runWorker();
+};
+
+const runWorker = () => {
     if (!window.Worker) {
         customAlert("Web worker not supported on device", "danger");
         return;
