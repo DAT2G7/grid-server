@@ -1,15 +1,15 @@
 import { apiClientRouter, apiProjectRouter } from "./routes/api";
 import { clientRouter, indexRouter, projectRouter } from "./routes";
 
-import fs from "fs";
-import express from "express";
 import config from "./config";
+import express from "express";
+import fs from "fs";
+import { getSSLCredentials } from "./utils/helpers";
 import http from "http";
 import https from "https";
-
 // initialize project model
 import projectModel from "./models/project.model";
-import { getSSLCredentials } from "./utils/helpers";
+
 projectModel;
 
 // ensure existence of core directory
