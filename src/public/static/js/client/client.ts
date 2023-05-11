@@ -10,6 +10,7 @@ let taskCountString = "0";
 
 let computeState = 0;
 let newComputeButtonText = "Start computing";
+let newComputeButtonClass: string;
 
 const params = new URLSearchParams(window.location.search);
 const quiet = params.get("quiet") === "true";
@@ -44,8 +45,13 @@ const run = () => {
                         // TODO set footer with ref for how to solve problem
                         forceQuiet = false;
                         customAlert(
-                            "Something went wrong with the Web Worker",
+                            "There is no current work available.",
                             "danger"
+                        );
+                        computeState = 0;
+                        setComputeButtonText("Start computing");
+                        setComputeButtonClass(
+                            "btn btn-primary btn-lg m-3 bs-danger"
                         );
                     }
                     break;
@@ -53,10 +59,7 @@ const run = () => {
                 // Web worker telling it's done with its current work
                 case "workDone":
                     forceQuiet = false;
-                    customAlert(
-                        "Web Worker task done! Starting new one",
-                        "success"
-                    );
+                    customAlert("Task done! Starting new one.", "success");
                     taskCount += 1;
                     taskCountString = taskCount.toString();
 
@@ -71,7 +74,6 @@ const run = () => {
         });
     } else {
         worker?.terminate;
-        customAlert("Worker terminated", "danger");
     }
 };
 
@@ -80,11 +82,13 @@ computeButton?.addEventListener("click", () => {
     if (computeState === 0) {
         newComputeButtonText = "Stop computing";
         setComputeButtonText(newComputeButtonText);
+        setComputeButtonClass("btn btn-danger btn-lg m-3 bs-danger");
         computeState = 1;
         run();
     } else if (computeState === 1) {
         newComputeButtonText = "Start computing";
         setComputeButtonText(newComputeButtonText);
+        setComputeButtonClass("btn btn-primary btn-lg m-3 bs-danger");
         computeState = 0;
         run();
     }
