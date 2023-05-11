@@ -19,7 +19,13 @@ let forceQuiet = false;
 const tryAlert = (message: string) => forceQuiet || quiet || alert(message);
 const tryConfirm = (message: string) => forceQuiet || quiet || confirm(message);
 
-const run = () => {
+const run = async () => {
+    // Important to register service worker before starting web worker to ensure core and setup are cached
+    await registerServiceWorker();
+    runWorker();
+};
+
+const runWorker = () => {
     if (!window.Worker) {
         customAlert("Web worker not supported on device", "danger");
         return;
@@ -30,20 +36,20 @@ const run = () => {
         worker = new Worker("/static/js/client/worker.js");
 
         // Listen for messages from worker
-        worker.addEventListener("message", (event) => {
+        worker.addEventListener("message", async (event) => {
             switch (event.data.type) {
                 // If there is an error with the web worker
                 case "error":
                     // TODO: better communication with the user
                     tryCount++;
-
                     worker?.terminate();
+                    await resetSWCache();
+
                     if (tryCount < MAX_TRY_COUNT) {
                         forceQuiet = true;
-                        run();
+                        runWorker();
                     } else {
                         // TODO set footer with ref for how to solve problem
-                        forceQuiet = false;
                         customAlert(
                             "There is no current work available.",
                             "danger"
@@ -58,17 +64,16 @@ const run = () => {
 
                 // Web worker telling it's done with its current work
                 case "workDone":
-                    forceQuiet = false;
                     customAlert("Task done! Starting new one.", "success");
                     taskCount += 1;
                     taskCountString = taskCount.toString();
-
                     tryCount = 0;
                     worker?.terminate();
+                    await resetSWCache();
 
                     // Start new worker, but this time quietly
                     forceQuiet = true;
-                    run();
+                    runWorker();
                     break;
             }
         });
@@ -76,23 +81,6 @@ const run = () => {
         worker?.terminate;
     }
 };
-
-const computeButton = document.getElementById("computeButton");
-computeButton?.addEventListener("click", () => {
-    if (computeState === 0) {
-        newComputeButtonText = "Stop computing";
-        setComputeButtonText(newComputeButtonText);
-        setComputeButtonClass("btn btn-danger btn-lg m-3 bs-danger");
-        computeState = 1;
-        run();
-    } else if (computeState === 1) {
-        newComputeButtonText = "Start computing";
-        setComputeButtonText(newComputeButtonText);
-        setComputeButtonClass("btn btn-primary btn-lg m-3 bs-danger");
-        computeState = 0;
-        run();
-    }
-});
 
 //TODO setup something so you can start computing without reloading after pressing no
 run();
