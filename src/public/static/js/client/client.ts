@@ -41,7 +41,6 @@ const runWorker = () => {
         switch (event.data.type) {
             // If there is an error with the web worker
             case "error":
-                // TODO: better communication with the user
                 tryCount++;
                 worker?.terminate();
                 await resetSWCache();
@@ -157,5 +156,4 @@ computeButton?.addEventListener("click", () => {
     }
 });
 
-//TODO setup something so you can start computing without reloading after pressing no
 run();
