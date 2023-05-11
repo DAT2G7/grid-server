@@ -81,6 +81,67 @@ const runWorker = () => {
         }
     });
 };
+//? If possible i would like for the logging statements below to remain as SWs can be tricky, even in production
+const registerServiceWorker = async () => {
+    if (navigator.serviceWorker) {
+        try {
+            const registration = await navigator.serviceWorker.register(
+                "/service-worker.js"
+            );
+            if (registration.installing) {
+                console.log("Service worker installing");
+            } else if (registration.waiting) {
+                console.log("Service worker installed");
+            } else if (registration.active) {
+                console.log("Service worker active");
+            }
+
+            // When service worker is installed and active, send request which should be blocked
+            await navigator.serviceWorker.ready;
+            console.log("sw:", navigator.serviceWorker.controller);
+
+            // TODO: Find a better way to ensure this than reloading the page
+            // TODO: Should also have error handling to avoid infinite reload. This has never been observed but seems a theoretical possibility
+            if (!navigator.serviceWorker.controller)
+                window.location.href =
+                    window.location.href + "?_=" + Date.now();
+        } catch (error) {
+            console.error(`Registration failed with ${error}`);
+        }
+    }
+};
+
+const resetSWCache = () => {
+    if (!navigator.serviceWorker) return;
+
+    const resetDone = new Promise<void>((resolve) => {
+        const timeout = setTimeout(() => {
+            console.log("Cache reset timed out");
+            navigator.serviceWorker.removeEventListener("message", listener);
+            resolve();
+        }, 5000);
+
+        const listener = (event: MessageEvent) => {
+            // Cache was successfully reset
+            if (event.data === "RESET_DYNAMIC_CACHE") {
+                clearTimeout(timeout);
+                resolve();
+            }
+        };
+
+        navigator.serviceWorker.addEventListener("message", listener, {
+            once: true
+        });
+    });
+
+    navigator.serviceWorker.controller?.postMessage("RESET_DYNAMIC_CACHE");
+
+    return resetDone;
+};
+
+window.addEventListener("load", () => {
+    if (computeState === true) run();
+});
 
 const computeButton = document.getElementById("computeButton");
 computeButton?.addEventListener("click", () => {
