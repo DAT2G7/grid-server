@@ -6,10 +6,10 @@ let worker: Worker | null = null;
 let tryCount = 0;
 
 let taskCount = 0;
-let taskCountString = "0";
 
-let computeState = 0;
+let computeState = false;
 let newComputeButtonText = "Start computing";
+let newComputeButtonClass: string;
 
 const params = new URLSearchParams(window.location.search);
 const quiet = params.get("quiet") === "true";
@@ -23,69 +23,72 @@ const run = () => {
         customAlert("Web worker not supported on device", "danger");
         return;
     }
+    if (computeState === false) {
+        worker?.terminate();
+        return;
+    }
 
-    if (computeState == 1) {
-        // Create web worker. This way is not ideal, but allows for a simpler build process.
-        worker = new Worker("/static/js/client/worker.js");
+    // Create web worker. This way is not ideal, but allows for a simpler build process.
+    worker = new Worker("/static/js/client/worker.js");
 
-        // Listen for messages from worker
-        worker.addEventListener("message", (event) => {
-            switch (event.data.type) {
-                // If there is an error with the web worker
-                case "error":
-                    // TODO: better communication with the user
-                    tryCount++;
+    // Listen for messages from worker
+    worker.addEventListener("message", (event) => {
+        switch (event.data.type) {
+            // If there is an error with the web worker
+            case "error":
+                // TODO: better communication with the user
+                tryCount++;
 
-                    worker?.terminate();
-                    if (tryCount < MAX_TRY_COUNT) {
-                        forceQuiet = true;
-                        run();
-                    } else {
-                        // TODO set footer with ref for how to solve problem
-                        forceQuiet = false;
-                        customAlert(
-                            "Something went wrong with the Web Worker",
-                            "danger"
-                        );
-                    }
-                    break;
-
-                // Web worker telling it's done with its current work
-                case "workDone":
-                    forceQuiet = false;
-                    customAlert(
-                        "Web Worker task done! Starting new one",
-                        "success"
-                    );
-                    taskCount += 1;
-                    taskCountString = taskCount.toString();
-
-                    tryCount = 0;
-                    worker?.terminate();
-
-                    // Start new worker, but this time quietly
+                worker?.terminate();
+                if (tryCount < MAX_TRY_COUNT) {
                     forceQuiet = true;
                     run();
-                    break;
-            }
-        });
-    } else {
-        worker?.terminate;
-        customAlert("Worker terminated", "danger");
-    }
+                } else {
+                    // TODO set footer with ref for how to solve problem
+                    forceQuiet = false;
+                    computeState = false;
+                    customAlert(
+                        "There is no current work available.",
+                        "danger"
+                    );
+                    computeState = false;
+                    setComputeButtonText("Start computing");
+                    setComputeButtonClass(
+                        "btn btn-primary btn-lg m-3 bs-danger"
+                    );
+                }
+                break;
+
+            // Web worker telling it's done with its current work
+            case "workDone":
+                forceQuiet = false;
+                customAlert("Task done! Starting new one.", "success");
+                taskCount += 1;
+                updateCounter(taskCount.toString());
+                tryCount = 0;
+                worker?.terminate();
+
+                // Start new worker, but this time quietly
+                forceQuiet = true;
+                run();
+                break;
+        }
+    });
 };
 
 const computeButton = document.getElementById("computeButton");
 computeButton?.addEventListener("click", () => {
-    if (computeState === 0) {
+    if (computeState === false) {
         newComputeButtonText = "Stop computing";
         setComputeButtonText(newComputeButtonText);
-        computeState = 1;
+        setComputeButtonClass("btn btn-danger btn-lg m-3 bs-danger");
+        computeState = true;
         run();
-    } else if (computeState === 1) {
+    } else if (computeState === true) {
         newComputeButtonText = "Start computing";
         setComputeButtonText(newComputeButtonText);
-        computeState = 0;
+        setComputeButtonClass("btn btn-primary btn-lg m-3 bs-danger");
+        computeState = false;
         run();
     }
 });

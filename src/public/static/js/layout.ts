@@ -15,9 +15,11 @@ const customAlert = (message: string, type: string) => {
 };
 
 const counter = document.getElementById("taskCounter");
-if (counter) {
-    counter.innerHTML = taskCountString;
-}
+const updateCounter = (taskCounter: string) => {
+    if (counter) {
+        counter.innerHTML = taskCounter;
+    }
+};
 
 const setComputeButtonText = (newComputeButtonText: string) => {
     const computeButtonText = document.getElementById("computeButtonText");
@@ -26,5 +28,17 @@ const setComputeButtonText = (newComputeButtonText: string) => {
     }
 };
 
-newComputeButtonText = "Start computing";
+const setComputeButtonClass = (newComputeButtonClass: string) => {
+    const computeButtonClass = document.getElementById("computeButton");
+    if (computeButtonClass) {
+        computeButtonClass.className = newComputeButtonClass;
+    }
+};
+
+if (quiet === true) {
+    newComputeButtonText = "Stop computing";
+}
+if (quiet === false) {
+    newComputeButtonText = "Start computing";
+}
 setComputeButtonText(newComputeButtonText);
