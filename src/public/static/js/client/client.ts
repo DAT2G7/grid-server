@@ -140,15 +140,15 @@ const customAlert = (message: string, type: string) => {
 };
 
 const counter = document.getElementById("taskCounter");
-if (counter) counter.innerHTML = "0";
+if (counter) counter.innerText = "0";
 const updateTaskCounter = (taskCounter: string) => {
     if (counter) {
-        counter.innerHTML = taskCounter;
+        counter.innerText = taskCounter;
     }
 };
 
 window.addEventListener("onload", () => {
-    if (forceQuiet) {
+    if (quiet) {
         computeState = true;
         run();
     }
