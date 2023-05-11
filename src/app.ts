@@ -1,15 +1,15 @@
 import { apiClientRouter, apiProjectRouter } from "./routes/api";
 import { clientRouter, indexRouter, projectRouter } from "./routes";
 
-import fs from "fs";
-import express from "express";
 import config from "./config";
+import express from "express";
+import fs from "fs";
+import { getSSLCredentials } from "./utils/helpers";
 import http from "http";
 import https from "https";
-
 // initialize project model
 import projectModel from "./models/project.model";
-import { getSSLCredentials } from "./utils/helpers";
+
 projectModel;
 
 // ensure existence of core directory
@@ -21,6 +21,14 @@ if (!fs.existsSync(config.CORE_ROOT)) {
 const app = express();
 // Attempt to get SSL credentials.
 const credentials = getSSLCredentials();
+
+// Redirect http to https before giving access to the rest of the app.
+if (credentials)
+    app.use(
+        (req, res) =>
+            req.protocol === "http" &&
+            res.redirect("https://" + req.headers.host + req.url)
+    );
 
 // Use pug for views
 app.set("view engine", "pug");
