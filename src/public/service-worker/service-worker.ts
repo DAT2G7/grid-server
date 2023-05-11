@@ -100,17 +100,17 @@ _self.addEventListener("fetch", async (event) => {
     event.respondWith(cacheFirst(event.request));
 });
 
-_self.addEventListener("message", (event) => {
+_self.addEventListener("message", async (event) => {
     console.log("message:", event);
     if (event.data === "RESET_DYNAMIC_CACHE") {
-        caches.delete(CacheKeys.Dynamic);
+        await caches.delete(CacheKeys.Dynamic);
+        event.source?.postMessage("RESET_DYNAMIC_CACHE");
     }
-    event.source?.postMessage("RESET_DYNAMIC_CACHE");
 });
 
 console.log("service worker loaded in mode:", MODE);
 
-//! Expose functions for testing, Cannot be exported as SW breaks if it's a module
+//! Expose functions for testing. Cannot be exported as current compiler configuration breaks SW if it's a module
 const testSelf = self as unknown as Record<string, unknown>;
 testSelf["getCache"] = getCache;
 testSelf["getPreCache"] = getPreCache;
