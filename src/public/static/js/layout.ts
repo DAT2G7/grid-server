@@ -15,7 +15,10 @@ const customAlert = (message: string, type: string) => {
 };
 
 const counter = document.getElementById("taskCounter");
-const updateCounter = (taskCounter: string) => {
+if (counter) {
+    counter.innerHTML = "0";
+}
+const updateTaskCounter = (taskCounter: string) => {
     if (counter) {
         counter.innerHTML = taskCounter;
     }
@@ -28,17 +31,21 @@ const setComputeButtonText = (newComputeButtonText: string) => {
     }
 };
 
-const setComputeButtonClass = (newComputeButtonClass: string) => {
+const setComputeButtonClass = (newComputeButtonText: string) => {
     const computeButtonClass = document.getElementById("computeButton");
     if (computeButtonClass) {
-        computeButtonClass.className = newComputeButtonClass;
+        computeButtonClass.className = newComputeButtonText;
     }
 };
 
-if (quiet === true) {
-    newComputeButtonText = "Stop computing";
-}
-if (quiet === false) {
-    newComputeButtonText = "Start computing";
-}
+window.addEventListener("onload", () => {
+    if (quiet === true) {
+        computeState = true;
+        run();
+        newComputeButtonText = "Stop computing";
+        setComputeButtonClass("btn btn-primary btn-lg m-3 bs-danger");
+    } else newComputeButtonText = "Start computing";
+});
+
+newComputeButtonText = "Start computing";
 setComputeButtonText(newComputeButtonText);

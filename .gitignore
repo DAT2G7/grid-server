@@ -5,19 +5,3 @@
 
 # Ignore accidental swap files
 **/*.swp
-
-# App related files
-# Currently all is ignored, but some may be added later if needed
-**/app
-**/gradle
-**/.gradle
-android.keystore
-app-release-unsigned-aligned.apk
-build.gradle
-gradle.properties
-gradlew
-gradlew.bat
-manifest-checksum.txt
-settings.gradle
-store_icon.png
-twa-manifest.json
