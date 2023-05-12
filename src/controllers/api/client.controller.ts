@@ -126,6 +126,8 @@ export const terminateTask: RequestHandler<ParamTypes.Task> = (req, res) => {
         res.sendStatus(422);
         return;
     }
+
+    console.log("JAAA JEG VIRKER!!");
     db.setTaskIsFailed(projectid, jobid, taskid, true);
     db.incrementFailedTaskAmount(projectid, jobid, 1);
 

@@ -1,7 +1,6 @@
 /// <reference lib="DOM" />
 
-import { ClientTask } from "../../../../types/body.types";
-import { JobUUID, ProjectUUID, TaskUUID } from "../../../../types/brand.types";
+// import { ClientTask } from "../../../../types/body.types";
 
 const MAX_TRY_COUNT = 5;
 
@@ -9,7 +8,7 @@ let worker: Worker | null = null;
 let tryCount = 0;
 
 let doNotTerminate = false;
-let setupData: ClientTask;
+let setupData: any;
 
 let taskCount = 0;
 
@@ -140,12 +139,18 @@ const resetSWCache = () => {
     return resetDone;
 };
 
-export const terminateTask = () => {
+const terminateTask = () => {
     let { projectId, jobId, taskId } = setupData;
     if (doNotTerminate) return;
-    fetch(`/api/client/terminate/${projectId}/${jobId}/${taskId}`, {
-        method: "POST"
-    });
+    navigator.sendBeacon(
+        `/api/client/terminate/project/${projectId}/job/${jobId}/task/${taskId}`
+    );
+    // fetch(
+    //     `/api/client/terminate/project/${projectId}/job/${jobId}/task/${taskId}`,
+    //     {
+    //         method: "POST"
+    //     }
+    // );
 };
 
 window.addEventListener("beforeunload", () => {
@@ -204,3 +209,5 @@ computeButton?.addEventListener("click", () => {
 });
 
 run();
+
+// export {};

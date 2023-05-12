@@ -39,7 +39,7 @@ router.post(
 );
 
 router.post(
-    "/terminate/:projectid/job/:jobid/task/:taskid",
+    "/terminate/project/:projectid/job/:jobid/task/:taskid",
     validateUUIDs("projectid", "jobid", "taskid"),
     handleInvalid,
     terminateTask as unknown as RequestHandler
