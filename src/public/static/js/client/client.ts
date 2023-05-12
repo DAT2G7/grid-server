@@ -53,7 +53,8 @@ const runWorker = () => {
 
             // Web worker telling it's done with its current work
             case "workDone":
-                customAlert("Task done! Starting new one.", "success");
+                if (!quiet)
+                    customAlert("Task done! Starting new one.", "success");
                 taskCount += 1;
                 updateTaskCounter(taskCount.toString());
                 tryCount = 0;
