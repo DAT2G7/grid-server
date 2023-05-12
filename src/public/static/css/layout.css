@@ -1,0 +1,8 @@
+/* For customisation to defer from standard bootstrap/*/
+
+form,
+h1,
+p,
+button {
+    padding-left: 20px !important;
+}

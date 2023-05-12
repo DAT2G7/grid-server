@@ -39,6 +39,7 @@
         "@jest-mock/express": "^2.0.1",
         "@types/express": "^4.17.17",
         "@types/jest": "^29.5.0",
+        "@types/jquery": "^3.5.16",
         "@types/pug": "^2.0.6",
         "@types/service-worker-mock": "^2.0.1",
         "@types/supertest": "^2.0.12",
