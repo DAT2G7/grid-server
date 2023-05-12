@@ -147,13 +147,13 @@ const updateTaskCounter = (taskCounter: string) => {
     }
 };
 
-window.addEventListener("onload", () => {
+window.onload = () => {
     if (quiet) {
         computeState = true;
         run();
     }
     updateComputeButton();
-});
+};
 
 const updateComputeButton = () => {
     const computeButton = document.getElementById("computeButton");
