@@ -20,7 +20,7 @@ const tryConfirm = (message: string) => forceQuiet || quiet || confirm(message);
 
 const run = async () => {
     // Important to register service worker before starting web worker to ensure core and setup are cached
-    await registerServiceWorker();
+    // await registerServiceWorker();
     runWorker();
 };
 
