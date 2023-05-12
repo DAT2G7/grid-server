@@ -60,8 +60,13 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
             await fetch(
                 `${job.taskRequestEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`
             )
-        ).json();
+        )
+            .json()
+            .catch((e) => {
+                console.log(e);
+            });
     } catch (error) {
+        console.log(error);
         res.sendStatus(500);
         return;
     }
@@ -81,16 +86,20 @@ export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
         return;
     }
 
-    fetch(
-        `${job.taskResultEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`,
-        {
-            method: "POST",
-            body: JSON.stringify(req.body),
-            headers: {
-                "Content-Type":
-                    req.headers["content-type"] || "application/json"
+    try {
+        await fetch(
+            `${job.taskResultEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`,
+            {
+                method: "POST",
+                body: JSON.stringify(req.body),
+                headers: {
+                    "Content-Type":
+                        req.headers["content-type"] || "application/json"
+                }
             }
-        }
-    );
+        );
+    } catch (error) {
+        console.log(error);
+    }
     res.sendStatus(200);
 };
