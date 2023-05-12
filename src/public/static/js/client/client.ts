@@ -5,12 +5,13 @@ const MAX_TRY_COUNT = 5;
 let worker: Worker | null = null;
 let tryCount = 0;
 
+let taskCount = 0;
+
+let computeState = false;
+
 const params = new URLSearchParams(window.location.search);
 const quiet = params.get("quiet") === "true";
 let forceQuiet = false;
-
-const tryAlert = (message: string) => forceQuiet || quiet || alert(message);
-const tryConfirm = (message: string) => forceQuiet || quiet || confirm(message);
 
 const run = async () => {
     // Important to register service worker before starting web worker to ensure core and setup are cached
@@ -20,13 +21,11 @@ const run = async () => {
 
 const runWorker = () => {
     if (!window.Worker) {
-        alert("Web worker not supported on device");
+        customAlert("Web worker not supported on device.", "danger");
         return;
     }
-
-    //TODO setup something so you can start computing without reloading after pressing no
-    const start = tryConfirm("Do you want to start computing?");
-    if (!start) {
+    if (!computeState) {
+        worker?.terminate();
         return;
     }
     // Create web worker. This way is not ideal, but allows for a simpler build process.
@@ -37,7 +36,6 @@ const runWorker = () => {
         switch (event.data.type) {
             // If there is an error with the web worker
             case "error":
-                // TODO: better communication with the user
                 tryCount++;
                 worker?.terminate();
                 await resetSWCache();
@@ -48,13 +46,16 @@ const runWorker = () => {
                 } else {
                     // TODO set footer with ref for how to solve problem
                     forceQuiet = false;
-                    tryAlert("Something went wrong in the webworker");
+                    computeState = false;
+                    updateComputeButton();
                 }
                 break;
 
             // Web worker telling it's done with its current work
             case "workDone":
-                tryAlert("Web worker task done! Starting a new one.");
+                customAlert("Task done! Starting new one.", "success");
+                taskCount += 1;
+                updateTaskCounter(taskCount.toString());
                 tryCount = 0;
                 worker?.terminate();
                 await resetSWCache();
@@ -124,5 +125,56 @@ const resetSWCache = () => {
 
     return resetDone;
 };
+
+const liveAlertPlaceholder = document.getElementById("liveAlertPlaceholder");
+const customAlert = (message: string, type: string) => {
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = [
+        `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+        `   <div>${message}</div>`,
+        '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+        "</div>"
+    ].join("");
+
+    liveAlertPlaceholder?.append(wrapper);
+};
+
+const counter = document.getElementById("taskCounter");
+if (counter) counter.innerText = "0";
+const updateTaskCounter = (taskCounter: string) => {
+    if (counter) {
+        counter.innerText = taskCounter;
+    }
+};
+
+window.addEventListener("onload", () => {
+    if (quiet) {
+        computeState = true;
+        run();
+    }
+    updateComputeButton();
+});
+
+const updateComputeButton = () => {
+    const computeButton = document.getElementById("computeButton");
+    const computeButtonText = document.getElementById("computeButtonText");
+
+    if (!computeButton || !computeButtonText) return;
+
+    if (computeState) {
+        computeButtonText.textContent = "Stop computing";
+        computeButton.classList.replace("btn-primary", "btn-danger");
+    } else {
+        computeButtonText.textContent = "Start computing";
+        computeButton.classList.replace("btn-danger", "btn-primary");
+    }
+};
+
+const computeButton = document.getElementById("computeButton");
+computeButton?.addEventListener("click", () => {
+    computeState = !computeState;
+    updateComputeButton();
+    run();
+});
 
 run();
