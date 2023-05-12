@@ -47,6 +47,7 @@ const runWorker = () => {
                     // TODO set footer with ref for how to solve problem
                     forceQuiet = false;
                     computeState = false;
+                    customAlert("No work available", "danger");
                     updateComputeButton();
                 }
                 break;
