@@ -40,11 +40,9 @@ const run = async () => {
         postMessage({
             type: "terminateSettings",
             setupData: setupData,
-            doNotTerminate:
-                typeof data == "object" &&
-                data != null &&
-                "doNotTerminate" in data &&
-                data.doNotTerminate
+            doNotTerminate: (
+                data as Record<"doNotTerminate", boolean | undefined>
+            ).doNotTerminate
         });
 
         return data;

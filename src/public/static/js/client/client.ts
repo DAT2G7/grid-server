@@ -31,6 +31,7 @@ const runWorker = () => {
     }
     if (!computeState) {
         worker?.terminate();
+        terminateTask();
         return;
     }
     // Create web worker. This way is not ideal, but allows for a simpler build process.
@@ -64,6 +65,7 @@ const runWorker = () => {
                 tryCount = 0;
                 worker?.terminate();
                 await resetSWCache();
+                setupData = { projectId: "HEJ", jobId: "MED", taskId: "DIG" };
 
                 //do not terminate if the task is not running
                 doNotTerminate = true;
@@ -142,6 +144,7 @@ const resetSWCache = () => {
 const terminateTask = () => {
     let { projectId, jobId, taskId } = setupData;
     if (doNotTerminate) return;
+    console.log("Terminating task");
     navigator.sendBeacon(
         `/api/client/terminate/project/${projectId}/job/${jobId}/task/${taskId}`
     );
@@ -155,6 +158,7 @@ const terminateTask = () => {
 
 window.addEventListener("beforeunload", () => {
     terminateTask();
+    resetSWCache();
 });
 
 const liveAlertPlaceholder = document.getElementById("liveAlertPlaceholder");
