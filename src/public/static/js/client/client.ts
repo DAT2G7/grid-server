@@ -79,6 +79,10 @@ const runWorker = () => {
                 setupData = event.data.setupData;
                 doNotTerminate = event.data.doNotTerminate;
                 break;
+
+            case "terminate":
+                terminateTask();
+                break;
         }
     });
 };
@@ -144,7 +148,7 @@ const resetSWCache = () => {
 const terminateTask = () => {
     let { projectId, jobId, taskId } = setupData;
     if (doNotTerminate) return;
-    console.log("Terminating task");
+    console.log("Terminating task: ", taskId);
     navigator.sendBeacon(
         `/api/client/terminate/project/${projectId}/job/${jobId}/task/${taskId}`
     );

@@ -36,6 +36,7 @@ const run = async () => {
                 type: "error",
                 message: `Could not fetch task data: Error ${response.status}`
             });
+            postMessage({ type: "terminate" });
             close();
             return;
         }
@@ -72,6 +73,7 @@ const run = async () => {
                 message: `Could not return result: Error ${response.status}`
             });
             // we can probably do something smarter than just dying here, but this will do for now
+            postMessage({ type: "terminate" });
             close();
             return;
         }
@@ -88,7 +90,11 @@ const run = async () => {
     self.onDone = onDone;
 
     // run the webworker code
-    importScripts(`/api/client/core/${setupData.coreId}`);
+    try {
+        importScripts(`/api/client/core/${setupData.coreId}`);
+    } catch (error) {
+        postMessage({ type: "terminate" });
+    }
 };
 
 run().then(() => {
