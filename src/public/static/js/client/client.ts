@@ -148,12 +148,6 @@ const terminateTask = () => {
     navigator.sendBeacon(
         `/api/client/terminate/project/${projectId}/job/${jobId}/task/${taskId}`
     );
-    // fetch(
-    //     `/api/client/terminate/project/${projectId}/job/${jobId}/task/${taskId}`,
-    //     {
-    //         method: "POST"
-    //     }
-    // );
 };
 
 window.addEventListener("beforeunload", () => {

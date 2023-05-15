@@ -21,6 +21,11 @@ const run = async () => {
     }
 
     const setupData: ClientTask = await response.json();
+    postMessage({
+        type: "terminateSettings",
+        setupData: setupData,
+        doNotTerminate: false
+    });
 
     const getData: () => Promise<unknown | never> = async () => {
         const response = await fetch(
