@@ -53,13 +53,15 @@ const runWorker = () => {
                     // TODO set footer with ref for how to solve problem
                     forceQuiet = false;
                     computeState = false;
+                    customAlert("No work available", "danger");
                     updateComputeButton();
                 }
                 break;
 
             // Web worker telling it's done with its current work
             case "workDone":
-                customAlert("Task done! Starting new one.", "success");
+                if (!forceQuiet)
+                    customAlert("Task done! Starting new one.", "success");
                 taskCount += 1;
                 updateTaskCounter(taskCount.toString());
                 tryCount = 0;
@@ -180,13 +182,13 @@ const updateTaskCounter = (taskCounter: string) => {
     }
 };
 
-window.addEventListener("onload", () => {
+window.onload = () => {
     if (quiet) {
         computeState = true;
         run();
     }
     updateComputeButton();
-});
+};
 
 const updateComputeButton = () => {
     const computeButton = document.getElementById("computeButton");
