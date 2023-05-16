@@ -3,7 +3,8 @@ import {
     getCore,
     getSetup,
     getTask,
-    postResult
+    postResult,
+    terminateTask
 } from "../../controllers/api/client.controller";
 
 import { handleInvalid } from "../../middleware/validators/invalid";
@@ -35,6 +36,13 @@ router.post(
     bodyParser.json(),
     handleInvalid,
     postResult as unknown as RequestHandler
+);
+
+router.post(
+    "/terminate/project/:projectid/job/:jobid/task/:taskid",
+    validateUUIDs("projectid", "jobid", "taskid"),
+    handleInvalid,
+    terminateTask as unknown as RequestHandler
 );
 
 export { router as apiClientRouter };

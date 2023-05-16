@@ -21,14 +21,26 @@ export const getSetup: RequestHandler<Record<string, never>, ClientTask> = (
         return;
     }
 
-    const responseData: ClientTask = {
-        projectId: job.projectid,
-        jobId: job.jobid,
-        coreId: job.coreid,
-        taskId: getId() as TaskUUID
-    };
+    const { projectid, jobid } = job;
 
-    db.decrementTaskAmount(job.projectid, job.jobid);
+    let taskId: TaskUUID;
+
+    if (job.failedTaskAmount > 0) {
+        taskId = db.getFailedTaskId(projectid, jobid)!;
+        db.incrementFailedTaskAmount(projectid, jobid, -1);
+        db.setTaskIsFailed(projectid, jobid, taskId, false);
+    } else {
+        taskId = getId();
+        db.incrementTaskAmount(projectid, jobid, -1);
+        db.addNewTask(projectid, jobid, taskId);
+    }
+
+    const responseData: ClientTask = {
+        projectId: projectid,
+        jobId: jobid,
+        coreId: job.coreid,
+        taskId: taskId
+    };
 
     res.status(200).send(responseData);
 };
@@ -60,12 +72,10 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
             await fetch(
                 `${job.taskRequestEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`
             )
-        )
-            .json()
-            .catch((e) => {
-                console.log(e);
-            });
+        ).json();
     } catch (error) {
+        db.incrementFailedTaskAmount(projectid, jobid, 1);
+        db.setTaskIsFailed(projectid, jobid, taskid, true);
         console.log(error);
         res.sendStatus(500);
         return;
@@ -87,7 +97,7 @@ export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
     }
 
     try {
-        await fetch(
+        const projectResponse = await fetch(
             `${job.taskResultEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`,
             {
                 method: "POST",
@@ -98,8 +108,33 @@ export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
                 }
             }
         );
+
+        if (projectResponse.ok) {
+            db.removeTask(projectid, jobid, taskid);
+        } else {
+            db.setTaskIsFailed(projectid, jobid, taskid, true);
+            db.incrementFailedTaskAmount(projectid, jobid, 1);
+        }
     } catch (error) {
-        console.log(error);
+        db.setTaskIsFailed(projectid, jobid, taskid, true);
+        db.incrementFailedTaskAmount(projectid, jobid, 1);
     }
+
+    res.sendStatus(200);
+};
+
+export const terminateTask: RequestHandler<ParamTypes.Task> = (req, res) => {
+    const { projectid, jobid, taskid } = req.params;
+    const job = db.getJob(projectid, jobid);
+    const task = db.getTask(projectid, jobid, taskid);
+
+    if (!job || !task) {
+        res.sendStatus(422);
+        return;
+    }
+
+    db.setTaskIsFailed(projectid, jobid, taskid, true);
+    db.incrementFailedTaskAmount(projectid, jobid, 1);
+
     res.sendStatus(200);
 };

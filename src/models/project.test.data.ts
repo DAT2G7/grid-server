@@ -11,6 +11,8 @@ export const testData: Project[] = [
                 coreid: "c945fe39-e77e-4b51-a7f4-229bba2ae648" as UUID,
                 projectid: "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e" as UUID,
                 taskAmount: 200,
+                failedTaskAmount: 0,
+                tasks: [],
                 taskRequestEndpoint:
                     "http://url/to/project/owner/taskRequstEndpoint",
                 taskResultEndpoint:
@@ -21,6 +23,8 @@ export const testData: Project[] = [
                 coreid: "d7e36d1e-5f87-4b03-89ac-cb5767f4c61b" as UUID,
                 projectid: "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e" as UUID,
                 taskAmount: 2,
+                failedTaskAmount: 0,
+                tasks: [],
                 taskRequestEndpoint:
                     "http://url/to/project/owner/taskRequstEndpoint",
                 taskResultEndpoint:
@@ -40,6 +44,8 @@ export const testJob: Job = {
     coreid: "d7e36d1e-5f87-4b03-89ac-cb5767f4c61b" as UUID,
     projectid: "ba5868ea-8e4d-4f50-87ee-c6bd01ad635e" as UUID,
     taskAmount: 100,
+    failedTaskAmount: 0,
+    tasks: [],
     taskRequestEndpoint: "http://url/to/project/owner/taskRequstEndpoint",
     taskResultEndpoint: "http://url/to/project/owner/taskResultEndpoint"
 };

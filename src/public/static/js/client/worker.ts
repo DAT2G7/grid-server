@@ -21,6 +21,11 @@ const run = async () => {
     }
 
     const setupData: ClientTask = await response.json();
+    postMessage({
+        type: "terminateSettings",
+        setupData: setupData,
+        doNotTerminate: false
+    });
 
     const getData: () => Promise<unknown | never> = async () => {
         const response = await fetch(
@@ -31,11 +36,22 @@ const run = async () => {
                 type: "error",
                 message: `Could not fetch task data: Error ${response.status}`
             });
+            postMessage({ type: "terminate" });
             close();
             return;
         }
 
-        return (await response.json()) as unknown;
+        const data = (await response.json()) as unknown;
+
+        postMessage({
+            type: "terminateSettings",
+            setupData: setupData,
+            doNotTerminate: (
+                data as Record<"doNotTerminate", boolean | undefined>
+            ).doNotTerminate
+        });
+
+        return data;
     };
 
     const sendResult = async (data: unknown): Promise<void | never> => {
@@ -57,6 +73,7 @@ const run = async () => {
                 message: `Could not return result: Error ${response.status}`
             });
             // we can probably do something smarter than just dying here, but this will do for now
+            postMessage({ type: "terminate" });
             close();
             return;
         }
@@ -73,7 +90,11 @@ const run = async () => {
     self.onDone = onDone;
 
     // run the webworker code
-    importScripts(`/api/client/core/${setupData.coreId}`);
+    try {
+        importScripts(`/api/client/core/${setupData.coreId}`);
+    } catch (error) {
+        postMessage({ type: "terminate" });
+    }
 };
 
 run().then(() => {

@@ -22,6 +22,8 @@ const app = express();
 // Attempt to get SSL credentials.
 const credentials = getSSLCredentials();
 
+app.use(express.json({ limit: "50mb" }));
+
 // Use pug for views
 app.set("view engine", "pug");
 app.set("views", "src/public/views");

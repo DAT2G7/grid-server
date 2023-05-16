@@ -5,6 +5,8 @@ export interface Job {
     projectid: BrandTypes.ProjectUUID;
     coreid: BrandTypes.CoreUUID;
     taskAmount: number;
+    failedTaskAmount: number;
+    tasks: Task[];
     taskRequestEndpoint: string; //url
     taskResultEndpoint: string; //url
 }
@@ -18,8 +20,13 @@ export interface Core {
     contents: Buffer;
 }
 
+// export interface Task {
+//     taskid: BrandTypes.TaskUUID;
+//     jobid: BrandTypes.JobUUID;
+//     coreid: BrandTypes.CoreUUID;
+// }
+
 export interface Task {
     taskid: BrandTypes.TaskUUID;
-    jobid: BrandTypes.JobUUID;
-    coreid: BrandTypes.CoreUUID;
+    failed: boolean;
 }

@@ -5,6 +5,9 @@ const MAX_TRY_COUNT = 5;
 let worker: Worker | null = null;
 let tryCount = 0;
 
+let doNotTerminate = false;
+let setupData: any;
+
 let taskCount = 0;
 
 let computeState = false;
@@ -26,6 +29,7 @@ const runWorker = () => {
     }
     if (!computeState) {
         worker?.terminate();
+        terminateTask();
         return;
     }
     // Create web worker. This way is not ideal, but allows for a simpler build process.
@@ -62,9 +66,21 @@ const runWorker = () => {
                 worker?.terminate();
                 await resetSWCache();
 
+                //do not terminate if the task is not running
+                doNotTerminate = true;
+
                 // Start new worker, but this time quietly
                 forceQuiet = true;
                 runWorker();
+                break;
+
+            case "terminateSettings":
+                setupData = event.data.setupData;
+                doNotTerminate = event.data.doNotTerminate;
+                break;
+
+            case "terminate":
+                terminateTask();
                 break;
         }
     });
@@ -127,6 +143,20 @@ const resetSWCache = () => {
 
     return resetDone;
 };
+
+const terminateTask = () => {
+    if (!setupData || doNotTerminate) return;
+    let { projectId, jobId, taskId } = setupData;
+    console.log("Terminating task: ", taskId);
+    navigator.sendBeacon(
+        `/api/client/terminate/project/${projectId}/job/${jobId}/task/${taskId}`
+    );
+};
+
+window.addEventListener("beforeunload", () => {
+    terminateTask();
+    resetSWCache();
+});
 
 const liveAlertPlaceholder = document.getElementById("liveAlertPlaceholder");
 const customAlert = (message: string, type: string) => {
