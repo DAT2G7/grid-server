@@ -16,6 +16,9 @@ enum CacheMode {
     Network = "network"
 }
 
+// List of trusted hostnames used by the website.
+const HOST_WHITELIST = ["cdn.jsdelivr.net"];
+
 // Set mode to CacheMode.Network to disable caching entirely. Should only be used for debugging.
 const MODE = CacheMode.Cache;
 
@@ -56,7 +59,10 @@ const cacheFirst = async (request: Request): Promise<Response> => {
 
         // Check URL before attempting network. Dissalow requests to foreign domains
         const url = new URL(request.url);
-        if (url.hostname !== self.location.hostname) {
+        if (
+            url.hostname !== self.location.hostname &&
+            !HOST_WHITELIST.includes(url.hostname)
+        ) {
             console.warn(
                 "Hostname not allowed.\n",
                 url.hostname,
