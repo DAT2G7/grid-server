@@ -36,6 +36,7 @@ export const createCoreAPI: RequestHandler<
         saveCore(core);
 
         res.status(checkResult);
+        res.contentType("application/json");
         res.send(`{"coreid": "${core.coreid}"}`);
     } else {
         res.status(checkResult);
