@@ -96,21 +96,26 @@ export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
         return;
     }
 
-    const projectResponse = await fetch(
-        `${job.taskResultEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`,
-        {
-            method: "POST",
-            body: JSON.stringify(req.body),
-            headers: {
-                "Content-Type":
-                    req.headers["content-type"] || "application/json"
+    try {
+        const projectResponse = await fetch(
+            `${job.taskResultEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`,
+            {
+                method: "POST",
+                body: JSON.stringify(req.body),
+                headers: {
+                    "Content-Type":
+                        req.headers["content-type"] || "application/json"
+                }
             }
-        }
-    );
+        );
 
-    if (projectResponse.ok) {
-        db.removeTask(projectid, jobid, taskid);
-    } else {
+        if (projectResponse.ok) {
+            db.removeTask(projectid, jobid, taskid);
+        } else {
+            db.setTaskIsFailed(projectid, jobid, taskid, true);
+            db.incrementFailedTaskAmount(projectid, jobid, 1);
+        }
+    } catch (error) {
         db.setTaskIsFailed(projectid, jobid, taskid, true);
         db.incrementFailedTaskAmount(projectid, jobid, 1);
     }
