@@ -297,7 +297,10 @@ export class ProjectModel extends JsonDB<Project[]> {
     }
 }
 
-export type AddJobPayload = Omit<Job, "jobid" | "projectid">;
+export type AddJobPayload = Omit<
+    Job,
+    "jobid" | "projectid" | "failedTaskAmount" | "tasks"
+>;
 
 const projectModel = new ProjectModel(PROJECT_DB_PATH);
 export default projectModel;

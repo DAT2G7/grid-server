@@ -1,7 +1,5 @@
 /// <reference lib="DOM" />
 
-// import { ClientTask } from "../../../../types/body.types";
-
 const MAX_TRY_COUNT = 5;
 
 let worker: Worker | null = null;
@@ -20,7 +18,7 @@ let forceQuiet = false;
 
 const run = async () => {
     // Important to register service worker before starting web worker to ensure core and setup are cached
-    // await registerServiceWorker();
+    await registerServiceWorker();
     runWorker();
 };
 
@@ -67,7 +65,6 @@ const runWorker = () => {
                 tryCount = 0;
                 worker?.terminate();
                 await resetSWCache();
-                setupData = { projectId: "HEJ", jobId: "MED", taskId: "DIG" };
 
                 //do not terminate if the task is not running
                 doNotTerminate = true;
@@ -148,8 +145,8 @@ const resetSWCache = () => {
 };
 
 const terminateTask = () => {
+    if (!setupData || doNotTerminate) return;
     let { projectId, jobId, taskId } = setupData;
-    if (doNotTerminate) return;
     console.log("Terminating task: ", taskId);
     navigator.sendBeacon(
         `/api/client/terminate/project/${projectId}/job/${jobId}/task/${taskId}`
@@ -213,5 +210,3 @@ computeButton?.addEventListener("click", () => {
 });
 
 run();
-
-// export {};

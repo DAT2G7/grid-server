@@ -72,11 +72,7 @@ export const getTask: RequestHandler<ParamTypes.Task> = async (req, res) => {
             await fetch(
                 `${job.taskRequestEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`
             )
-        )
-            .json()
-            .catch((e) => {
-                console.log(e);
-            });
+        ).json();
     } catch (error) {
         db.incrementFailedTaskAmount(projectid, jobid, 1);
         db.setTaskIsFailed(projectid, jobid, taskid, true);
@@ -108,16 +104,6 @@ export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
             headers: {
                 "Content-Type":
                     req.headers["content-type"] || "application/json"
-    try {
-        await fetch(
-            `${job.taskResultEndpoint}?taskid=${taskid}&jobid=${jobid}&projectid=${projectid}`,
-            {
-                method: "POST",
-                body: JSON.stringify(req.body),
-                headers: {
-                    "Content-Type":
-                        req.headers["content-type"] || "application/json"
-                }
             }
         }
     );
@@ -129,10 +115,6 @@ export const postResult: RequestHandler<ParamTypes.Task> = async (req, res) => {
         db.incrementFailedTaskAmount(projectid, jobid, 1);
     }
 
-        );
-    } catch (error) {
-        console.log(error);
-    }
     res.sendStatus(200);
 };
 
