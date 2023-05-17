@@ -3,6 +3,7 @@
 form,
 h1,
 p,
-button {
+button,
+.po-docs-link {
     padding-left: 20px !important;
 }
