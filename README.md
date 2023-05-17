@@ -3,7 +3,7 @@
 
 # Setup
 
-This is a simple project with external dependencies not handled by `npm`.
+This is a simple project without external dependencies not handled by `npm`.
 
 Clone repository
 
