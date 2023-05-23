@@ -31,7 +31,7 @@ app.set("views", "src/public/views");
 // Set endpoint for static assets
 app.use("/static", express.static("dist/public/static"));
 
-// Set endpoint for service worker. This is static but has to root
+// Set endpoint for service worker. This is static but has to be in the root for the service worker scope to apply
 app.use("/", express.static("dist/public/service-worker"));
 
 // Register view routes
