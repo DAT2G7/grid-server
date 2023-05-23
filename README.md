@@ -1,34 +1,42 @@
 ![example event parameter](https://github.com/DAT2G7/grid-server/actions/workflows/build.yml/badge.svg?event=push)
 ![example event parameter](https://github.com/DAT2G7/grid-server/actions/workflows/jest.yml/badge.svg?event=push)
 
-# Setup
+# grid-server
 
-This is a simple project without external dependencies not handled by `npm`.
+This repository contains the `grid-server` code accompanying AAU cs-23-DAT-2-07's P2 report
+
+This server is responsible for delegating registered tasks to clients, as well as serving the client code to clients.
+
+## Setup
 
 Clone repository
 
-> git clone https://github.com/DAT2G7/grid-server
+```sh
+git clone https://github.com/DAT2G7/grid-server
+```
 
 Install dependencies
 
-> npm i
+```sh
+npm install
+```
 
 Build project
 
-> npm run build
+```sh
+npm run build
+```
 
 Start builded project
 
-> npm run start
+```sh
+npm run start
+```
 
 While developing, the project can be run in watch mode, automatically re-compiling after changes. This is done with the watch command:
 
-> npm run watch
+```sh
+npm run watch
+```
 
-~~For production use~~
-
-> ~~npm run prod~~
-
-Production commands are not yet set up
-
-# grid-server
+Configuration is done with `.env` files. A `.env.example` file has been supplied.
