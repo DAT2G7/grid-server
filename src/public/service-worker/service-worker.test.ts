@@ -83,7 +83,7 @@ describe("Service worker", () => {
 
     //! Non-working tests
 
-    // TODO: Find out why fetch errors during `preCacheResources()`
+    // TODO: Find out why fetch errors during `preCacheResources()`. This is an issue with the testing setup, not the code.
     // it("Should precache 5 pages", async () => {
     //     const [preCache] = await Promise.all([
     //         self.getPreCache(),

@@ -3,7 +3,7 @@
 //? Console is allowed in this since SW uses a special console only visible through special tools
 /* eslint-disable no-console */
 
-// add correct type to self. Cannot use declare global as it is not allowed outside modules
+// add correct type to self. Cannot use declare global in this context as it is not allowed outside modules
 const _self = self as unknown as ServiceWorkerGlobalScope;
 
 enum CacheKeys {
