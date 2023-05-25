@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Core, Job } from "../types/global.types";
 import { CoreUUID, JobUUID, ProjectUUID } from "../types/brand.types";
 
