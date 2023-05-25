@@ -114,6 +114,10 @@ export class ProjectModel extends JsonDB<Project[]> {
 
         Object.entries(job).forEach(([key, value]) => {
             if (key === "jobid" || key === "projectid") return;
+
+            // Note: The nullish coalescing opperator (??) returns the left-hand operand unless
+            // it is `null` or `undefined`, in which case the right-hand operand is returned.
+            // Used here to skip the entry if value is missing or less than one.
             if (key === "taskAmount" && (job["taskAmount"] ?? 0) < 1) return;
 
             if (value) modifiable[key as keyof Job] = value;
