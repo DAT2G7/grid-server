@@ -28,7 +28,7 @@ router.delete(
 
 router.post(
     "/job",
-    bodyParser.json(),
+    bodyParser.json(), //Bodyparser is necessary to parse the body of the request
     handleInvalid,
     createJob as unknown as RequestHandler
 );
@@ -42,7 +42,7 @@ router.get(
 
 router.put(
     "/job",
-    bodyParser.json(),
+    bodyParser.json(), //Bodyparser is necessary to parse the body of the request
     handleInvalid,
     updateJob as unknown as RequestHandler
 );

@@ -5,14 +5,16 @@ import { CoreUUID } from "../types/brand.types";
 import { Core } from "../types/global.types";
 import { saveCore } from "../models/project.controller.model";
 
+// jest mocks fs for saveCore test
 jest.mock("fs");
 
+//Tests savecore through the webside
 describe("saveCore", () => {
     const mockCore = createMockCore();
 
     beforeAll(() => {
         jest.resetModules();
-        saveCore(mockCore);
+        saveCore(mockCore); // calls the function with the mock core
     });
     it("should call writeFileSync", () => {
         expect(fs.writeFileSync).toHaveBeenCalled();
@@ -25,6 +27,10 @@ describe("saveCore", () => {
     });
 });
 
+/**
+ * Creates a mock core for testing.
+ * @returns a mock core
+ */
 function createMockCore(): Core {
     const mockCore = {
         coreid: v4() as CoreUUID,

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Core, Job } from "../types/global.types";
 import { CoreUUID, JobUUID, ProjectUUID } from "../types/brand.types";
 
@@ -7,14 +8,20 @@ import fs from "fs";
 import { v4 } from "uuid";
 import { writeFileSync } from "fs";
 
+/**
+ *  Responsible for validating incoming cores before they are added to the database. Currently does nothing.
+ *  @param core The core object that needs to be validated.
+ *  @returns number, 201 if the core is valid, 400 if not.
+ * */
 export function checkCore(core: Core): number {
+    // Have to use the input argument to please the almighty linter.
     core;
-    // Function for furure testing of contents, before acceptance of core.
     return 201;
 }
 
 /**
- * Responsible for checking incoming jobs before they are added to the database.
+ * Responsible for validating incoming jobs before they are added to the database.
+ * Checks that the core specified in the job.coreid exists in the file system.
  * @param job The job object that needs to be validated.
  * @returns boolean, true if the job is valid, false if not.
  */
@@ -38,7 +45,7 @@ export function readJob(projectId: ProjectUUID, jobID: JobUUID) {
 }
 
 /**
- * Saves a core to disk
+ * Saves a core to disk in the CORE_ROOT directory. The core is saved as a .js file with the coreid as the filename.
  * @param core core file to save
  */
 export function saveCore(core: Core) {
@@ -72,6 +79,7 @@ export function deleteCoreFile(coreId: CoreUUID): boolean {
  * @returns returns the core object created from the file.
  */
 export function createCoreObject(file: Express.Multer.File | string): Core {
+    // I cannot remember why I did this, but it works. I think it was because I was having trouble with the multer file object.
     if (typeof file === "string") {
         return {
             coreid: v4() as CoreUUID,
