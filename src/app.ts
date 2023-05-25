@@ -8,9 +8,13 @@ import fs from "fs";
 import { getSSLCredentials } from "./utils/helpers";
 import http from "http";
 import https from "https";
-// initialize project model
+
+// Initialize project model by loading module.
+// It was originally meant to be injected as middleware,
+// but a singleton-like pattern was used instead for simplicity.
 import projectModel from "./models/project.model";
 
+// avoid linter "declared but never read" complaints
 projectModel;
 
 // ensure existence of core directory

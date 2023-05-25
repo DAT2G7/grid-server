@@ -18,6 +18,8 @@ export default class JsonDB<T> {
      * @returns {JsonDB<T>} The current JsonDB instance for method chaining.
      */
     refresh(): JsonDB<T> {
+        // Save the file with the current `data` value if it does not exist already.
+        // This is most likely on first startup, in which case the `data` is provided by `defaultData`.
         if (!fs.existsSync(this.path)) return this.save();
 
         this.data = JSON.parse(fs.readFileSync(this.path).toString());
@@ -25,11 +27,13 @@ export default class JsonDB<T> {
     }
 
     save(): JsonDB<T> {
+        // Create the directory from `path` if it doesn't exist already.
         const dirname = path.dirname(this.path);
         if (!fs.existsSync(dirname)) {
             fs.mkdirSync(dirname, { recursive: true });
         }
 
+        // Stringify the JSON formatted with 4 spaces as indents, and save the result to the path.
         fs.writeFileSync(this.path, JSON.stringify(this.data, undefined, 4));
         return this;
     }
