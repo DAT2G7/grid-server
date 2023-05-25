@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { apiClientRouter, apiProjectRouter } from "./routes/api";
 import { clientRouter, indexRouter, projectRouter } from "./routes";
 
