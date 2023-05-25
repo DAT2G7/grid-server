@@ -10,6 +10,7 @@ declare const self: DedicatedWorkerGlobalScope & {
 };
 
 const run = async () => {
+    // Get a task from the server
     const response = await fetch("/api/client/setup");
     if (!response.ok) {
         postMessage({
@@ -27,6 +28,8 @@ const run = async () => {
         doNotTerminate: false
     });
 
+    // Declare the functions that will be put on the `self` object so the core can access them
+    // `getData` is used to fetch the task data from the project server
     const getData: () => Promise<unknown | never> = async () => {
         const response = await fetch(
             `/api/client/project/${setupData.projectId}/job/${setupData.jobId}/task/${setupData.taskId}`
@@ -54,6 +57,7 @@ const run = async () => {
         return data;
     };
 
+    // `sendResult` is used to send the calcuted results back to the project server
     const sendResult = async (data: unknown): Promise<void | never> => {
         const options: RequestInit = {
             method: "POST",
@@ -79,6 +83,9 @@ const run = async () => {
         }
     };
 
+    // `onDone` is used to signal to the client that the core is finished and that the webworker can now safely terminate
+    // Separating `onDone` and `sendResult` into two different functions means that the core can send the result and then do some cleanup,
+    // like deleting an IndexedDB database before closing
     const onDone: () => void = () => {
         postMessage({ type: "workDone" });
         close();
@@ -97,6 +104,7 @@ const run = async () => {
     }
 };
 
+// `importScripts` runs synchronously, while `run` is an async function, so `run` will terminate after the call to `importScripts`
 run().then(() => {
     postMessage({ type: "setupDone" });
 });
