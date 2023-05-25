@@ -95,6 +95,13 @@ export class ProjectModel extends JsonDB<Project[]> {
         return _job.jobid;
     }
 
+    /**
+     * Updates a job by its ID from the specified project and saves the database.
+     * @param {ProjectUUID} projectid - The ID of the project.
+     * @param {JobUUID} jobid - The ID of the job.
+     * @param {Partial<Job>} job - A partial job with the new entry values.
+     * @returns {JobUUID | null} The job id if found and updated, or null if not found.
+     */
     updateJob(
         projectid: ProjectUUID,
         jobid: JobUUID,
@@ -189,9 +196,10 @@ export class ProjectModel extends JsonDB<Project[]> {
     }
 
     /**
-     * Decrements the task amount of a job by 1 and saves the database.
+     * Increments the task amount of a job by the specified amount and saves the database.
      * @param {ProjectUUID} projectid - The ID of the project.
      * @param {JobUUID} jobid - The ID of the job.
+     * @param {number} amount - The increment amount.
      */
     incrementTaskAmount(
         projectid: ProjectUUID,
@@ -204,6 +212,12 @@ export class ProjectModel extends JsonDB<Project[]> {
         this.setTaskAmount(projectid, jobid, job.taskAmount + amount);
     }
 
+    /**
+     * Adds a new task to a job and saves the database.
+     * @param projectid The ID of the project in which the job is stored.
+     * @param jobid The ID of the job.
+     * @param taskid The ID of the task.
+     */
     addNewTask(projectid: ProjectUUID, jobid: JobUUID, taskid: TaskUUID): void {
         const job = this.getJob(projectid, jobid);
         if (!job) return;
@@ -218,6 +232,12 @@ export class ProjectModel extends JsonDB<Project[]> {
         this.save();
     }
 
+    /**
+     * Removes a task from the specified job and saves the database.
+     * @param projectid The ID of the project that contains the job.
+     * @param jobid The ID of the job that contains the task.
+     * @param taskid The ID of the task to be removed.
+     */
     removeTask(projectid: ProjectUUID, jobid: JobUUID, taskid: TaskUUID): void {
         const job = this.getJob(projectid, jobid);
         if (!job) return;
@@ -228,6 +248,12 @@ export class ProjectModel extends JsonDB<Project[]> {
         job.tasks.splice(taskIndex, 1);
     }
 
+    /**
+     * Retrieves the ID of a failed task from the specified job.
+     * @param projectid The ID of the project that contains the job.
+     * @param jobid The ID of the job in which to search for failed tasks.
+     * @returns The ID of the failed task, or null if a failed task was not found.
+     */
     getFailedTaskId(projectid: ProjectUUID, jobid: JobUUID): TaskUUID | null {
         const job = this.getJob(projectid, jobid);
         if (!job) return null;
@@ -238,6 +264,13 @@ export class ProjectModel extends JsonDB<Project[]> {
         return task.taskid;
     }
 
+    /**
+     * Updates the failed status of a specified task within a job and saves the database.
+     * @param projectid The ID of the project that contains the job.
+     * @param jobid The ID of the job that contains the task.
+     * @param taskid The ID of the task to be updated.
+     * @param state The new state of the task.
+     */
     setTaskIsFailed(
         projectid: ProjectUUID,
         jobid: JobUUID,
@@ -255,6 +288,13 @@ export class ProjectModel extends JsonDB<Project[]> {
         this.save();
     }
 
+    /**
+     * Increments the failed task amount of a job by a specified amount and saves the database.
+     * @param projectid The ID of the project that contains the job.
+     * @param jobid The ID of the job to be updated.
+     * @param amount The increment amount.
+     * @returns
+     */
     incrementFailedTaskAmount(
         projectid: ProjectUUID,
         jobid: JobUUID,
@@ -268,6 +308,13 @@ export class ProjectModel extends JsonDB<Project[]> {
         this.save();
     }
 
+    /**
+     * Retrieves a task based on the task ID.
+     * @param projectid The ID of the project that contains the job.
+     * @param jobid The ID of the job that contaisn the task.
+     * @param taskid The ID of the task to be retrieved.
+     * @returns The task if found, or null if not found.
+     */
     getTask(
         projectid: ProjectUUID,
         jobid: JobUUID,
@@ -282,6 +329,9 @@ export class ProjectModel extends JsonDB<Project[]> {
         return task;
     }
 
+    /**
+     * Removes all of the completed jobs from the database.
+     */
     removeCompletedJobs(): void {
         this.projects.forEach((project) => {
             project.jobs.forEach((job) => {
@@ -297,10 +347,17 @@ export class ProjectModel extends JsonDB<Project[]> {
     }
 }
 
+/**
+ * The payload for the `addJob` method in `ProjectModel`.
+ * A `Job` with certain unecessary fields omitted.
+ */
 export type AddJobPayload = Omit<
     Job,
     "jobid" | "projectid" | "failedTaskAmount" | "tasks"
 >;
 
+/**
+ * The singleton instance (using module caching) of the `ProjectModel` class.
+ */
 const projectModel = new ProjectModel(PROJECT_DB_PATH);
 export default projectModel;
