@@ -158,9 +158,12 @@ window.addEventListener("beforeunload", () => {
     resetSWCache();
 });
 
+// Makes a constant from the element of liveAlertPlaceholder in the HTML
 const liveAlertPlaceholder = document.getElementById("liveAlertPlaceholder");
 const customAlert = (message: string, type: string) => {
+    // Creates a element in HTML file
     const wrapper = document.createElement("div");
+    // Adds element with function parameters being message and type.
     wrapper.innerHTML = [
         `<div class="alert alert-${type} alert-dismissible" role="alert">`,
         `   <div>${message}</div>`,
@@ -179,6 +182,8 @@ const updateTaskCounter = (taskCounter: string) => {
     }
 };
 
+// When loading window, if it's already told to start computing it will do so,
+// aswell as set the initial text for the compute button
 window.onload = () => {
     if (quiet) {
         computeState = true;
@@ -187,12 +192,15 @@ window.onload = () => {
     updateComputeButton();
 };
 
+// Function for updating how the compute button looks
 const updateComputeButton = () => {
     const computeButton = document.getElementById("computeButton");
     const computeButtonText = document.getElementById("computeButtonText");
 
+    // Simple null check
     if (!computeButton || !computeButtonText) return;
 
+    // Sets the visual of the compute button based on compute state
     if (computeState) {
         computeButtonText.textContent = "Stop computing";
         computeButton.classList.replace("btn-primary", "btn-danger");
@@ -203,7 +211,9 @@ const updateComputeButton = () => {
 };
 
 const computeButton = document.getElementById("computeButton");
+//Event listener for when the computeButton is clicked
 computeButton?.addEventListener("click", () => {
+    // Changes the compute state, runs update and run function
     computeState = !computeState;
     updateComputeButton();
     run();
