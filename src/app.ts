@@ -16,7 +16,7 @@ import projectModel from "./models/project.model";
 // avoid linter "declared but never read" complaints
 projectModel;
 
-// ensure existance of core directory
+// ensure existence of core directory
 if (!fs.existsSync(config.CORE_ROOT)) {
     fs.mkdirSync(config.CORE_ROOT, { recursive: true });
 }
