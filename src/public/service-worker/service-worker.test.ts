@@ -11,6 +11,7 @@ enum CacheMode {
     Network = "network"
 }
 
+// Convince this module that self is a service worker and contains the functions that need to be tested
 declare const self: WorkerGlobalScope & {
     getCache: () => Promise<Cache>;
     getPreCache: () => Promise<Cache>;
@@ -23,7 +24,7 @@ declare const self: WorkerGlobalScope & {
 };
 
 describe("Service worker", () => {
-    // Mock service worker environment before each test
+    // Mock service worker environment before each test. This is what changes the environment to make it think it's a service worker
     beforeEach(() => {
         Object.assign(global, makeServiceWorkerEnv());
         jest.resetModules();
@@ -66,18 +67,27 @@ describe("Service worker", () => {
         const request = new Request(
             "https://get.geojs.io/v1/ip/country.json?ip=8.8.8.8"
         );
+
+        // We cant actually make the request as this environment has access to the service worker but isn't controlled by it
+        // Therefor we call the intercepting function directly. It has already been tested that the fetch listener exists.
+        // Ideally we would call the listener directly, but this is significantly easier to implement.
         const response = await self.cacheFirst(request);
         expect(response.status).toBe(403);
     });
 
     it("Should cache dynamic content like setup", async () => {
+        // Setup never returns the same response twice, so it is perfect for this test case.
         const request = new Request("api/client/setup");
+
+        // First time should get from network
         const networkResponse = await self.cacheFirst(request);
         const networkBody: ClientTask = await networkResponse.json();
 
+        // Second time should get from cache
         const cacheResponse = await self.cacheFirst(request);
         const cacheBody: ClientTask = await cacheResponse.json();
 
+        // Check that the responses are the same
         expect(networkBody).toEqual(cacheBody);
     });
 
