@@ -99,7 +99,7 @@ export const createJob: RequestHandler<never, string, BodyTypes.Job> = (
 };
 
 export const readJob: RequestHandler<ParamTypes.Job> = (req, res) => {
-    if (!isDefined(req.params.jobid)) {
+    if (!isDefined(req.params.jobid) || !isDefined(req.params.projectid)) {
         res.sendStatus(400);
         return;
     }
@@ -136,7 +136,7 @@ export const updateJob: RequestHandler<ParamTypes.Job, never, BodyTypes.Job> = (
 };
 
 export const deleteJob: RequestHandler<ParamTypes.Job> = (req, res) => {
-    if (!isDefined(req.params.projectid)) {
+    if (!isDefined(req.params.projectid) || !isDefined(req.params.jobid)) {
         res.sendStatus(400);
         return;
     }
