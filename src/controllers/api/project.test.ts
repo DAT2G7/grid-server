@@ -10,8 +10,12 @@ import {
     coreExists
 } from "../../models/project.controller.model";
 
+// jest mocks fs for checkcore test
 jest.mock("fs");
 
+/**
+ * Tests that the coreExists function returns true if the core exists.
+ */
 test("checkCore", () => {
     const mockCore: Core = createMockCore();
 
@@ -21,13 +25,14 @@ test("checkCore", () => {
     expect(actualResult).toBe(expectedResult);
 });
 
+
 describe("deleteCoreFile", () => {
     const mockCore = createMockCore();
 
     beforeAll(() => {
         jest.resetModules();
-        (fs.existsSync as jest.Mock).mockReturnValue(true);
-        deleteCoreFile(mockCore.coreid);
+        (fs.existsSync as jest.Mock).mockReturnValue(true); // says that a file exists at the path
+        deleteCoreFile(mockCore.coreid); // calls the function with the mock core
     });
 
     it("should call fs.existsSync", () => {
@@ -51,7 +56,7 @@ describe("deleteCoreFile", () => {
     });
 
     it("should fail if core does not exist", () => {
-        (fs.existsSync as jest.Mock).mockReturnValue(false);
+        (fs.existsSync as jest.Mock).mockReturnValue(false); // says that now a file does not exist at the path
         const actualResult = deleteCoreFile(mockCore.coreid);
         expect(actualResult).toBe(false);
     });
@@ -60,6 +65,7 @@ describe("deleteCoreFile", () => {
 test("createJobObject", () => {
     const expectedResult = createMockJob();
 
+    // We create a partial job object that is missing the jobid, as this is how they come from project owners.
     const tmpJob: Partial<Job> = {
         coreid: expectedResult.coreid,
         taskAmount: expectedResult.taskAmount,
@@ -68,9 +74,11 @@ test("createJobObject", () => {
         taskResultEndpoint: expectedResult.taskResultEndpoint
     };
 
+    // Tests that we can make a partial job and then cast it to a job and then give it an ID.
     const actualResult = tmpJob as Job;
     tmpJob.jobid = v4() as JobUUID;
 
+    //We expect all these to be the same.
     expect(actualResult.coreid).toBe(expectedResult.coreid);
     expect(actualResult.taskAmount).toBe(expectedResult.taskAmount);
     expect(actualResult.projectid).toBe(expectedResult.projectid);
@@ -80,6 +88,7 @@ test("createJobObject", () => {
     expect(actualResult.taskResultEndpoint).toBe(
         expectedResult.taskResultEndpoint
     );
+    //We expect the jobid to be of same type
     expect(typeof actualResult.jobid).toBe(typeof expectedResult.jobid);
 });
 
@@ -89,8 +98,8 @@ describe("checkJob", () => {
 
     beforeAll(() => {
         jest.resetModules();
-        (fs.existsSync as jest.Mock).mockReturnValue(true);
-        checkJob(mockJob);
+        (fs.existsSync as jest.Mock).mockReturnValue(true); // says that a file exists at the path
+        checkJob(mockJob); // calls the function with the mock job
     });
 
     it("should call fs.existsSync", () => {
@@ -109,7 +118,7 @@ describe("checkJob", () => {
     });
 
     it("should fail if core does not exist", () => {
-        (fs.existsSync as jest.Mock).mockReturnValue(false);
+        (fs.existsSync as jest.Mock).mockReturnValue(false); // says that now a file does not exist at the path
         const expectedResult = false;
         const actualResult = checkJob(mockJob);
 
@@ -123,8 +132,8 @@ describe("coreExists", () => {
 
     beforeAll(() => {
         jest.resetModules();
-        (fs.existsSync as jest.Mock).mockReturnValue(true);
-        coreExists(mockCore.coreid);
+        (fs.existsSync as jest.Mock).mockReturnValue(true); // says that a file exists at the path
+        coreExists(mockCore.coreid); // calls the function with the mock core
     });
 
     it("should call fs.existsSync", () => {
@@ -143,19 +152,27 @@ describe("coreExists", () => {
     });
 
     it("should fail if core does not exist", () => {
-        (fs.existsSync as jest.Mock).mockReturnValue(false);
+        (fs.existsSync as jest.Mock).mockReturnValue(false); // says that now a file does not exist at the path
         const actualResult = coreExists(mockCore.coreid);
         expect(actualResult).toBe(false);
     });
 });
 
+/**
+ * Creates a mock core object for testing.
+ * @returns mockCore
+ */
 function createMockCore(): Core {
     const mockCore = {
         coreid: v4() as CoreUUID,
-        contents: Buffer.from("function mockCore() { return (1 + 1); }")
+        contents: Buffer.from("function mockCore() { return (1 + 1); }") 
     };
     return mockCore;
 }
+/**
+ * Creates a mock job object for testing.
+ * @returns mockJob
+ */
 
 function createMockJob(): Job {
     const mockJob: Job = {

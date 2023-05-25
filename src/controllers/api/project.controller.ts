@@ -14,8 +14,8 @@ import { saveCore } from "../../models/project.controller.model";
 /**
  * Receive project core
  * Creates the core object and saves it to the file system.
- * @param req Request object.
- * @param res Response object.
+ * @param req Request object containing the core file.
+ * @param res Response object. Returns 201 if core was created, along with a coreid in the response body. 400 if core failed validation.
  */
 export const createCoreAPI: RequestHandler<
     never,
@@ -164,7 +164,7 @@ export const deleteJob: RequestHandler<ParamTypes.Job> = (req, res) => {
 /**
  * Create a new project
  * @param _req Request object. Not used. Project is created with default values.
- * @param res Response object. Returns 201 if project was created, along with a projectid in the response body.
+ * @param res Response object. Returns 201 if project was created, along with a JSON ojbect with projectid in the response body.
  */
 export const createProject: RequestHandler = (_req, res) => {
     const project = {} as Partial<Project>;
